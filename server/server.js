@@ -15,10 +15,10 @@ const app = express()
 
 app.use(cors())
 
-app.use('/api/user/data', userData) // get data of users
-app.use('/api/user/auth', userAuth) // register, login user
+app.use('/lotto/user/data', userData) // get data of users
+app.use('/lotto/user/auth', userAuth) // register, login user
 
-app.use('/api/admin', adminAuth) // login admin
+app.use('/lotto/admin', adminAuth) // login admin
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
