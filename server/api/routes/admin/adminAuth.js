@@ -18,7 +18,6 @@ route.use(bodyParser.json())
 // [Login] 
 route.post('/login', async (req,res,next)=>{
 
-    // 
     const adminEnvString = process.env.ADMIN
     const admin = JSON.parse(adminEnvString)
     console.log(admin.username)
