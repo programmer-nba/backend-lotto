@@ -1,0 +1,44 @@
+const express = require('express')
+const mongoose = require('mongoose')
+const cors = require('cors')
+const userData = require('./api/routes/user/userData.js')
+const userAuth = require('./api/routes/user/userAuth.js')
+const adminAuth = require('./api/routes/admin/adminAuth.js')
+
+// use .env
+const dotenv = require('dotenv')
+const path = require('path')
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
+
+// set app
+const app = express()
+
+app.use(cors())
+
+app.use('/api/user/data', userData) // get data of users
+app.use('/api/user/auth', userAuth) // register, login user
+
+app.use('/api/admin', adminAuth) // login admin
+
+// connect app to database -> starting server
+const database_url = process.env.DATABASE_URL
+const port = process.env.SERVER_PORT || 3000
+
+mongoose.connect(database_url)
+    .then(()=>{
+        console.log('database connected')
+    })
+    .then(()=>{
+        app.listen(port, ()=>{
+            try{
+                console.log(`server start! on port ${port}`)
+            }
+            catch(err){
+                console.log(`server strting error : ${err.message}`)
+            }
+        })
+    })
+    .catch((err)=>{
+        console.log(`ERROR: database not connected ${err.message}`)
+    })
+
