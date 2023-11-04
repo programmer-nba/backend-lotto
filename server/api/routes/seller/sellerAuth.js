@@ -4,6 +4,9 @@ const express = require('express')
 const Seller = require('../../models/UsersModel/SellersModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
+const storage = multer.memoryStorage() // Store images in memory
+const upload = multer({ storage: storage })
 
 const route = express.Router()
 
@@ -11,19 +14,23 @@ route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
 
 // [Register]
-route.post('/register', async (req,res,next)=>{
+route.post('/register', upload.single('image'), async (req,res,next)=>{
     const {
         username, email, password, seller_role,
         line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
-        shop_name, shop_location, shop_img, shop_qrcode
+        shop_name, shop_location, shop_img, shop_qrcode, shop_logo
     } = req.body
 
     try{
         const sellerExisting = await Seller.findOne({username})
 
         if(sellerExisting){
-            res.send('Username, Email, Phone number, Line id, Personal id or Shop name already exist, please try another') // update next time
-        } else {
+            res.json({message:'Username, Email, Phone number, Line id, Personal id or Shop name already exist, please try another'})
+        } 
+        else if (username.toLowerCase() === 'admin'){
+            res.json({message:'Username can not be "admin", please try another'})
+        }
+        else {
             const newSeller = new Seller(
                 {
                     username, 
@@ -36,8 +43,9 @@ route.post('/register', async (req,res,next)=>{
                     address,
                     personal_id,
                     shop_name,
-                    role : `seller #${seller_role}`,
-                    status: `pending`
+                    role : `${seller_role}`,
+                    status: `pending`,
+                    shop_logo: '/images/Lottery-Center-Logo.png'
                 }
             )
     
@@ -83,9 +91,12 @@ route.post('/login', async (req,res,next)=>{
         } else {
             // user logged in successfully then genarate token
             const token = jwt.sign({ userId: seller._id, username: seller.username, userRole: seller.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).json({message: `ยินดีต้อนรับ คุณ ${seller.username}`, token, data:seller})
+            res.status(200).json({
+            message: `ยินดีต้อนรับ คุณ ${seller.username}`, 
+            token, 
+            data:seller
+            })
         }
-            
     }
     catch(err){
         res.send('ERROR: please check console')

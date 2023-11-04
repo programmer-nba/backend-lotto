@@ -74,6 +74,11 @@ const SellerSchema = new Schema(
             data: Buffer,
             contentType: String,
             
+        }, 
+        shop_logo: {
+            type: String,
+            default: '../../img/Lottery-Center-Logo.png',
+            
         } 
     },
     {

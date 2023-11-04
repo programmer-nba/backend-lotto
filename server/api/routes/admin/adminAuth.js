@@ -16,7 +16,7 @@ route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
 
 // [Login] 
-route.post('/login', async (req,res,next)=>{
+route.post('/', async (req,res,next)=>{
 
     const adminEnvString = process.env.ADMIN
     const admin = JSON.parse(adminEnvString)

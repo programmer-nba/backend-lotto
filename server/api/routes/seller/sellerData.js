@@ -28,7 +28,7 @@ function verifyToken(req, res, next) {
 }
 
 // get list of all sellers
-route.get('/all', async (req,res,next)=>{
+route.get('/all', verifyToken, async (req,res,next)=>{
     try{
 
         const sellers = await Seller.find()
@@ -39,7 +39,6 @@ route.get('/all', async (req,res,next)=>{
         console.log({ERROR:err.message})
     }
 })
-
 
 // get an user by id
 route.get('/:id', async (req,res,next)=>{
@@ -60,12 +59,19 @@ route.get('/:id', async (req,res,next)=>{
 
 // update an user data
 route.put('/:id',  async (req,res,next)=>{
+
+    const {
+        email, password, seller_role,
+        line_id, phone_number, address, personal_img,
+        shop_name, shop_location, shop_img, shop_qrcode
+    } = req.body
+
     try{
-        const {username, email, password} = req.body
+        
         const {id} = req.params
         const seller = await Seller.findByIdAndUpdate(id, req.body)
 
-        res.send('update user info success!')
+        res.send('update profile success!')
     }
     catch(err){
         res.send('ERROR : please check console')
@@ -73,15 +79,15 @@ route.put('/:id',  async (req,res,next)=>{
     }
 })
 
-// delete an user from database (**pending...**)
+// delete an seller from database
 route.delete('/:id', async (req,res,next)=>{
     try{
         const {id} = req.params
-        const user = await Seller.findByIdAndDelete(id)
-        res.send('delete user success!')
+        const seller = await Seller.findByIdAndDelete(id)
+        res.json({message:'delete seller success!'})
     }
     catch(err){
-        res.send('ERROR : please check console')
+        res.json({ERROR : 'please check console'})
         console.log({ERROR:err.message})
     }
 })
