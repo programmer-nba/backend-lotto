@@ -1,9 +1,14 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+
 const userData = require('./api/routes/user/userData.js')
 const userAuth = require('./api/routes/user/userAuth.js')
+
 const adminAuth = require('./api/routes/admin/adminAuth.js')
+
+const sellerAuth = require('./api/routes/seller/sellerAuth.js')
+const sellerData = require('./api/routes/seller/sellerData.js')
 
 // use .env
 const dotenv = require('dotenv')
@@ -17,6 +22,9 @@ app.use(cors())
 
 app.use('/lotto/user/data', userData) // get data of users
 app.use('/lotto/user/auth', userAuth) // register, login user
+
+app.use('/lotto/seller/data', sellerData) // get data of sellers
+app.use('/lotto/seller/auth', sellerAuth) // register, login seller
 
 app.use('/lotto/admin', adminAuth) // login admin
 

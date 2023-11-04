@@ -20,7 +20,6 @@ route.post('/login', async (req,res,next)=>{
 
     const adminEnvString = process.env.ADMIN
     const admin = JSON.parse(adminEnvString)
-    console.log(admin.username)
 
     try{
         const {username , password} = req.body     
@@ -32,7 +31,7 @@ route.post('/login', async (req,res,next)=>{
         } else{
             // admin logged in successfully then genarate token
             const token = jwt.sign({ userId: admin._id, username: admin.username, userRole: admin.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).json({message: `ยินดีต้อนรับ ${admin.username}`, token})
+            res.status(200).json({message: `ยินดีต้อนรับ ${admin.username}`, token, data:admin})
         }
             
     }

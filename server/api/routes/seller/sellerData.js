@@ -1,7 +1,7 @@
-// CRUD user data by using ID
+// CRUD seller data by using ID
 
 const express = require('express')
-const User = require('../../models/UsersModel/UsersModel.js')
+const Seller = require('../../models/UsersModel/SellersModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
 
@@ -27,11 +27,12 @@ function verifyToken(req, res, next) {
     });
 }
 
-// get list of all users
-route.get('/all', verifyToken, async (req,res,next)=>{
+// get list of all sellers
+route.get('/all', async (req,res,next)=>{
     try{
-        const users = await User.find()
-        res.send(users)
+
+        const sellers = await Seller.find()
+        res.send({data:sellers})
     }
     catch(err){
         res.send('ERROR : please check console')
@@ -44,7 +45,7 @@ route.get('/all', verifyToken, async (req,res,next)=>{
 route.get('/:id', async (req,res,next)=>{
     try{
         const {id} = req.params
-        const user = await User.findById(id)
+        const user = await Seller.findById(id)
 
         if(!user) {
             res.status(404).send('user not found')
@@ -62,7 +63,7 @@ route.put('/:id',  async (req,res,next)=>{
     try{
         const {username, email, password} = req.body
         const {id} = req.params
-        const user = await User.findByIdAndUpdate(id, req.body)
+        const seller = await Seller.findByIdAndUpdate(id, req.body)
 
         res.send('update user info success!')
     }
@@ -76,7 +77,7 @@ route.put('/:id',  async (req,res,next)=>{
 route.delete('/:id', async (req,res,next)=>{
     try{
         const {id} = req.params
-        const user = await User.findByIdAndDelete(id)
+        const user = await Seller.findByIdAndDelete(id)
         res.send('delete user success!')
     }
     catch(err){
