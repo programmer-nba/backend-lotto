@@ -29,8 +29,14 @@ function verifyToken(req, res, next) {
 
 // get list of all sellers [role = admin]
 route.get('/all', verifyToken, async (req,res,next)=>{
+
+    const token = req.header('token')
+    const decoded = jwt.verify(token, 'your-secret-key')
+    const userRole = decoded.role
+
     try{
-        if(token.role === 'admin'){
+
+        if(userRole === 'admin'){
             const sellers = await Seller.find()
             res.send({sellers})
         } else {
@@ -72,7 +78,7 @@ route.get('/me', verifyToken, async (req,res,next)=>{
     }
 })
 
-// update an seller data
+// update an seller data****
 route.put('/edit',  async (req,res,next)=>{
 
     const {
@@ -110,7 +116,7 @@ route.put('/status', verifyToken, async (req,res,next)=>{
 
         } 
 
-        const seller = await Seller.findByIdAndUpdate(seller_id, seller_status)
+        const seller = await Seller.findByIdAndUpdate(seller_id, {status:seller_status})
 
         if(seller_status === 'cancle'){
             res.send(`username : ${seller.username} ถูกยกเลิกการสมัคร เนื่องจากข้อมูลผิดพลาด กรุณาติดต่อแอดมิน`)
@@ -126,7 +132,7 @@ route.put('/status', verifyToken, async (req,res,next)=>{
     }
 })
 
-// delete an seller from database
+// delete an seller from database*****
 route.delete('/:id', async (req,res,next)=>{
     try{
         const {id} = req.params

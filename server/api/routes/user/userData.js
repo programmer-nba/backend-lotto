@@ -27,7 +27,7 @@ function verifyToken(req, res, next) {
     });
 }
 
-// get list of all users
+// get list of all users [role = admin]
 route.get('/all', verifyToken, async (req,res,next)=>{
 
     const token = req.header('token')
@@ -53,11 +53,21 @@ route.get('/all', verifyToken, async (req,res,next)=>{
 })
 
 
-// get an user by id
-route.get('/:id', async (req,res,next)=>{
+// get an user by id [role = user]
+route.get('/me', verifyToken, async (req,res,next)=>{
+
+    const token = req.header("token")
+    const decoded = jwt.verify(token, "your-secret-key")
+    const userId = decoded.id
+    const userRole = decoded.role
+
     try{
-        const {id} = req.params
-        const user = await User.findById(id)
+        
+        if(userRole !== 'user'){
+            res.send("ขออภัย คุณไม่สามารถเข้าถึงข้อมูลนี้ได้")
+        }
+
+        const user = await User.findById(userId)
 
         if(!user) {
             res.status(404).send('user not found')
@@ -71,7 +81,7 @@ route.get('/:id', async (req,res,next)=>{
 })
 
 // update an user data
-route.put('/:id',  async (req,res,next)=>{
+route.put('/edit',  async (req,res,next)=>{
     try{
         const {
             username, email, password, seller_role,

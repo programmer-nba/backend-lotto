@@ -70,7 +70,7 @@ const SellerSchema = new Schema(
             contentType: String,
             
         },
-        shop_qrcode: {
+        shop_bank: {
             data: Buffer,
             contentType: String,
             

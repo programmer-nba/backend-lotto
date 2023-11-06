@@ -40,9 +40,9 @@ route.get('/getImageURL', (req, res) => {
 // [Register]
 route.post('/register', async (req,res,next)=>{
     const {
-        username, email, password, seller_role,
+        username, password, seller_role,
         line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
-        shop_name, shop_location, shop_img, shop_qrcode, shop_logo
+        shop_name, shop_location, shop_img, shop_bank, shop_logo
     } = req.body
 
     try{
@@ -58,7 +58,6 @@ route.post('/register', async (req,res,next)=>{
             const newSeller = new Seller(
                 {
                     username, 
-                    email, 
                     password, 
                     phone_number,
                     line_id,
