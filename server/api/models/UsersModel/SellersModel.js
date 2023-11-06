@@ -31,11 +31,7 @@ const SellerSchema = new Schema(
             type: String,
             
         },
-        first_name: {
-            type: String,
-            
-        },
-        last_name: {
+        name: {
             type: String,
             
         },

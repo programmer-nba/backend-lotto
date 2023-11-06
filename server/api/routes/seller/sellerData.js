@@ -49,35 +49,6 @@ route.get('/all', verifyToken, async (req,res,next)=>{
     }
 })
 
-// get an user by id [role = admin, 'ขายปลีก', 'ขายส่ง']
-route.get('/me', verifyToken, async (req,res,next)=>{
-    try{
-        const token = req.header('token')
-        const decoded = jwt.verify(token, 'your-secret-key')
-        const userId = decoded._id
-
-        const requiredRole = ['admin', 'ขายปลีก', 'ขายส่ง']
-
-        console.log(`userId : ${userId}`)
-        console.log(decoded.role)
-
-        if(requiredRole.includes('admin') || requiredRole.includes('ขายปลีก') || requiredRole.includes('ขายส่ง')){
-            const seller = await Seller.findById(userId)
-
-            if(!seller) {
-                res.status(404).send('user not found')
-            } 
-            res.status(201).send(seller)
-        } else {
-            res.status(403).send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้');
-        }
-    }
-    catch(err){
-        res.send('ERROR : please check console')
-        console.log({ERROR:err.message})
-    }
-})
-
 // update an seller data****
 route.put('/edit',  async (req,res,next)=>{
 

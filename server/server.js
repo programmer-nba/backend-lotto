@@ -10,6 +10,8 @@ const adminAuth = require('./api/routes/admin/adminAuth.js')
 const sellerAuth = require('./api/routes/seller/sellerAuth.js')
 const sellerData = require('./api/routes/seller/sellerData.js')
 
+const getMe = require('./api/routes/getMe.js')
+
 // use .env
 const dotenv = require('dotenv')
 const path = require('path')
@@ -27,6 +29,8 @@ app.use('/lotto/seller/data', sellerData) // get data of sellers
 app.use('/lotto/seller/auth', sellerAuth) // register, login seller
 
 app.use('/lotto/admin', adminAuth) // login admin
+
+app.use('/lotto/me', getMe) // get me
 
 app.use(express.static('server/public'))
 

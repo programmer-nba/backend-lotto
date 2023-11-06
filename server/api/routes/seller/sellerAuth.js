@@ -41,7 +41,7 @@ route.get('/getImageURL', (req, res) => {
 route.post('/register', async (req,res,next)=>{
     const {
         username, password, seller_role,
-        line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
+        line_id, name, phone_number, address, personal_id, personal_img,
         shop_name, shop_location, shop_img, shop_bank, shop_logo
     } = req.body
 
@@ -61,8 +61,7 @@ route.post('/register', async (req,res,next)=>{
                     password, 
                     phone_number,
                     line_id,
-                    first_name,
-                    last_name,
+                    name,
                     address,
                     personal_id,
                     shop_name,
@@ -112,7 +111,7 @@ route.post('/login', async (req,res,next)=>{
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
         } else {
             // user logged in successfully then genarate token
-            const token = jwt.sign({ _id: seller._id, username: seller.username, role: seller.role }, 'your-secret-key', { expiresIn: '1h' })
+            const token = jwt.sign({ id: seller._id, username: seller.username, role: seller.role }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({
             message: `ยินดีต้อนรับ คุณ ${seller.username}`, 
             token, 

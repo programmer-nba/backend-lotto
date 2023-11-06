@@ -53,33 +53,6 @@ route.get('/all', verifyToken, async (req,res,next)=>{
 })
 
 
-// get an user by id [role = user]
-route.get('/me', verifyToken, async (req,res,next)=>{
-
-    const token = req.header("token")
-    const decoded = jwt.verify(token, "your-secret-key")
-    const userId = decoded.id
-    const userRole = decoded.role
-
-    try{
-        
-        if(userRole !== 'user'){
-            res.send("ขออภัย คุณไม่สามารถเข้าถึงข้อมูลนี้ได้")
-        }
-
-        const user = await User.findById(userId)
-
-        if(!user) {
-            res.status(404).send('user not found')
-        } 
-        res.status(201).send(user)
-    }
-    catch(err){
-        res.send('ERROR : please check console')
-        console.log({ERROR:err.message})
-    }
-})
-
 // update an user data
 route.put('/edit',  async (req,res,next)=>{
     try{

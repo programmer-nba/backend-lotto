@@ -4,7 +4,6 @@ const express = require('express')
 //const Admin = require('../../models/UsersModel/AdminModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
-const Seller = require('../../models/UsersModel/SellersModel')
 
 // use .env
 const dotenv = require('dotenv')
