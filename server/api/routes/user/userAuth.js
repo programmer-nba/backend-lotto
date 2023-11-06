@@ -17,7 +17,7 @@ route.post('/register', async (req,res,next)=>{
         if(!password || !phoneNumber || !name ){
             res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
         } else {
-            const userExisting = await User.findOne({$or:[{phoneNumber}, {name}]})
+            const userExisting = await User.findOne({phoneNumber})
 
             if(userExisting){
                 res.send('PhoneNumber already exist, please try another')

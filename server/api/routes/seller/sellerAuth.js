@@ -46,7 +46,7 @@ route.post('/register', async (req,res,next)=>{
     } = req.body
 
     try{
-        const sellerExisting = await Seller.findOne({$or:[{username}, {name}, {phone_number}, {personal_id}, {shop_name}]})
+        const sellerExisting = await Seller.findOne({username})
 
         if(sellerExisting){
             res.json({message:'Username, Phone number, Personal id or Shop name already exist, please try another'})
