@@ -4,17 +4,41 @@ const express = require('express')
 const Seller = require('../../models/UsersModel/SellersModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
-const multer = require('multer')
-const storage = multer.memoryStorage() // Store images in memory
-const upload = multer({ storage: storage })
+const path = require('path')
 
 const route = express.Router()
 
 route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
 
+
+
+/* const multer = require('multer')
+const fileStorageEngine = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, '../server/public/images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '--' + file.originalname)
+    }
+})
+
+const upload = multer({storage:fileStorageEngine})
+
+route.post("/single", upload.single("image"), (req, res)=>{
+    console.log(req.file)
+    res.send("single file upload success")
+})
+
+route.get('/getImageURL', (req, res) => {
+    const imagePath = path.join(__dirname, '../../../public/images/1699239409908--Lottery-Center-Logo.png')
+    res.sendFile(imagePath)
+  }) */
+
+
+
 // [Register]
-route.post('/register', upload.single('image'), async (req,res,next)=>{
+route.post('/register', async (req,res,next)=>{
     const {
         username, email, password, seller_role,
         line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
@@ -25,7 +49,7 @@ route.post('/register', upload.single('image'), async (req,res,next)=>{
         const sellerExisting = await Seller.findOne({username})
 
         if(sellerExisting){
-            res.json({message:'Username, Email, Phone number, Line id, Personal id or Shop name already exist, please try another'})
+            res.json({message:'Username, Phone number, Line id, Personal id or Shop name already exist, please try another'})
         } 
         else if (username.toLowerCase() === 'admin'){
             res.json({message:'Username can not be "admin", please try another'})
@@ -45,7 +69,6 @@ route.post('/register', upload.single('image'), async (req,res,next)=>{
                     shop_name,
                     role : `${seller_role}`,
                     status: `pending`,
-                    shop_logo: '/images/Lottery-Center-Logo.png'
                 }
             )
     
@@ -90,7 +113,7 @@ route.post('/login', async (req,res,next)=>{
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
         } else {
             // user logged in successfully then genarate token
-            const token = jwt.sign({ userId: seller._id, username: seller.username, userRole: seller.role }, 'your-secret-key', { expiresIn: '1h' })
+            const token = jwt.sign({ _id: seller._id, username: seller.username, role: seller.role }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({
             message: `ยินดีต้อนรับ คุณ ${seller.username}`, 
             token, 

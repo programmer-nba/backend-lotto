@@ -26,14 +26,9 @@ app.use('/lotto/user/auth', userAuth) // register, login user
 app.use('/lotto/seller/data', sellerData) // get data of sellers
 app.use('/lotto/seller/auth', sellerAuth) // register, login seller
 
-app.use('/lotto/admin/login', adminAuth) // login admin
+app.use('/lotto/admin', adminAuth) // login admin
 
-app.use('/images', express.static('public'))
-
-app.get('/lotto/images', (req, res) => {
-    const imagePath = __dirname + '/public/images/Lottery-Center-Logo.png';
-    res.sendFile(imagePath);
-})
+app.use(express.static('server/public'))
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL

@@ -29,9 +29,22 @@ function verifyToken(req, res, next) {
 
 // get list of all users
 route.get('/all', verifyToken, async (req,res,next)=>{
+
+    const token = req.header('token')
+    const decoded = jwt.verify(token, 'your-secret-key')
+    const userId = decoded.id
+    const userRole = decoded.role
+
+    console.log(userRole)
     try{
-        const users = await User.find()
-        res.send(users)
+
+        if(userRole !== 'admin'){
+            res.send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้')
+        } else {
+            const users = await User.find()
+            res.send(users)
+        }
+
     }
     catch(err){
         res.send('ERROR : please check console')
@@ -60,9 +73,13 @@ route.get('/:id', async (req,res,next)=>{
 // update an user data
 route.put('/:id',  async (req,res,next)=>{
     try{
-        const {username, email, password} = req.body
-        const {id} = req.params
-        const user = await User.findByIdAndUpdate(id, req.body)
+        const {
+            username, email, password, seller_role,
+            line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
+            shop_name, shop_location, shop_img, shop_qrcode, shop_logo
+        } = req.body
+
+        const user = await User.findByIdAndUpdate(token._id, req.body)
 
         res.send('update user info success!')
     }

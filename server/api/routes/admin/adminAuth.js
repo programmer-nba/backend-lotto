@@ -4,6 +4,7 @@ const express = require('express')
 //const Admin = require('../../models/UsersModel/AdminModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
+const Seller = require('../../models/UsersModel/SellersModel')
 
 // use .env
 const dotenv = require('dotenv')
@@ -16,7 +17,7 @@ route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
 
 // [Login] 
-route.post('/', async (req,res,next)=>{
+route.post('/login', async (req,res,next)=>{
 
     const adminEnvString = process.env.ADMIN
     const admin = JSON.parse(adminEnvString)
@@ -30,7 +31,7 @@ route.post('/', async (req,res,next)=>{
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
         } else{
             // admin logged in successfully then genarate token
-            const token = jwt.sign({ userId: admin._id, username: admin.username, userRole: admin.role }, 'your-secret-key', { expiresIn: '1h' })
+            const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({message: `ยินดีต้อนรับ ${admin.username}`, token, data:admin})
         }
             
@@ -40,6 +41,5 @@ route.post('/', async (req,res,next)=>{
         console.log({ERROR:err.message})
     }
 })
-
 
 module.exports = route

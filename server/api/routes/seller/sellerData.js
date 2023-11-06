@@ -27,12 +27,15 @@ function verifyToken(req, res, next) {
     });
 }
 
-// get list of all sellers
+// get list of all sellers [role = admin]
 route.get('/all', verifyToken, async (req,res,next)=>{
     try{
-
-        const sellers = await Seller.find()
-        res.send({data:sellers})
+        if(token.role === 'admin'){
+            const sellers = await Seller.find()
+            res.send({sellers})
+        } else {
+            res.send({message: 'ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้'})
+        }
     }
     catch(err){
         res.send('ERROR : please check console')
@@ -40,16 +43,28 @@ route.get('/all', verifyToken, async (req,res,next)=>{
     }
 })
 
-// get an user by id
-route.get('/:id', async (req,res,next)=>{
+// get an user by id [role = admin, 'ขายปลีก', 'ขายส่ง']
+route.get('/me', verifyToken, async (req,res,next)=>{
     try{
-        const {id} = req.params
-        const user = await Seller.findById(id)
+        const token = req.header('token')
+        const decoded = jwt.verify(token, 'your-secret-key')
+        const userId = decoded._id
 
-        if(!user) {
-            res.status(404).send('user not found')
-        } 
-        res.status(201).send(user)
+        const requiredRole = ['admin', 'ขายปลีก', 'ขายส่ง']
+
+        console.log(`userId : ${userId}`)
+        console.log(decoded.role)
+
+        if(requiredRole.includes('admin') || requiredRole.includes('ขายปลีก') || requiredRole.includes('ขายส่ง')){
+            const seller = await Seller.findById(userId)
+
+            if(!seller) {
+                res.status(404).send('user not found')
+            } 
+            res.status(201).send(seller)
+        } else {
+            res.status(403).send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้');
+        }
     }
     catch(err){
         res.send('ERROR : please check console')
@@ -57,8 +72,8 @@ route.get('/:id', async (req,res,next)=>{
     }
 })
 
-// update an user data
-route.put('/:id',  async (req,res,next)=>{
+// update an seller data
+route.put('/edit',  async (req,res,next)=>{
 
     const {
         email, password, seller_role,
@@ -72,6 +87,38 @@ route.put('/:id',  async (req,res,next)=>{
         const seller = await Seller.findByIdAndUpdate(id, req.body)
 
         res.send('update profile success!')
+    }
+    catch(err){
+        res.send('ERROR : please check console')
+        console.log({ERROR:err.message})
+    }
+})
+
+// update an seller status [role = admin]
+route.put('/status', verifyToken, async (req,res,next)=>{
+
+    const {seller_status, seller_id} = req.body
+    const token = req.header("token")
+    const decoded = jwt.verify(token, "your-secret-key")
+    const userRole = decoded.role
+
+    try{
+        
+        if(userRole!=='admin'){
+
+            res.send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้')
+
+        } 
+
+        const seller = await Seller.findByIdAndUpdate(seller_id, seller_status)
+
+        if(seller_status === 'cancle'){
+            res.send(`username : ${seller.username} ถูกยกเลิกการสมัคร เนื่องจากข้อมูลผิดพลาด กรุณาติดต่อแอดมิน`)
+        } else {
+            res.send(`ยินดีด้วย ! username : ${seller.username} ผ่านการอณุมัติเรียบร้อย`)
+        }
+        
+        
     }
     catch(err){
         res.send('ERROR : please check console')
