@@ -46,10 +46,10 @@ route.post('/register', async (req,res,next)=>{
     } = req.body
 
     try{
-        const sellerExisting = await Seller.findOne({username})
+        const sellerExisting = await Seller.findOne({$or:[{username}, {name}, {phone_number}, {personal_id}, {shop_name}]})
 
         if(sellerExisting){
-            res.json({message:'Username, Phone number, Line id, Personal id or Shop name already exist, please try another'})
+            res.json({message:'Username, Phone number, Personal id or Shop name already exist, please try another'})
         } 
         else if (username.toLowerCase() === 'admin'){
             res.json({message:'Username can not be "admin", please try another'})
