@@ -12,7 +12,7 @@ route.use(bodyParser.json())
 
 // [Register]
 route.post('/register', async (req,res,next)=>{
-    const {password, phoneNumber, name} = req.body
+    const {password, phoneNumber, name, address} = req.body
     try{
         if(!password || !phoneNumber || !name ){
             res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
@@ -20,13 +20,14 @@ route.post('/register', async (req,res,next)=>{
             const userExisting = await User.findOne({phoneNumber})
 
             if(userExisting){
-                res.send('PhoneNumber already exist, please try another')
+                res.send('ชื่อ หรือ หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
             } else {
                 const newUser = new User(
                     {
                         name,
                         password, 
                         phoneNumber,
+                        address,
                         role : 'user'
                     }
                 )
@@ -61,7 +62,7 @@ route.post('/login', async (req,res,next)=>{
         } else{
             // user logged in successfully then genarate token
             const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).json({message: `ยินดีต้อนรับ คุณ ${user.name}`, token, user})
+            res.status(200).json({token, user})
         }
             
     }

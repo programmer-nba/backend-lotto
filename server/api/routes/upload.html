@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload-demo</title>
+</head>
+<body>
+    <h1>Hello upload</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div>
+            <label for="image" id="fileLabel">Select file</label>
+            <input name="image" type="file" id="fileInput">
+        </div>
+        <button type="submit">UPLOAD</button>
+    </form>
+
+    <script>
+        let fileInput = document.getElementById("fileInput");
+        let fileLabel = document.getElementById("fileLabel");
+        const axios = require('axios')
+
+        fileInput.addEventListener("change", ()=>{
+            fileName = ''
+            if(fileInput.files){
+                fileName = `${fileInput.files[0].name}`
+                fileLabel.textContent = fileName
+            } else {
+                fileLabel.textContent = "Select file"
+            }
+        })
+
+        const formElem = document.querySelector('form');
+        formElem.addEventListener('submit', async(e)=>{
+            console.log('form submitting');
+            e.preventDefault();
+
+            await axios.post("/lotto/upload", {body: new FormData(formElem)})
+                .then((res)=>{
+
+                })
+        });
+
+
+
+
+    </script>
+</body>
+</html>

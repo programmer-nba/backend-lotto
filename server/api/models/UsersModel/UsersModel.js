@@ -7,7 +7,7 @@ const UserSchema = new Schema(
             type: String,
             required: true
         },
-        email: {
+        address: {
             type: String,
             required: false
         },
@@ -23,10 +23,7 @@ const UserSchema = new Schema(
             type: String,
             required: true
         },
-        lineId: {
-            type: String,
-            required: false
-        }
+        
     },
     {
         timestamps: true
