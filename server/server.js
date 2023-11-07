@@ -9,6 +9,7 @@ const adminAuth = require('./api/routes/admin/adminAuth.js')
 
 const sellerAuth = require('./api/routes/seller/sellerAuth.js')
 const sellerData = require('./api/routes/seller/sellerData.js')
+const sellerStore = require('./api/routes/seller/store/addLotto.js')
 
 const UpLoadFiles = require('./api/routes/uploadImages.js')
 
@@ -29,12 +30,15 @@ app.use('/lotto/user/auth', userAuth) // register, login user
 
 app.use('/lotto/seller/data', sellerData) // get data of sellers
 app.use('/lotto/seller/auth', sellerAuth) // register, login seller
+app.use('/lotto/seller/mystore', sellerStore) // seller stores for add lotteries
 
 app.use('/lotto/admin', adminAuth) // login admin
 
 app.use('/lotto/me', getMe) // get me
 
 app.use('/lotto/upload', UpLoadFiles) // uploadImages
+
+
 
 app.use(express.static('server/public'))
 

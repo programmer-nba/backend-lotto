@@ -44,7 +44,7 @@ const SellerSchema = new Schema(
             
         },
 
-        
+
         personal_img: {
             data: Buffer,
             contentType: String
@@ -72,11 +72,16 @@ const SellerSchema = new Schema(
         shop_logo: {
             type: String,
             contentType: String,
-        } 
+        },
+        
+        //stores
+        stores: []
+        
     },
     {
         timestamps: true
-    }
+    },
+    
 )
 
 const  Seller = mongoose.model('Seller',  SellerSchema)
