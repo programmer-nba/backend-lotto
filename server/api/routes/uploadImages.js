@@ -18,7 +18,7 @@ route.post('/', upload.any(), async (req,res)=>{
     try{
         console.log(req.body)
         console.log(req.files)
-        console.log(KEYFILEPATH)
+        
         const {body, files} = req
 
         for(let f = 0 ; f < files.length ; f++){
@@ -41,8 +41,8 @@ const uploadFile = async(fileObject)=>{
             body: bufferStream
         },
         requestBody: {
-            name: fileObject.originalname,
-            parents: ['1pBaqUMG8AyXtvSx0G8R_NgkbPXypZT_w']
+            name: 'profile'+ '.jpg',
+            parents: ['14P3z2sjDBWxkHh-f4cGwTh98qCVocory']
         },
         fields: "id,name"
     })

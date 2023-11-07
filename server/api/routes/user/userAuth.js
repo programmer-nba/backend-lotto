@@ -12,22 +12,25 @@ route.use(bodyParser.json())
 
 // [Register]
 route.post('/register', async (req,res,next)=>{
-    const {password, phoneNumber, name, address} = req.body
+    const {password, phone_number, name, address, line_id} = req.body
     try{
-        if(!password || !phoneNumber || !name ){
+        if(!password || !phone_number || !name ){
             res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
         } else {
-            const userExisting = await User.findOne({phoneNumber})
+            const userExisting = await User.findOne({phone_number})
+            /* const userExisting = false */
 
             if(userExisting){
-                res.send('ชื่อ หรือ หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
+                res.send('หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
             } else {
                 const newUser = new User(
                     {
                         name,
                         password, 
-                        phoneNumber,
+                        phone_number,
                         address,
+                        line_id,
+
                         role : 'user'
                     }
                 )
@@ -48,11 +51,11 @@ route.post('/register', async (req,res,next)=>{
 route.post('/login', async (req,res,next)=>{
     
     try{
-        const {phoneNumber, password} = req.body 
+        const {phone_number, password} = req.body 
         let user = {}
 
-        if(phoneNumber!==undefined) {
-            user = await User.findOne({phoneNumber})
+        if(phone_number!==undefined) {
+            user = await User.findOne({phone_number})
         }  
         
         if(!user){ 
@@ -61,7 +64,7 @@ route.post('/login', async (req,res,next)=>{
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
         } else{
             // user logged in successfully then genarate token
-            const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, 'your-secret-key', { expiresIn: '1h' })
+            const token = jwt.sign({ id: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({token, user})
         }
             

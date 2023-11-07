@@ -38,7 +38,7 @@ route.get('/all', verifyToken, async (req,res,next)=>{
 
         if(userRole === 'admin'){
             const sellers = await Seller.find()
-            res.send({sellers})
+            res.send(sellers)
         } else {
             res.send({message: 'ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้'})
         }
@@ -103,11 +103,19 @@ route.put('/status', verifyToken, async (req,res,next)=>{
     }
 })
 
-// delete an seller from database*****
-route.delete('/:id', async (req,res,next)=>{
+// delete all sellers from database
+route.delete('/clearall', verifyToken, async (req,res,next)=>{
     try{
-        const {id} = req.params
-        const seller = await Seller.findByIdAndDelete(id)
+
+        const token = req.header("token")
+        const decoded = jwt.verify(token, "your-secret-key")
+        const userRole = decoded.role
+
+        if(userRole !== 'admin'){
+            res.send("ขออภัยคุณไม่ใช่ admin ไม่สามารถทำรายการนี้ได้")
+        }
+
+        await Seller.deleteMany({})
         res.json({message:'delete seller success!'})
     }
     catch(err){

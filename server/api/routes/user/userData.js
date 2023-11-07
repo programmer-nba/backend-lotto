@@ -72,12 +72,19 @@ route.put('/edit',  async (req,res,next)=>{
     }
 })
 
-// delete an user from database (**pending...**)
-route.delete('/:id', async (req,res,next)=>{
+// delete all user from database [ADMIN only]
+route.delete('/clear', async (req,res,next)=>{
     try{
-        const {id} = req.params
-        const user = await User.findByIdAndDelete(id)
-        res.send('delete user success!')
+        const token = req.header("token")
+        const decoded = jwt.verify(token, "your-secret-key")
+        const userRole = decoded.role
+
+        if(userRole !== "admin"){
+            res.send("ขออภัยคุณไม่ใช่ admin ไม่สามารถทำรายการนี้ได้")
+        }
+
+        await User.deleteMany({})
+        res.send('delete all user success!')
     }
     catch(err){
         res.send('ERROR : please check console')

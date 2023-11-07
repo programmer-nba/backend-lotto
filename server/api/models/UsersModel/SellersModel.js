@@ -9,10 +9,6 @@ const SellerSchema = new Schema(
         },
 
         // main infomaion
-        username: {
-            type: String,
-            require: true
-        },
         email: {
             type: String,
             
@@ -47,6 +43,8 @@ const SellerSchema = new Schema(
             type: String,
             
         },
+
+        
         personal_img: {
             data: Buffer,
             contentType: String
