@@ -55,7 +55,7 @@ route.post('/register', async (req,res,next)=>{
             )
     
             await newSeller.save()
-            res.send('ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ')
+            res.send({message:'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ'}, {id:newSeller._id})
 
         }
     }
@@ -90,7 +90,9 @@ route.post('/login', async (req,res,next)=>{
             const token = jwt.sign({ id: seller._id, role: seller.role, status: seller.status }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({
             token, 
-            status: seller.status
+            status: seller.status,
+            role: seller.role,
+            id: seller._id
             })
         }
     }

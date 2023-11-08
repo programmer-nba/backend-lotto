@@ -49,6 +49,19 @@ route.get('/all', verifyToken, async (req,res,next)=>{
     }
 })
 
+// get list of all sellers [role = admin] demo
+route.get('/all/demo', async (req,res,next)=>{
+
+    try{
+        const sellers = await Seller.findById("654b2b5eff61aa217b0ae667")
+        res.send(sellers)   
+    }
+    catch(err){
+        res.send('ERROR : please check console')
+        console.log({ERROR:err.message})
+    }
+})
+
 // update an seller data****
 route.put('/edit',  async (req,res,next)=>{
 

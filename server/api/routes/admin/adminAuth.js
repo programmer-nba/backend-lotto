@@ -31,7 +31,7 @@ route.post('/login', async (req,res,next)=>{
         } else{
             // admin logged in successfully then genarate token
             const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).json({token, admin})
+            res.status(200).json({token, id:admin._id, role:admin._role})
         }
             
     }
