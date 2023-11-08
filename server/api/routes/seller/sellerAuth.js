@@ -56,7 +56,13 @@ route.post('/register', async (req,res,next)=>{
             )
     
             await newSeller.save()
-            res.send({message:'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ'}, {id:newSeller._id}, {role:newSeller.role}, {seller_role:newSeller.seller_role}, {status:newSeller.status})
+            res.send({
+                message: 'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ',
+                id: newSeller._id,
+                role: newSeller.role,
+                seller_role: newSeller.seller_role,
+                status: newSeller.status
+            })
 
         }
     }
