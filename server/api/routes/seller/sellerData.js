@@ -89,7 +89,7 @@ route.put('/status', verifyToken, async (req,res,next)=>{
 
         const seller = await Seller.findByIdAndUpdate(_id, {status:status})
 
-        if(seller_status === 'cancle'){
+        if(status === 'cancle'){
             res.send(`${seller.name} อัพเดทสถานะเป็น cancle เรียบร้อย`)
         } else {
             res.send(`${seller.name} อัพเดทสถานะเป็น confirm เรียบร้อย`)
