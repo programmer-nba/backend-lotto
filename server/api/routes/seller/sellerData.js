@@ -74,7 +74,7 @@ route.put('/edit',  async (req,res,next)=>{
 // update an seller status [role = admin]
 route.put('/status', verifyToken, async (req,res,next)=>{
 
-    const {seller_status, seller_id} = req.body
+    const {status, _id} = req.body
     const token = req.header("token")
     const decoded = jwt.verify(token, "your-secret-key")
     const userRole = decoded.role
@@ -87,12 +87,12 @@ route.put('/status', verifyToken, async (req,res,next)=>{
 
         } 
 
-        const seller = await Seller.findByIdAndUpdate(seller_id, {status:seller_status})
+        const seller = await Seller.findByIdAndUpdate(_id, {status:status})
 
         if(seller_status === 'cancle'){
-            res.send(`username : ${seller.username} ถูกยกเลิกการสมัคร เนื่องจากข้อมูลผิดพลาด กรุณาติดต่อแอดมิน`)
+            res.send(`${seller.name} อัพเดทสถานะเป็น cancle เรียบร้อย`)
         } else {
-            res.send(`ยินดีด้วย ! username : ${seller.username} ผ่านการอณุมัติเรียบร้อย`)
+            res.send(`${seller.name} อัพเดทสถานะเป็น confirm เรียบร้อย`)
         }
         
         

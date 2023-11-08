@@ -10,6 +10,7 @@ const route = express.Router()
 route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
 
+
 // ROUTES --------------
 // [Register]
 route.post('/register', async (req,res,next)=>{
@@ -54,7 +55,7 @@ route.post('/register', async (req,res,next)=>{
             )
     
             await newSeller.save()
-            res.send(newSeller)
+            res.send('ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ')
 
         }
     }
@@ -78,12 +79,18 @@ route.post('/login', async (req,res,next)=>{
             res.status(404).json({message: `ไม่พบผู้ใช้งานนี้ในระบบ กรุณาลงทะเบียนผู้ใช้ใหม่`}) 
         } else if(seller.password !== password ){
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
-        } else {
+        } else if(seller.status === 'pending') {
+            res.send({message:"บัญชีของคุณอยู่ในระหว่างการตรวจสอบ กรุณารอซักครู่", status:seller.status})
+        } else if(seller.status === 'cancle'){
+            res.send({message:"บัญชีของคุณถูกยกเลิก เนื่องจากมีข้อมูลผิดพลาด กรุณาลงทะเบียนใหม่อีกครั้ง", status:seller.status})
+        }
+        
+        else {
             // user logged in successfully then genarate token
             const token = jwt.sign({ id: seller._id, role: seller.role }, 'your-secret-key', { expiresIn: '1h' })
             res.status(200).json({
             token, 
-            seller
+            status: seller.status
             })
         }
     }
