@@ -19,7 +19,10 @@ const SellerSchema = new Schema(
         },
         role: {
             type: String,
-            required: true
+            
+        },
+        seller_role: {
+            type: String,
         },
 
         // owner profile

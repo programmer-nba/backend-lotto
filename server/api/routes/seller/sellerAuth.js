@@ -37,7 +37,8 @@ route.post('/register', async (req,res,next)=>{
                     line_id,
                     personal_id,
                     // defualt
-                    role : `${seller_role}`,
+                    role : `seller`,
+                    seller_role: seller_role,
                     status: `pending`,
 
                     // for update
@@ -55,7 +56,7 @@ route.post('/register', async (req,res,next)=>{
             )
     
             await newSeller.save()
-            res.send({message:'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ'}, {id:newSeller._id})
+            res.send({message:'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ'}, {id:newSeller._id}, {role:newSeller.role}, {seller_role:newSeller.seller_role}, {status:newSeller.status})
 
         }
     }
@@ -92,6 +93,7 @@ route.post('/login', async (req,res,next)=>{
             token, 
             status: seller.status,
             role: seller.role,
+            seller_role: seller.seller_role,
             id: seller._id
             })
         }
