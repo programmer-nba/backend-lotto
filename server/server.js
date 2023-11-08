@@ -36,6 +36,7 @@ app.use('/lotto/admin', adminAuth) // login admin
 
 app.use('/lotto/me', getMe) // get me
 
+
 app.use('/lotto/upload', UpLoadFiles) // uploadImages
 
 app.get('/lotto/demodata', (req, res)=>{

@@ -65,4 +65,14 @@ route.get('/', verifyToken, async (req,res,next)=>{
     }
 })
 
+// get me admin
+route.get('/admin', (req, res)=>{
+    res.send({
+        name: "admin",
+        username: "admin",
+        password: "191919",
+        role: "admin"
+    })
+})
+
 module.exports = route
