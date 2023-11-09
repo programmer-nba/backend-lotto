@@ -2,8 +2,8 @@
 
 const express = require('express')
 const User = require('../../models/UsersModel/UsersModel.js')
+const Seller = require('../../models/UsersModel/SellersModel.js')
 const bodyParser = require('body-parser')
-const jwt = require('jsonwebtoken')
 
 const route = express.Router()
 
@@ -18,8 +18,9 @@ route.post('/register', async (req,res,next)=>{
             res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
         } else {
             const userExisting = await User.findOne({phone_number})
+            const sellerExisting = await Seller.findOne({phone_number})
 
-            if(userExisting){
+            if(userExisting || sellerExisting){
                 res.send('หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
             } else {
                 const newUser = new User(
@@ -47,7 +48,7 @@ route.post('/register', async (req,res,next)=>{
 
 
 // [Login] 
-route.post('/login', async (req,res,next)=>{
+/* route.post('/login', async (req,res,next)=>{
     
     try{
         const {phone_number, password} = req.body 
@@ -78,7 +79,7 @@ route.post('/login', async (req,res,next)=>{
         res.send('ERROR: please check console')
         console.log({ERROR:err.message})
     }
-})
+}) */
 
 
 module.exports = route
