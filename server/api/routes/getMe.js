@@ -48,7 +48,7 @@ route.get('/', verifyToken, async (req,res,next)=>{
                 res.status(201).send(user)
             }
         } 
-        else if(userRole === 'ขายปลีก' || userRole === 'ขายส่ง') {
+        else if(userRole === 'seller') {
             const seller = await Seller.findById(userId)
             if(!seller) {
                 res.status(404).send('username not found')

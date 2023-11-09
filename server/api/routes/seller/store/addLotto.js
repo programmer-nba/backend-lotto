@@ -33,7 +33,7 @@ route.put('/addlotto', verifyToken, async (req, res)=>{
     const token = req.header("token")
     const decoded = jwt.verify(token, "your-secret-key")
     const userId = decoded.id
-    const userRole = decoded.role
+    const userRole = decoded.seller_role
     const userStatus = decoded.status
 
     // request from client
