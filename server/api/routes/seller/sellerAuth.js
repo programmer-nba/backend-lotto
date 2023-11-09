@@ -101,7 +101,8 @@ route.post('/login', async (req,res,next)=>{
             role: seller.role,
             seller_role: seller.seller_role,
             id: seller._id,
-            success: true
+            success: true,
+            name: seller.name
             })
         }
     }

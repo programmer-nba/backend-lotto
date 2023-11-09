@@ -68,6 +68,7 @@ route.post('/login', async (req,res,next)=>{
                 token, 
                 id:user._id, 
                 role:user.role,
+                name:user.name,
                 success: true
             })
         }
