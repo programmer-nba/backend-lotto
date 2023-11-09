@@ -54,21 +54,27 @@ route.get('/all', verifyToken, async (req,res,next)=>{
 
 
 // update an user data
-route.put('/edit',  async (req,res,next)=>{
+route.put('/edit', verifyToken, async (req,res,next)=>{
     try{
-        const {
-            username, email, password, seller_role,
-            line_id, first_name, last_name, phone_number, address, personal_id, personal_img,
-            shop_name, shop_location, shop_img, shop_qrcode, shop_logo
-        } = req.body
+        const token = req.header('token')
+        const decoded = jwt.verify(token, "your-secret-key")
+        const userId = decoded.id
 
-        const user = await User.findByIdAndUpdate(token._id, req.body)
+        const {password, phone_number, name, address, line_id} = req.body
 
-        res.send('update user info success!')
+        const user = await User.findByIdAndUpdate(userId, req.body)
+
+        res.send({
+            message: "อัพเดทข้อมูลสำเร็จ",
+            success: true
+        })
     }
     catch(err){
         res.send('ERROR : please check console')
-        console.log({ERROR:err.message})
+        console.log({
+            ERROR:err.message,
+            success: false
+        })
     }
 })
 

@@ -18,7 +18,6 @@ route.post('/register', async (req,res,next)=>{
             res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
         } else {
             const userExisting = await User.findOne({phone_number})
-            /* const userExisting = false */
 
             if(userExisting){
                 res.send('หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
@@ -65,7 +64,12 @@ route.post('/login', async (req,res,next)=>{
         } else{
             // user logged in successfully then genarate token
             const token = jwt.sign({ id: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).json({token, id:user._id, role:user.role})
+            res.status(200).json({
+                token, 
+                id:user._id, 
+                role:user.role,
+                success: true
+            })
         }
             
     }

@@ -49,32 +49,22 @@ route.get('/all', verifyToken, async (req,res,next)=>{
     }
 })
 
-// get list of all sellers [role = admin] demo
-route.get('/all/demo', async (req,res,next)=>{
-
-    try{
-        const sellers = await Seller.findById("654b2b5eff61aa217b0ae667")
-        res.send(sellers)   
-    }
-    catch(err){
-        res.send('ERROR : please check console')
-        console.log({ERROR:err.message})
-    }
-})
-
-// update an seller data****
-route.put('/edit',  async (req,res,next)=>{
+// update an seller data
+route.put('/edit', verifyToken, async (req, res)=>{
 
     const {
-        email, password, seller_role,
-        line_id, phone_number, address, personal_img,
-        shop_name, shop_location, shop_img, shop_qrcode
+        password, seller_role, line_id, email,
+        name, phone_number, address, personal_id, personal_img,
+        shop_name, shop_location, shop_img, shop_bank, shop_logo
     } = req.body
 
     try{
         
-        const {id} = req.params
-        const seller = await Seller.findByIdAndUpdate(id, req.body)
+        const token = req.header('token')
+        const decoded = jwt.verify(token, "your-secret-key")
+        const userId = decoded.id
+
+        const seller = await Seller.findByIdAndUpdate(userId, req.body)
 
         res.send('update profile success!')
     }
@@ -103,9 +93,19 @@ route.put('/status', verifyToken, async (req,res,next)=>{
         const seller = await Seller.findByIdAndUpdate(_id, {status:status})
 
         if(status === 'cancle'){
-            res.send(`${seller.name} อัพเดทสถานะเป็น cancle เรียบร้อย`)
+            res.send({
+                message:`${seller.name} อัพเดทสถานะเป็น cancle เรียบร้อย`,
+                id: seller._id,
+                role: seller.role,
+                seller_role: seller.seller_role
+            })
         } else {
-            res.send(`${seller.name} อัพเดทสถานะเป็น confirm เรียบร้อย`)
+            res.send({
+                message:`${seller.name} อัพเดทสถานะเป็น confirm เรียบร้อย`,
+                id: seller._id,
+                role: seller.role,
+                seller_role: seller.seller_role
+            })
         }
         
         

@@ -22,7 +22,6 @@ route.post('/register', async (req,res,next)=>{
 
     try{
         const sellerExisting = await Seller.findOne({phone_number})
-        /* const sellerExisting = false */
 
         if(sellerExisting){
             res.json({message:'เบอร์มือถือนี้มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง'})
@@ -61,7 +60,8 @@ route.post('/register', async (req,res,next)=>{
                 id: newSeller._id,
                 role: newSeller.role,
                 seller_role: newSeller.seller_role,
-                status: newSeller.status
+                status: newSeller.status,
+                success: true
             })
 
         }
@@ -87,9 +87,9 @@ route.post('/login', async (req,res,next)=>{
         } else if(seller.password !== password ){
             res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
         } else if(seller.status === 'pending') {
-            res.send({message:"บัญชีของคุณอยู่ในระหว่างการตรวจสอบ กรุณารอซักครู่", status:seller.status})
+            res.send({message:"บัญชีของคุณอยู่ในระหว่างการตรวจสอบ กรุณารอซักครู่", status:seller.status, role:seller.role, seller_role:seller.seller_role})
         } else if(seller.status === 'cancle'){
-            res.send({message:"บัญชีของคุณถูกยกเลิก เนื่องจากมีข้อมูลผิดพลาด กรุณาลงทะเบียนใหม่อีกครั้ง", status:seller.status})
+            res.send({message:"บัญชีของคุณถูกยกเลิก เนื่องจากมีข้อมูลผิดพลาด กรุณาลงทะเบียนใหม่อีกครั้ง", status:seller.status, role:seller.role, seller_role:seller.seller_role})
         }
         
         else {
@@ -100,7 +100,8 @@ route.post('/login', async (req,res,next)=>{
             status: seller.status,
             role: seller.role,
             seller_role: seller.seller_role,
-            id: seller._id
+            id: seller._id,
+            success: true
             })
         }
     }
