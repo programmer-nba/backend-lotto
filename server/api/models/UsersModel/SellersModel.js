@@ -5,7 +5,7 @@ const SellerSchema = new Schema(
     {
         status: {
             type: String,
-            default: 'pending'
+            default: 'กำลังตรวจสอบ'
         },
 
         // main infomaion

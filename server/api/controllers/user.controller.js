@@ -1,6 +1,7 @@
 // import database
 const Lotto = require('../models/Lotteries/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
+const User = require('../models/UsersModel/UsersModel.js')
 
 // get my all lotteries data
 exports.getMyLottos = async (req, res) => {

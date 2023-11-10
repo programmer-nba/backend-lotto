@@ -1,51 +1,34 @@
 const express = require('express')
+const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 
-const userData = require('./api/routes/user/userData.js')
-const userAuth = require('./api/routes/user/userAuth.js')
-const userMarkets = require('./api/routes/user/purchase/markets.js')
+// import Routes
+const userRoute = require('./api/routes/user.routes.js')
+const adminRoute = require('./api/routes/admin.routes.js')
+const authRoute = require('./api/routes/auth.routes.js')
+const sellerRoute = require('./api/routes/seller.routes.js')
+const meRoute = require('./api/routes/me.routes.js')
 
-const adminAuth = require('./api/routes/admin/adminAuth.js')
-
-const login = require('./api/routes/login.js')
-
-const sellerAuth = require('./api/routes/seller/sellerAuth.js')
-const sellerData = require('./api/routes/seller/sellerData.js')
-const sellerStore = require('./api/routes/seller/store/addLotto.js')
-
-const UpLoadFiles = require('./api/routes/uploadImages.js')
-
-const getMe = require('./api/routes/getMe.js')
+/* const UpLoadFiles = require('./api/routes/uploadImages.js') */
 
 // use .env
 const dotenv = require('dotenv')
 const path = require('path')
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
 
-// set app
-const app = express()
-
 app.use(cors())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
 
-app.use('/lotto/user/data', userData) // get data of users
-app.use('/lotto/user/auth', userAuth) // register, login user
-app.use('/lotto/user/purchase', userMarkets) // ******
+app.use('/lotto/admin', adminRoute)
+app.use('/lotto/seller', sellerRoute)
+app.use('/lotto/user', userRoute)
+app.use('/lotto/auth', authRoute)
+app.use('/lotto/me', meRoute)
 
-app.use('/lotto/seller/data', sellerData) // get data of sellers
-app.use('/lotto/seller/auth', sellerAuth) // register
-app.use('/lotto/seller/mystore', sellerStore) // seller stores for add lotteries
-
-app.use('/lotto/admin', adminAuth) // login admin
-
-app.use('/lotto/me', getMe) // get me
-
-app.use('/lotto/login', login) // login
-
-const lotteries = require('./api/routes/product/lotteries.js')
-app.use('/lotto/product', lotteries)
-
-app.use('/lotto/upload', UpLoadFiles) // uploadImages
+/* app.use('/lotto/upload', UpLoadFiles) */
 
 app.use(express.static('server/public'))
 
