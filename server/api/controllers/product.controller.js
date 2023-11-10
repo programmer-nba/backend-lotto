@@ -29,7 +29,8 @@ exports.addLottos = async (req, res)=>{
                 cost: cost,
                 price: price,
                 profit: price-cost,
-                totlal_profit: (price-cost)*number.length
+                totlal_profit: (price-cost)*number.length,
+                reward: 6*(number.length)
             }
 
         const lotto = await Lotto.create(newLotto)
@@ -39,6 +40,8 @@ exports.addLottos = async (req, res)=>{
                 message: "เพิ่มฉลากสมบูรณ์",
                 data:lotto,
                 success: true,
+                reward: 6*(number.length),
+                reward_text: `ชุด ${number.length} ใบ ${6*(number.length)} ล้าน`
             })
         }
         else {

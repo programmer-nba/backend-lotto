@@ -13,6 +13,7 @@ const lottoSchema = new Schema(
             ref: 'User'
         },
         buyer_name: String,
+        reward: Number,
         
         type: String, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
         number: Array, // หมายเลขฉลาก
