@@ -4,6 +4,7 @@ const express = require('express')
 const Seller = require('../../models/UsersModel/SellersModel.js')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
+const sellers = require('../../controllers/seller.controller.js')
 
 const route = express.Router()
 
@@ -75,7 +76,7 @@ route.put('/edit', verifyToken, async (req, res)=>{
 })
 
 // update an seller status [role = admin]
-route.put('/status', verifyToken, async (req,res,next)=>{
+route.put('/status', verifyToken, async (req, res)=>{
 
     const {status, _id} = req.body
     const token = req.header("token")
@@ -92,16 +93,16 @@ route.put('/status', verifyToken, async (req,res,next)=>{
 
         const seller = await Seller.findByIdAndUpdate(_id, {status:status})
 
-        if(status === 'cancle'){
+        if(status === 'ยกเลิก'){
             res.send({
-                message:`${seller.name} อัพเดทสถานะเป็น cancle เรียบร้อย`,
+                message:`${seller.name} อัพเดทสถานะเป็น "ยกเลิก" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
                 seller_role: seller.seller_role
             })
         } else {
             res.send({
-                message:`${seller.name} อัพเดทสถานะเป็น confirm เรียบร้อย`,
+                message:`${seller.name} อัพเดทสถานะเป็น "อนุมัติ" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
                 seller_role: seller.seller_role
@@ -117,7 +118,7 @@ route.put('/status', verifyToken, async (req,res,next)=>{
 })
 
 // delete all sellers from database
-route.delete('/clearall', verifyToken, async (req,res,next)=>{
+route.delete('/clearall', verifyToken, async (req, res)=>{
     try{
 
         const token = req.header("token")
@@ -136,5 +137,7 @@ route.delete('/clearall', verifyToken, async (req,res,next)=>{
         console.log({ERROR:err.message})
     }
 })
+
+route.get('/mylottos', verifyToken, sellers.getMyLottos)
 
 module.exports = route

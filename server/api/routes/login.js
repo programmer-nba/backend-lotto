@@ -4,22 +4,6 @@ const bodyParser = require('body-parser')
 const route = require('express').Router()
 const jwt = require('jsonwebtoken')
 
-// verify token
-function verifyToken(req, res, next) {
-    const token = req.header('token');
-
-    if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    jwt.verify(token, 'your-secret-key', (err, decoded) => {
-        if (err) {
-            return res.status(401).json({ message: 'Token is not valid' });
-        }
-        req.user = decoded;
-        next();
-    });
-}
 
 route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
@@ -53,13 +37,15 @@ route.post('/', async (req, res)=>{
 
         if (user) {
             // If a user is found and the password is correct, generate a token
-            const token = jwt.sign({ id: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+            const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '1h' });
 
             res.status(200).json({
                 token,
                 id: user._id,
                 role: user.role,
                 name: user.name,
+                seller_role: user.seller_role,
+                status: user.status,
                 success: true,
             });
         }

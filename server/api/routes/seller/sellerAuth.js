@@ -40,14 +40,14 @@ route.post('/register', async (req,res,next)=>{
                     // defualt
                     role : `seller`,
                     seller_role: seller_role,
-                    status: `pending`,
+                    status: `กำลังตรวจสอบ`,
 
                     // for update
                     email,
                     address,
                     
                     shop_location,
-                    shop_name,
+                    shop_name: shop_name || name,
 
                     personal_img,
                     shop_img,

@@ -46,12 +46,12 @@ route.post('/addlotto', verifyToken, async (req, res)=>{
         } = req.body
 
         const seller = await Seller.findById(userId)
-        const shop = seller.shopname
+        const shopname = seller.shop_name
 
         const newLotto = 
             {
                 seller_id: userId,
-                shopname: shop,
+                shopname: shopname,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
                 number: number, // หมายเลขฉลาก
                 amount: number.length,

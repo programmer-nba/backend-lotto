@@ -1,5 +1,5 @@
 // Login & Logout Admin
-
+const admins = require('../../controllers/admin.controller.js')
 const express = require('express')
 //const Admin = require('../../models/UsersModel/AdminModel.js')
 const bodyParser = require('body-parser')
@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken')
 // use .env
 const dotenv = require('dotenv')
 const path = require('path')
+const verifyToken = require('../../middleware/verifyToken.js')
+
 dotenv.config({ path: path.resolve(__dirname, '../..', '.env') })
 
 const route = express.Router()
@@ -40,5 +42,7 @@ route.post('/login', async (req,res,next)=>{
         console.log({ERROR:err.message})
     }
 })
+
+route.delete('/alllottos', verifyToken, admins.deleteAllLotto)
 
 module.exports = route
