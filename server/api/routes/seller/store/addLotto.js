@@ -4,7 +4,9 @@ const express = require('express')
 const route = express.Router()
 const jwt = require('jsonwebtoken')
 const bodyParser = require('body-parser')
+const Lotto = require('../../../models/Lotteries/lotto.model.js')
 const Seller = require('../../../models/UsersModel/SellersModel.js')
+
 
 route.use(bodyParser.urlencoded({extended: true}))
 route.use(bodyParser.json())
@@ -27,52 +29,54 @@ function verifyToken(req, res, next) {
 }
 
 // routes
-route.put('/addlotto', verifyToken, async (req, res)=>{
-
-    // verify token
-    const token = req.header("token")
-    const decoded = jwt.verify(token, "your-secret-key")
-    const userId = decoded.id
-    const userRole = decoded.seller_role
-    const userStatus = decoded.status
-
-    // request from client
-    const { 
-        cost,
-        price,
-        numbers,
-        type,
-        title
-    } = req.body
-
+route.post('/addlotto', verifyToken, async (req, res)=>{
     try{
-        const day = "16 พฤศจิกายน 2566" // changable >> get from admin controller
+        // verify token
+        const token = req.header("token")
+        const decoded = jwt.verify(token, "your-secret-key")
+        const userId = decoded.id
+        const userRole = decoded.seller_role
+        const userStatus = decoded.status
 
-        const newLotto = {
-            title: title || day,
-            day: day,
-            numbers: numbers,
-            cost: cost,
-            price: price,
-            profit: price-cost,
-            type: type,
-            count: numbers.length
+        const {
+            number, // หมายเลขฉลาก
+            type, // ประเภทหวย
+            cost,
+            price
+        } = req.body
+
+        const seller = await Seller.findById(userId)
+        const shop = seller.shopname
+
+        const newLotto = 
+            {
+                seller_id: userId,
+                shopname: shop,
+                type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
+                number: number, // หมายเลขฉลาก
+                amount: number.length,
+                period: "16 พฤศจิกายน 2566", // งวดที่ออก
+                cost: cost,
+                price: price,
+                profit: price-cost,
+                totlal_profit: (price-cost)*number.length
+            }
+
+        const lotto = await Lotto.create(newLotto)
+
+        if(lotto){
+            res.send({
+                message: "เพิ่มฉลากสมบูรณ์",
+                data:lotto,
+                success: true,
+            })
         }
-
-        const seller = await Seller.findByIdAndUpdate(userId, {
-            $push: { stores: newLotto }
-        })
-
-        if(!seller){
-            res.send('ไม่พบข้อมูลผู้ใช้งานนี้')
+        else {
+            res.send({
+                message: 'ไม่สามารถเพิ่มฉลากได้',
+                success: false
+            })
         }
-
-        if(userStatus !== 'confirm'){
-            res.send('บัญชีของคุณยังไม่ผ่านการอนุมัติจากแอดมิน')
-        } else {
-            res.send("เพิ่มหวยชุดใหม่สมบูรณ์")
-        }
-
     }
     catch(error){
         console.log(error.message)

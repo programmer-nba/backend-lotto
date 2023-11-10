@@ -1,12 +1,20 @@
 const Seller = require('../../../models/UsersModel/SellersModel.js')
 const route = require('express').Router()
 
-const getAllLotteries = () => {
-    const lotteries = 
+const getAllLotteries = async () => {
+    const sellers = await Seller.find()
+    
+    const lotteries = sellers.flatMap((item)=>
+    item.stores.flatMap((store)=>store.numbers)
+    )
+
+    return lotteries
 }
 
-route.get('/purchase/markets', (req, res)=>{
-    
+route.get('/markets', async (req, res)=>{
+    const lotteries = await getAllLotteries()
+
+    res.send(lotteries)
 })
 
 module.exports = route

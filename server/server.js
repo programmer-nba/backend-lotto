@@ -4,6 +4,7 @@ const cors = require('cors')
 
 const userData = require('./api/routes/user/userData.js')
 const userAuth = require('./api/routes/user/userAuth.js')
+const userMarkets = require('./api/routes/user/purchase/markets.js')
 
 const adminAuth = require('./api/routes/admin/adminAuth.js')
 
@@ -29,6 +30,7 @@ app.use(cors())
 
 app.use('/lotto/user/data', userData) // get data of users
 app.use('/lotto/user/auth', userAuth) // register, login user
+app.use('/lotto/user/purchase', userMarkets) // ******
 
 app.use('/lotto/seller/data', sellerData) // get data of sellers
 app.use('/lotto/seller/auth', sellerAuth) // register
@@ -39,6 +41,9 @@ app.use('/lotto/admin', adminAuth) // login admin
 app.use('/lotto/me', getMe) // get me
 
 app.use('/lotto/login', login) // login
+
+const lotteries = require('./api/routes/product/lotteries.js')
+app.use('/lotto/product', lotteries)
 
 app.use('/lotto/upload', UpLoadFiles) // uploadImages
 
