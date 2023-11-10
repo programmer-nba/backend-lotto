@@ -9,7 +9,7 @@ route.post('/login', admins.login)
 
 route.get('/sellers', verifyToken, admins.getAllSellers)
 route.delete('/sellers', verifyToken, admins.deleteAllSellers)
-route.put('/sellers/edit', verifyToken, admins.editSellerStatus)
+route.put('/sellers/edit/:id', verifyToken, admins.editSellerStatus)
 
 route.delete('/lottos', verifyToken, admins.deleteAllLottos)
 route.get('/lottos', verifyToken, admins.getAllLottos)
