@@ -159,14 +159,16 @@ exports.editSellerStatus = async (req, res)=>{
                 message:`${seller.name} อัพเดทสถานะเป็น "ยกเลิก" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
-                seller_role: seller.seller_role
+                seller_role: seller.seller_role,
+                success: true
             })
         } else {
             res.send({
                 message:`${seller.name} อัพเดทสถานะเป็น "อนุมัติ" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
-                seller_role: seller.seller_role
+                seller_role: seller.seller_role,
+                success: true
             })
         }
     }
