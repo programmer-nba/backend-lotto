@@ -13,10 +13,12 @@ exports.getMyLottos = async (req, res) => {
         }
 
         const myLottos = await Lotto.find({seller_id: userId})
-        console.log(myLottos)
 
         if(myLottos){
-            res.send(myLottos)
+            res.send({
+                count: `หวยของฉันมีทั้งหมด ${myLottos.length} ชุด`,
+                myLottos
+            })
         }
     }
     catch(err){

@@ -10,6 +10,7 @@ const adminRoute = require('./api/routes/admin.routes.js')
 const authRoute = require('./api/routes/auth.routes.js')
 const sellerRoute = require('./api/routes/seller.routes.js')
 const meRoute = require('./api/routes/me.routes.js')
+const marketRoute = require('./api/routes/market.routes.js')
 
 /* const UpLoadFiles = require('./api/routes/uploadImages.js') */
 
@@ -27,6 +28,7 @@ app.use('/lotto/seller', sellerRoute)
 app.use('/lotto/user', userRoute)
 app.use('/lotto/auth', authRoute)
 app.use('/lotto/me', meRoute)
+app.use('/lotto/market', marketRoute)
 
 /* app.use('/lotto/upload', UpLoadFiles) */
 
