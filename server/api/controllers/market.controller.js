@@ -1,5 +1,5 @@
 // import database
-const Lotto = require('../models/Lotteries/lotto.model.js')
+const Lotto = require('../models/Products/lotto.model.js')
 
 exports.getWholesale = async (req, res) => {
     try{
