@@ -7,8 +7,7 @@ const markets = require('../controllers/market.controller.js')
 const verifyToken = require('../middleware/verifyToken.js')
 
 // Market routes
-route.get('/wholesale', verifyToken, markets.getinMarket) // OK
-route.post('/wholesale/:id', verifyToken, markets.addtoMarket) // OK
-route.delete('/wholesale/:id', verifyToken, markets.removefromMarket) // OK
+route.get('/wholesale', verifyToken, markets.getWholesale) // OK
+route.put('/:id', verifyToken, markets.changeMarket) // OK
 
 module.exports = route
