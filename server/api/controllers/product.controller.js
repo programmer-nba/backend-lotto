@@ -2,9 +2,6 @@
 const Lotto = require('../models/Lotteries/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
-const addtoMarket = (req, res) => {
-    // wait
-}
 
 exports.addLottos = async (req, res)=>{
     try{
@@ -17,7 +14,7 @@ exports.addLottos = async (req, res)=>{
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
             price, // ราคาขายหวย/ใบ
-
+            amount, // จำนวนชุด
             retail, // boolean
             wholesale // boolean
 
@@ -44,8 +41,10 @@ exports.addLottos = async (req, res)=>{
 
         //----------------------------------------------
 
-        const amount = 
-            (type==='หวยเล่ม') ? 100 : 1
+        const unit = 
+            (type==='หวยเล่ม') ? 'เล่ม' :
+            (type==='หวยชุด') ? 'ชุด' :
+            'หน่วย'
 
         const market = 
             (retail===true && wholesale===false) ? "retail" :
@@ -72,8 +71,9 @@ exports.addLottos = async (req, res)=>{
 
         if(lotto){
             res.send({
-                message: "เพิ่มฉลากสมบูรณ์",
+                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market}`,
                 data:lotto,
+                unit: unit,
                 success: true,
             })
         }
