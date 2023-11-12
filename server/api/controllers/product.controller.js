@@ -3,11 +3,34 @@ const Lotto = require('../models/Lotteries/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
 
+// get my all lotteries data
+exports.getMyLottos = async (req, res) => {
+    try{
+        const userId = req.user.id
+        const userRole = req.user.role
+        
+        if(userRole !== 'seller'){
+            res.send({message:"คุณไม่ใช่ seller ไม่สามารถเข้าถึงข้อมูลได้"})
+        }
+
+        const myLottos = await Lotto.find({seller_id: userId})
+
+        if(myLottos){
+            res.send({
+                count: `หวยของฉันมีทั้งหมด ${myLottos.length} ชุด`,
+                myLottos
+            })
+        }
+    }
+    catch(err){
+        console.log(err.message)
+        res.send({message:"ERROR : please check console"})
+    }
+}
+
 exports.addLottos = async (req, res)=>{
     try{
         const userId = req.user.id
-        const sellerRole = req.user.seller_role
-        const userStatus = req.user.status
 
         const {
             number, // หมายเลขฉลาก
@@ -87,5 +110,61 @@ exports.addLottos = async (req, res)=>{
     catch(error){
         console.log(error.message)
         res.status(500).send(error.message)
+    }
+}
+
+exports.deleteMyLotto = async (req, res) => {
+    try{
+        
+        const {id} = req.params
+
+        const deletedProduct = await Lotto.findByIdAndDelete(id)
+
+        if(!deletedProduct){
+            res.send({message:"ไม่พบสินค้าในระบบ", success:false})
+        }
+
+        return res.status(200).send({
+            message: "ลบสินค้าเรียบร้อย",
+            success: true
+        })
+        
+    }
+    catch(error){
+        console.log(error.message)
+        res.send({
+            message: 'เกิดข้อผิดพลาด ลองตรวจสอบสาเหตุใน console',
+            success: false
+        })
+    }
+}
+
+exports.deleteMyLottos = async (req, res) => {
+    try{
+        const userId = req.user.id
+        const products = await Lotto.find({seller_id: userId})
+
+        if(!products || products.length === 0){
+            res.send({message:"ไม่พบสินค้าในระบบ", success:false})
+        } 
+
+        const result = await Lotto.deleteMany({seller_id: userId})
+        
+        if(!result){
+            res.send({message:"ไม่สามารถลบสินค้าได้", success:false})
+        }
+
+        return res.status(200).send({
+            message: "ลบสินค้าทั้งหมดเรียบร้อย",
+            success: true
+        })
+        
+    }
+    catch(error){
+        console.log(error.message)
+        res.send({
+            message: 'เกิดข้อผิดพลาด ลองตรวจสอบสาเหตุใน console',
+            success: false
+        })
     }
 }

@@ -40,12 +40,14 @@ const port = process.env.SERVER_PORT || 3000
 
 mongoose.connect(database_url)
     .then(()=>{
-        console.log('database connected')
+        console.log(`----------😀 LOTTO----------`)
+        console.log('> database connected \u2714')
     })
     .then(()=>{
         app.listen(port, ()=>{
             try{
-                console.log(`server start! on port ${port}`)
+                console.log(`> server start! on port ${port} \u2714`)
+                console.log(`----------------------------`)
             }
             catch(err){
                 console.log(`server strting error : ${err.message}`)
