@@ -2,6 +2,7 @@
 const Lotto = require("../models/Products/lotto.model.js")
 const Seller = require("../models/UsersModel/SellersModel.js")
 const User = require('../models/UsersModel/UsersModel.js')
+const Admin = require('../models/UsersModel/AdminModel.js')
 
 const jwt = require('jsonwebtoken')
 
@@ -73,23 +74,24 @@ exports.getAllLottos = async (req, res)=>{
 
 // Login admin
 exports.login = async (req, res)=>{
-
-    const adminEnvString = process.env.ADMIN
-    const admin = JSON.parse(adminEnvString)
-
     try{
-        const {username , password} = req.body     
+        const {username , password} = req.body
         
-        if(username!==admin.username){ 
-            res.status(404).json({message: `ไม่พบผู้ใช้งานนี้ กรุณาติดต่อผู้ดูแลระบบ`}) 
-        } else if(password !== admin.password){
-            res.status(404).json({message: `รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`})
-        } else{
-            // admin logged in successfully then genarate token
-            const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', { expiresIn: '1h' })
-            res.status(200).send({token, id:admin._id, role:admin.role})
+        const admin = await Admin.findOne({username:username})
+
+        if(!admin){
+            return res.status(404).send('ไม่พบผู้ใช้นี้ กรุณาลองใหม่อีกครั้ง')
         }
+
+        if(admin && password !== admin.password){
+            return res.status(404).send(`รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านใหม่อีกครั้ง`)
+        } 
             
+        // admin logged in successfully then genarate token
+        const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', { expiresIn: '1h' })
+
+        return res.status(200).send({token, id:admin._id, role:admin.role})
+        
     }
     catch(err){
         res.send('ERROR: please check console')
@@ -144,26 +146,27 @@ exports.editSellerStatus = async (req, res)=>{
 
     const {status} = req.body
     const {id} = req.params
+    console.log(id)
     const userRole = req.user.role
 
     try{
         
         if(userRole!=='admin'){
-            res.send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้')
+            return res.send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้')
         } 
 
         const seller = await Seller.findByIdAndUpdate(id, {status:status})
 
-        if(status === 'ยกเลิก'){
-            res.send({
-                message:`${seller.name} อัพเดทสถานะเป็น "ยกเลิก" เรียบร้อย`,
+        if(status === 'แก้ไข'){
+            return res.send({
+                message:`${seller.name} อัพเดทสถานะเป็น "แก้ไข" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
                 seller_role: seller.seller_role,
                 success: true
             })
         } else if(status === 'อนุมัติ'){
-            res.send({
+            return res.send({
                 message:`${seller.name} อัพเดทสถานะเป็น "อนุมัติ" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
@@ -172,7 +175,7 @@ exports.editSellerStatus = async (req, res)=>{
             })
         }
         else {
-            res.send({
+            return res.send({
                 message:`${seller.name} อัพเดทสถานะเป็น "กำลังตรวจสอบ" เรียบร้อย`,
                 id: seller._id,
                 role: seller.role,
@@ -195,9 +198,12 @@ exports.deleteAllSellers = async (req, res)=>{
         if(userRole !== 'admin'){
             res.send("ขออภัยคุณไม่ใช่ admin ไม่สามารถทำรายการนี้ได้")
         }
+        
         await Seller.deleteMany({})
+        await Lotto.deleteMany({})
+
         res.send({
-            message : 'delete seller success!',
+            message : 'delete all sellers and all lottos success!',
             success : true
         })
     }
@@ -227,5 +233,38 @@ exports.deleteAllUsers = async (req, res)=>{
     catch(err){
         res.send('ERROR : please check console')
         console.log({ERROR:err.message})
+    }
+}
+
+exports.register = async (req, res) => {
+    try{
+        const {username, password} = req.body
+
+        const adminExist = await Admin.findOne({username:username})
+
+        if(adminExist){
+            return res.send('มี username นี้แล้ว กรุณาลองใหม่')
+        }
+
+        const newAdmin = new Admin({
+            username: username,
+            password: password,
+            role: 'admin'
+        })
+
+        const savedAdmin = newAdmin.save() 
+        if(!savedAdmin){
+            return res.send('ไม่สามารถสร้างผู้ใช้ใหม่ได้')
+        }
+
+        return res.status(200).send({
+            message: "สร้าง admin สำเร็จ",
+            success: true
+        })
+
+    }
+    catch(error){
+        res.status(500).send(`ERROR: ${error.message}`)
+        console.log(error.message)
     }
 }

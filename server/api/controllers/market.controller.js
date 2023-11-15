@@ -7,7 +7,7 @@ exports.getWholesale = async (req, res) => {
 
         // check role
         if(userRole === "user"){
-            res.send({
+            return res.send({
                 message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
             })
         }

@@ -2,7 +2,6 @@
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
-
 // get my all lotteries data
 exports.getMyLottos = async (req, res) => {
     try{
@@ -46,7 +45,7 @@ exports.addLottos = async (req, res)=>{
         const seller = await Seller.findById(userId)
         const shopname = seller.shop_name
 
-        // run on admin site----------------------------
+        // will run on admin site----------------------------
 
         const year = "25" + number[0] + number[1]
         const day = number[3] + number[4]
@@ -75,12 +74,16 @@ exports.addLottos = async (req, res)=>{
             (retail===true && wholesale===true) ? "all" :
             "none"
 
+        const number_decoded = 
+            (type==='หวยเล่ม') ? `${number.substring(0, 9) + '??????' + number.substring(14+1)}`
+            : number
+
         const newLotto = 
             {
                 seller_id: userId,
                 shopname: shopname,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
-                number: number, // หมายเลขฉลาก xx-xx-xx-xxxxxx-xxxx
+                number: number_decoded, // หมายเลขฉลาก xx-xx-xx-xxxxxx-xxxx
                 amount: amount, // จำนวนหวย ใบ
                 period: period, // งวดที่ออก
                 cost: cost,
@@ -89,13 +92,14 @@ exports.addLottos = async (req, res)=>{
                 market: market, // ตลาดที่หวยชุดนี้ลงขาย
             }
 
-
         const lotto = await Lotto.create(newLotto)
 
         if(lotto){
             res.send({
                 message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market}`,
                 data:lotto,
+                number: number_decoded.substring(9, 14+1),
+                set: number_decoded.substring(6, 7+1),
                 unit: unit,
                 success: true,
             })

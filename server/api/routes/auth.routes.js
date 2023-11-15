@@ -1,7 +1,4 @@
 const route = require('express').Router()
-/* const bodyParser = require('body-parser')
-route.use(bodyParser.urlencoded({extended: true}))
-route.use(bodyParser.json()) */
 
 const auths = require('../controllers/auth.controller.js')
 
