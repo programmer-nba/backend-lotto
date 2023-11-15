@@ -33,7 +33,7 @@ exports.login = async (req, res)=>{
 
         if (user) {
             // If a user is found and the password is correct, generate a token
-            const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '1h' });
+            const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '24h' });
 
             res.status(200).json({
                 token,

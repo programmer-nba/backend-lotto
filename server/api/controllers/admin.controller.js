@@ -146,7 +146,6 @@ exports.editSellerStatus = async (req, res)=>{
 
     const {status} = req.body
     const {id} = req.params
-    console.log(id)
     const userRole = req.user.role
 
     try{
