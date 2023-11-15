@@ -27,6 +27,7 @@ exports.getMyLottos = async (req, res) => {
     }
 }
 
+// create new lotto set
 exports.addLottos = async (req, res)=>{
     try{
         const userId = req.user.id
@@ -145,6 +146,7 @@ exports.addLottos = async (req, res)=>{
     }
 }
 
+// delete lotto set
 exports.deleteMyLotto = async (req, res) => {
     try{
         
@@ -171,6 +173,7 @@ exports.deleteMyLotto = async (req, res) => {
     }
 }
 
+// delete all lottos
 exports.deleteMyLottos = async (req, res) => {
     try{
         const userId = req.user.id
