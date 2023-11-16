@@ -1,6 +1,7 @@
 // import database
 const User = require('../models/UsersModel/UsersModel.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
+const Admin = require('../models/UsersModel/AdminModel.js')
 
 // use .env
 const dotenv = require('dotenv')
@@ -47,11 +48,28 @@ exports.getMe = async (req, res)=>{
 
 // get me admin
 exports.getMeAdmin = async (req, res)=>{
-    res.send({
-        name: "admin",
-        username: "admin",
-        password: "191919",
-        role: "admin"
-    })
+    try{
+        const userId = req.user.id
+
+        const userRole = req.user.role
+        if(userRole!=='admin'){
+            return res.send('admin only!')
+        }
+
+        const myAdmin = await Admin.findById(userId)
+        if(!myAdmin){
+            return res.send('this admin not found in database')
+        }
+
+        return res.send({
+            message: `you are admin! username: ${myAdmin.username}`,
+            myAdmin: myAdmin,
+            success: true
+        })
+    }
+    catch(err){
+        res.send('ERROR con not getMeAdmin')
+        console.log(err)
+    }
 }
 

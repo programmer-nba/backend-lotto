@@ -4,6 +4,10 @@ const Seller = require('../models/UsersModel/SellersModel.js')
 // update profile
 exports.editMyProfile = async (req, res)=> {
     try{
+
+        const {
+            
+        }=req.body
         
         const userId = req.user.id
 

@@ -15,6 +15,7 @@ const AdminSchema = new Schema(
             type: String,
             required: true
         },
+        super: Boolean
     },
     {
         timestamps: true

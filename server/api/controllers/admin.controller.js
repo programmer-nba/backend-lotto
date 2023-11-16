@@ -88,9 +88,9 @@ exports.login = async (req, res)=>{
         } 
             
         // admin logged in successfully then genarate token
-        const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', { expiresIn: '1h' })
+        const token = jwt.sign({ id: admin._id, username: admin.username, role: admin.role, super: admin.super }, 'your-secret-key', { expiresIn: '6h' })
 
-        return res.status(200).send({token, id:admin._id, role:admin.role})
+        return res.status(200).send({token, id:admin._id, role:admin.role, super:admin.super})
         
     }
     catch(err){
@@ -237,7 +237,7 @@ exports.deleteAllUsers = async (req, res)=>{
 
 exports.register = async (req, res) => {
     try{
-        const {username, password} = req.body
+        const {username, password, superadmin} = req.body
 
         const adminExist = await Admin.findOne({username:username})
 
@@ -248,7 +248,8 @@ exports.register = async (req, res) => {
         const newAdmin = new Admin({
             username: username,
             password: password,
-            role: 'admin'
+            role: 'admin',
+            super: superadmin || false
         })
 
         const savedAdmin = newAdmin.save() 
@@ -264,6 +265,53 @@ exports.register = async (req, res) => {
     }
     catch(error){
         res.status(500).send(`ERROR: ${error.message}`)
+        console.log(error.message)
+    }
+}
+
+exports.deleteAdmin = async (req, res) => {
+    try{
+        const userSuper = req.user.super
+        const {id} = req.params
+
+        if(userSuper===false){
+            return res.send('ไม่สามารถทำรายการนี้ได้ กรุณาเข้าสู่ระบบเป็น super-ADMIN')
+        }
+
+        const deletedAdmin = await Admin.findByIdAndDelete(id)
+        if(!deletedAdmin){
+            return res.status(404).send('ไม่พบ admin นี้ในระบบ กรุณาลองใหม่')
+        }
+
+        return res.send(`ลบ admin ชื่อ : ${deletedAdmin.username} เรียบร้อย`)
+    }
+    catch(error){
+
+    }
+}
+
+// get all admins 
+exports.getAllAdmin = async (req, res) => {
+    try{
+        const userSuper = req.user.super
+        if(!userSuper){
+            return res.send('you can not access this function! super-admin only')
+        }
+
+        const admins = await Admin.find({role:'admin'})
+        if(admins.length <= 1){
+            return res.send('no any other admin role, please create one')
+        }
+
+        return res.send({
+            message: `success! have -${admins.length}- admins in system`,
+            admins: admins,
+            success: true
+        })
+
+    }
+    catch(error){
+        res.send('ERROR')
         console.log(error.message)
     }
 }
