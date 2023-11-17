@@ -247,12 +247,12 @@ exports.editCurrentLotto = async (req, res) => {
 
         } = req.body
 
-        const seller = await Seller.findById(userId)
-        const shopname = seller.shop_name
+        /* const seller = await Seller.findById(userId) */
+        /* const shopname = seller.shop_name */
 
         // will run on admin site----------------------------
 
-        const year = "25" + number[0][0] + number[0][1]
+        /* const year = "25" + number[0][0] + number[0][1]
         const day = number[0][3] + number[0][4]
         
         const now = new Date()
@@ -264,16 +264,16 @@ exports.editCurrentLotto = async (req, res) => {
 
         const currentMonth = months[monthIndex]
 
-        const period = `${day} ${currentMonth} ${year}`
+        const period = `${day} ${currentMonth} ${year}` */
 
         //----------------------------------------------
 
-        const amount = number.length
+        /* const amount = number.length */
     
-        const unit = 
+        /* const unit = 
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
             (type==='หวยชุด') ? 'ชุด' :
-            'หน่วย'
+            'หน่วย' */
 
         const market = 
             (retail===true && wholesale===false) ? "retail" :
@@ -281,11 +281,11 @@ exports.editCurrentLotto = async (req, res) => {
             (retail===true && wholesale===true) ? "all" :
             "none"
 
-        let number_stock = [] // โค้ดหวย
+        /* let number_stock = [] // โค้ดหวย
         
-        let set_stock = [] // ชุดที่
+        let set_stock = [] // ชุดที่ */
         
-        for(let i in number){
+        /* for(let i in number){
             let number_decoded = 
             (type==='หวยก้อน' || type==='หวยเล่ม') ? `${number[i].substring(0, 9) + 'xxxxxx' + number[i].substring(14+1)}`
             : number[0]
@@ -293,11 +293,11 @@ exports.editCurrentLotto = async (req, res) => {
 
             let set_decoded = number[i].substring(6, 7+1)
             set_stock.push(set_decoded)
-        }
+        } */
 
-        const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่
-
-        const set_string = set_stock.join(", ")
+        /* const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่
+ */
+        /* const set_string = set_stock.join(", ")
 
         const six_number = (type==='หวยเล่ม') ? `xxxx00-xxxx99`
         : (type==='หวยก้อน') ? `xxxx00-xxxx99 x${amount}`
@@ -306,7 +306,7 @@ exports.editCurrentLotto = async (req, res) => {
         const pcs =
             (type==='หวยเล่ม') ? 100 :
             (type==='หวยก้อน') ? amount*100 :
-            amount
+            amount */
 
         const newLotto = 
             {
@@ -330,11 +330,11 @@ exports.editCurrentLotto = async (req, res) => {
 
         if(lotto){
             res.send({
-                message: `แก้ไขฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} หมายเลข 6 หลัก = ${six_number} ชุดที่ = ${set_string} เล่มที่ = ${book}`,
-                data:lotto,
-                six_number: six_number,
+                message: `แก้ไขฉลากแล้ว`,
+                /* data:lotto, */
+                /* six_number: six_number,
                 set: set_string,
-                unit: unit,
+                unit: unit, */
                 success: true,
             })
         }
