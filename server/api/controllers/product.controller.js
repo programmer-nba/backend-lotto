@@ -239,8 +239,6 @@ exports.editCurrentLotto = async (req, res) => {
         const userId = req.user.id
 
         const {
-            number, // หมายเลขฉลาก
-            type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
             price, // ราคาขายหวย/ใบ
             retail, // boolean
@@ -312,7 +310,7 @@ exports.editCurrentLotto = async (req, res) => {
 
         const newLotto = 
             {
-                seller_id: userId,
+                /* seller_id: userId,
                 shopname: shopname,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
                 number: number_stock, // หมายเลขฉลาก xx-xx-xx-xxxxxx-xxxx
@@ -320,12 +318,12 @@ exports.editCurrentLotto = async (req, res) => {
                 amount: amount, // จำนวนหวย (ชุด)
                 period: period, // งวดที่ออก
                 book: book, // เล่มที่
-                set: set_stock, // ชุดที่
+                set: set_stock, // ชุดที่ */
                 cost: cost,
                 price: price,
                 profit: price-cost,
                 market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                pcs: pcs // จำนวนหวย (ใบ)
+                /* pcs: pcs // จำนวนหวย (ใบ) */
             }
 
         const lotto = await Lotto.findByIdAndUpdate(id, newLotto)

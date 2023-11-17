@@ -315,3 +315,19 @@ exports.getAllAdmin = async (req, res) => {
         console.log(error.message)
     }
 }
+
+exports.deleteSeller = async (req, res) => {
+    try{
+        const {id} = req.params
+        const deletedSeller = await Seller.findByIdAndDelete(id)
+        if(!deletedSeller){
+            res.send('seller not found')
+        }
+
+        res.send('delete seller success!')
+    }
+    catch(error){
+        res.send('ERROR!')
+        console.log(error)
+    }
+}

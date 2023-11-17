@@ -13,6 +13,7 @@ route.get('/all', verifyToken, admins.getAllAdmin)
 route.get('/sellers', verifyToken, admins.getAllSellers)
 route.delete('/sellers', verifyToken, admins.deleteAllSellers)
 route.put('/sellers/edit/:id', verifyToken, admins.editSellerStatus)
+route.delete('/sellers/delete/:id', verifyToken, admins.deleteSeller)
 
 route.delete('/lottos', verifyToken, admins.deleteAllLottos)
 route.get('/lottos', verifyToken, admins.getAllLottos)

@@ -1,3 +1,9 @@
+// multer
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' }).any()
+// use middleware >>> upload
+
+// google drive api
 const { google } = require('googleapis')
 const key = require('../../../cred.json')
 const path = require('path')
@@ -14,7 +20,7 @@ const auth = new google.auth.GoogleAuth({
 const drive = google.drive({version: 'v3', auth});
 
 // upload file
-exports.uploadPictures = async (req, res) => {
+const uploadPictures = async (req, res, next) => {
   try{
     console.log(req.body)
     console.log(req.files)
@@ -25,10 +31,9 @@ exports.uploadPictures = async (req, res) => {
 
     for(let f=0 ; f<files.length ; f++){
       await uploadFile(files[f], shopname)
-      res.send(`file submitted (${f+1})`)
     }
 
-    return res.send('form submitted')
+    next()
   }
   catch(err){
     console.log(err)
@@ -75,3 +80,5 @@ const uploadFile = async (fileObjects, shopname) => {
     console.log(err)
   }
 }
+
+module.exports = {upload, uploadPictures}

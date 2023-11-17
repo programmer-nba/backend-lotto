@@ -30,7 +30,7 @@ app.use('/lotto/user', userRoute)
 app.use('/lotto/auth', authRoute)
 app.use('/lotto/me', meRoute)
 app.use('/lotto/market', marketRoute)
-app.use('/lotto/upload-file', uploadRoute)
+/* app.use('/lotto/upload-file', uploadRoute) */
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
