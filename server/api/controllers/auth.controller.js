@@ -55,13 +55,35 @@ exports.login = async (req, res)=>{
 exports.sellerRegister = async (req, res)=>{
     const {
         password, seller_role, line_id, email,
-        name, phone_number, address, personal_id, personal_img,
-        shop_name, shop_location, shop_img, shop_bank, shop_logo
+        name, phone_number, address, personal_id,
+        shop_name, shop_location,
     } = req.body
     
     const dataIds = req.dataIds
-    console.log(dataIds[0])
+    console.log(dataIds)
+
+    const shop_img = dataIds.filter(id => id.includes('shop_img'))[0].replace('shop_img/', '')
+    const shop_img_link = (shop_img) 
+        ? `https://drive.google.com/file/d/${shop_img}/view` 
+        : `https://drive.google.com/file/d/1PXRTYgPZehlJZX8XVjOJ4vZzarYo3rPK/view`
+
+    const shop_cover = dataIds.filter(id => id.includes('shop_cover'))[0].replace('shop_cover/', '')
+    const shop_cover_link = (shop_cover) 
+        ? `https://drive.google.com/file/d/${shop_cover}/view` 
+        : `https://drive.google.com/file/d/1znjaLeT-DuFM_qLxt7PfuKVfD2JulFSl/view`
+
+    const shop_bank = dataIds.filter(id => id.includes('shop_bank'))[0].replace('shop_bank/', '')
+    const shop_bank_link = (shop_bank) 
+        ? `https://drive.google.com/file/d/${shop_bank}/view` 
+        : `https://drive.google.com/file/d/1DMQ4c8_K5HBmSyremT80Q2KXySYIPOJ6/view`
+
+    const personal_img = dataIds.filter(id => id.includes('personal_img'))[0].replace('personal_img/', '')
+    const personal_img_link = (personal_img) 
+        ? `https://drive.google.com/file/d/${personal_img}/view` 
+        : `https://drive.google.com/file/d/1C7EGQr0qIuiXdA8HCGU1C-C2imzseg-W/view`
+
     try{
+        
         const sellerExisting = await Seller.findOne({phone_number})
         const userExisting = await User.findOne({phone_number})
 
@@ -85,14 +107,14 @@ exports.sellerRegister = async (req, res)=>{
                     // for update
                     email,
                     address,
-                    
                     shop_location,
                     shop_name: shop_name || name,
 
-                    personal_img,
-                    shop_img : `https://drive.google.com/file/d/${dataIds[0]}/view`,
-                    shop_bank, 
-                    shop_logo,
+                    // img
+                    personal_img : personal_img_link,
+                    shop_img : shop_img_link,
+                    shop_bank: shop_bank_link, 
+                    shop_cover : shop_cover_link,
                 }
             )
     
@@ -105,7 +127,9 @@ exports.sellerRegister = async (req, res)=>{
                 seller_role: newSeller.seller_role,
                 status: newSeller.status,
                 success: true,
-                shop_img: newSeller.shop_img
+                shop_img: newSeller.shop_img,
+                shop_cover: newSeller.shop_cover,
+                shop_bank: newSeller.shop_bank
             })
 
         }

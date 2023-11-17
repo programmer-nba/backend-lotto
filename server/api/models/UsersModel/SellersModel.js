@@ -69,7 +69,7 @@ const SellerSchema = new Schema(
             type: String,
             
         }, 
-        shop_logo: {
+        shop_cover: {
             type: String,
         },
         
