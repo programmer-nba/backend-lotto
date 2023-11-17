@@ -2,6 +2,7 @@
 const User = require('../models/UsersModel/UsersModel.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 const Admin = require('../models/UsersModel/AdminModel.js')
+const Lotto = require('../models/Products/lotto.model.js')
 
 // use .env
 const dotenv = require('dotenv')
@@ -72,4 +73,6 @@ exports.getMeAdmin = async (req, res)=>{
         console.log(err)
     }
 }
+
+
 
