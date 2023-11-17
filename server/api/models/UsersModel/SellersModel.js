@@ -49,8 +49,7 @@ const SellerSchema = new Schema(
 
 
         personal_img: {
-            data: Buffer,
-            contentType: String
+            type: String,
         },
 
         // shop profile
@@ -63,22 +62,16 @@ const SellerSchema = new Schema(
             
         },
         shop_img: {
-            data: Buffer,
-            contentType: String,
+            type: String,
             
         },
         shop_bank: {
-            data: Buffer,
-            contentType: String,
+            type: String,
             
         }, 
         shop_logo: {
             type: String,
-            contentType: String,
         },
-        
-        //stores
-        stores: []
         
     },
     {

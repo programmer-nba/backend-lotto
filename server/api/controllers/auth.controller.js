@@ -58,7 +58,9 @@ exports.sellerRegister = async (req, res)=>{
         name, phone_number, address, personal_id, personal_img,
         shop_name, shop_location, shop_img, shop_bank, shop_logo
     } = req.body
-
+    
+    const dataIds = req.dataIds
+    console.log(dataIds[0])
     try{
         const sellerExisting = await Seller.findOne({phone_number})
         const userExisting = await User.findOne({phone_number})
@@ -88,7 +90,7 @@ exports.sellerRegister = async (req, res)=>{
                     shop_name: shop_name || name,
 
                     personal_img,
-                    shop_img,
+                    shop_img : `https://drive.google.com/file/d/${dataIds[0]}/view`,
                     shop_bank, 
                     shop_logo,
                 }
@@ -102,7 +104,8 @@ exports.sellerRegister = async (req, res)=>{
                 role: newSeller.role,
                 seller_role: newSeller.seller_role,
                 status: newSeller.status,
-                success: true
+                success: true,
+                shop_img: newSeller.shop_img
             })
 
         }

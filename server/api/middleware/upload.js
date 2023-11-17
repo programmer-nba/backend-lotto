@@ -29,10 +29,15 @@ const uploadPictures = async (req, res, next) => {
 
     const shopname = body.shop_name || body.name
 
+    const dataIds = []
+
     for(let f=0 ; f<files.length ; f++){
-      await uploadFile(files[f], shopname)
+      const data = await uploadFile(files[f], shopname)
+      console.log(`dataId = ${data.id}`)
+      dataIds.push(data.id)
     }
 
+    req.dataIds = dataIds
     next()
   }
   catch(err){
@@ -75,6 +80,8 @@ const uploadFile = async (fileObjects, shopname) => {
   })
 
   console.log(`Upload file ${data.name} ${data.id}`)
+  return data
+
   }
   catch(err){
     console.log(err)
