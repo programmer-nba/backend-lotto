@@ -21,7 +21,7 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
 // use middleware
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '10mb' }))
 
 // use routes
 app.use('/lotto/admin', adminRoute)
