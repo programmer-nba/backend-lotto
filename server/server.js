@@ -11,6 +11,7 @@ const authRoute = require('./api/routes/auth.routes.js')
 const sellerRoute = require('./api/routes/seller.routes.js')
 const meRoute = require('./api/routes/me.routes.js')
 const marketRoute = require('./api/routes/market.routes.js')
+const LinemsgRoute = require('./api/routes/messager.routes.js')
 
 // use .env
 const dotenv = require('dotenv')
@@ -29,6 +30,7 @@ app.use('/lotto/user', userRoute)
 app.use('/lotto/auth', authRoute)
 app.use('/lotto/me', meRoute)
 app.use('/lotto/market', marketRoute)
+app.use('/lotto/line', LinemsgRoute)
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
