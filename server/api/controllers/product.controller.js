@@ -118,7 +118,8 @@ exports.addLottos = async (req, res)=>{
                 price: price,
                 profit: price-cost,
                 market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                pcs: pcs // จำนวนหวย (ใบ)
+                pcs: pcs, // จำนวนหวย (ใบ)
+                on_order: false, // 
             }
 
         const lotto = await Lotto.create(newLotto)

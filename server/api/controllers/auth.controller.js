@@ -35,7 +35,12 @@ exports.login = async (req, res)=>{
             // If a user is found and the password is correct, generate a token
             const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '24h' });
 
-            res.status(200).json({
+            const date = new Date().toString()
+            const userRole = user.role
+            const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {last_logedIn: date, IP: req.ip}) 
+            : await Seller.findByIdAndUpdate(user._id, {last_logedIn: date, IP: req.ip})
+
+            return res.status(200).json({
                 token,
                 id: user._id,
                 role: user.role,
@@ -43,6 +48,8 @@ exports.login = async (req, res)=>{
                 seller_role: user.seller_role,
                 status: user.status,
                 success: true,
+                last_login: savedLoginDate.last_logedIn,
+                userIP: savedLoginDate.IP,
             });
         }
     } catch (err) {
