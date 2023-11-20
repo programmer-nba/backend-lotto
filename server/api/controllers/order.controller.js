@@ -140,14 +140,14 @@ exports.getMyOrders = async (req, res) => {
         
         if(!myOrders || myOrders.length===0){
             return res.send('no any orders')
-        }    
+        } else {
+            const myNewOrders = myOrders.filter(item=>item.status==='new')
 
-        const myNewOrders = myOrders.filter(item=>item.status==='new')
-
-        return res.send({
-            message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}`,
-            myOrders
-        })
+            return res.send({
+                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}`,
+                myOrders
+            })
+        }
     }
     catch(error){
         res.send('ERROR con not get my orders')
