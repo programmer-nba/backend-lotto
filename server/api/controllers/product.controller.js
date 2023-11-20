@@ -356,7 +356,9 @@ exports.getTargetShop = async (req, res) => {
     try{
         const {id} = req.params
         const lotto = await Lotto.findById(id)
-        console.log(lotto)
+        if(!lotto){
+            return res.send('lotto no found?')
+        }
         const shop_lottos = await Lotto.find({seller_id:lotto.seller_id})
          
         res.send({

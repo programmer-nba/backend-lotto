@@ -16,17 +16,17 @@ exports.deleteAllLottos = async (req, res) => {
     try{
         const userRole = req.user.role
         if(userRole !== 'admin'){
-            res.send({message:"คุณไม่ใช่ admin ไม่สามารถทำรายการได้"})
+            return res.send({message:"คุณไม่ใช่ admin ไม่สามารถทำรายการได้"})
         }
 
         await Lotto.deleteMany()
         const lottosAmount = await Lotto.find()
         
         if(lottosAmount.length > 0){
-            res.send({message: "เกิดข้อผิดพลาด ไม่สามารถลบฉลากได้"})
+            return res.send({message: "เกิดข้อผิดพลาด ไม่สามารถลบฉลากได้"})
         }
 
-        res.send({
+        return res.send({
             message: "ลบฉลากทั้งหมดแล้ว",
             amout: `ฉลากในระบบเหลือ ${lottosAmount.length}`
         })

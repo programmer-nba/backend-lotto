@@ -35,13 +35,13 @@ exports.createOrder = async (req, res) => {
             return res.send('you are not allowed')
         }
 
-        const existing_order = await Order.findOne({status:'new'})
-        if(existing_order){
-            if(existing_order.lotto_id===lotto_id){
-                return res.send('มีออร์เดอร์นี้แล้ว')
-            }
-        } else {
-            const bill_no = genBill()
+        /* const new_orders = await Order.find({status:'new'})
+        const existing_order = new_orders.filter(item=>item.lotto_id===lotto_id && item.status==='new') */
+
+        /* if(new_orders.length>0 && existing_order){
+            return res.send('มีออร์เดอร์นี้แล้ว')   
+        }  */
+            const bill_no = await genBill()
             const order_no = await genOrderNo()
     
             const new_order = {
@@ -57,25 +57,24 @@ exports.createOrder = async (req, res) => {
             if(!order){
                 return res.send('order not created')
             }
-    
-            const update_lotto = await Lotto.findByIdAndUpdate(lotto_id, {on_order: true})
-            if(!update_lotto){
-                return res.send('lotto not found')
+            
+            for(i in lotto_id){
+                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
+                .then(()=>console.log('updated lotto status'))
             }
-    
-                const timeBeforeDelete = 30
-                timeOut(order._id ,lotto_id, timeBeforeDelete)
-    
-                return res.send({
-                    message: `Order created successfully`,
-                    order_id: order._id,
-                    bill_no: order.bill_no,
-                    buyer_name: buyer_name,
-                    order_start: order.createdAt,
-                    status: 'กำลังรอร้านค้ายืนยัน...'
-                })
-        }
+        
+        const timeBeforeDelete = 30
+        timeOut(order._id ,lotto_id, timeBeforeDelete)
 
+        return res.send({
+            message: `Order created successfully`,
+            /* order_id: order._id,
+            bill_no: order.bill_no,
+            buyer_name: buyer_name,
+            order_start: order.createdAt, */
+            status: 'กำลังรอร้านค้ายืนยัน...'
+        })
+        
     }
     catch(err){
         res.send(`Error creating order: ${err.message}`)
@@ -86,12 +85,14 @@ exports.createOrder = async (req, res) => {
 const timeOut = async (order_id, lotto_id, seconds) => {
     
     setTimeout(async () => {
-        const lotto = await Lotto.findById(lotto_id)
-        if(lotto.on_order){
-            await Lotto.findByIdAndUpdate(lotto_id, {on_order: false})
-            console.log(`order cancle > lotto is backing to market`)
-        } else {
-            console.log(`order confirm > lotto is on process...`)
+        for(i in lotto_id){
+            const lotto = await Lotto.findById(lotto_id[i])
+            if(lotto.on_order){
+                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
+                console.log(`order cancle > lotto is backing to market`)
+            } else {
+                console.log(`order confirm > lotto is on process...`)
+            }
         }
     }, seconds*1000)
 
@@ -134,9 +135,21 @@ exports.getMyOrders = async (req, res) => {
     try{
         const sellerId = req.user.id
         const orders = await Order.find().populate('lotto_id')
+
+        if(!orders){
+            return res.send('no any orders')
+        }
+
         const myOrders = orders.filter(item=>item.lotto_id.seller_id.toString()===sellerId)
-        
-        res.send(myOrders)
+        if(myOrders.length===0){
+            return res.send('no any orders')
+        }
+        const myNewOrders = myOrders.filter(item=>item.status==='new')
+
+        return res.send({
+            message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}`,
+            myOrders
+        })
     }
     catch(error){
         res.send('ERROR con not get my orders')

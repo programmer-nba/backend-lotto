@@ -3,10 +3,7 @@ const {Schema} = mongoose
 
 const orderSchema = new Schema(
     {
-        lotto_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Lotto'
-        },
+        lotto_id: Array,
         buyer_id: { 
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
