@@ -35,13 +35,6 @@ exports.createOrder = async (req, res) => {
             return res.send('you are not allowed')
         }
 
-        /* const new_orders = await Order.find({status:'new'})
-        const existing_order = new_orders.filter(item=>item.lotto_id===lotto_id && item.status==='new') */
-
-        /* if(new_orders.length>0 && existing_order){
-            return res.send('มีออร์เดอร์นี้แล้ว')   
-        }  */
-
         const bill_no = await genBill()
         const order_no = await genOrderNo()
 
@@ -66,10 +59,11 @@ exports.createOrder = async (req, res) => {
         for(i in lotto_id){
             await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
             .then(()=>console.log('updated lotto status'))
+            .catch((err)=>res.send('lotto not found'))
         }
         
         const timeBeforeDelete = 30 // วินาที
-        timeOut(order._id ,lotto_id, timeBeforeDelete)
+        await timeOut(order._id ,lotto_id, timeBeforeDelete)
 
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
@@ -138,6 +132,7 @@ exports.getAllOrders = async (req, res) => {
     }
 }
 
+// for "ขายส่ง" seller
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
@@ -175,6 +170,29 @@ exports.deleteAllOrders = async (req, res) => {
     }
     catch(err){
         res.send('ERROR can not delete all order history')
+        console.log(err.message)
+    }
+}
+
+exports.getMyPurchase = async (req, res) => {
+    try{
+        const myId = req.user.id
+
+        const orders = await Order.find().populate('buyer_id')
+    
+        if(!orders || orders.length===0){
+            return res.send('orders no found')
+        }
+
+        const myPurchases = orders.filter(item=>item.buyer_id._id.toString()===myId)
+        const myNewPurchases = myPurchases.filter(item=>item.status==='new')
+
+        return res.send({
+            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}`
+        })
+    }
+    catch(err){
+        res.send('ERROR! can not get purchase')
         console.log(err.message)
     }
 }

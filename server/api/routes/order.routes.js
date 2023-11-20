@@ -7,5 +7,6 @@ route.get('/get-all', verifyToken, orders.getAllOrders)
 route.get('/get-myorders', verifyToken, orders.getMyOrders)
 
 route.delete('/delete-all', verifyToken, orders.deleteAllOrders)
+route.get('/get-mypurchases', verifyToken, orders.getMyPurchase)
 
 module.exports = route
