@@ -28,7 +28,9 @@ const lottoSchema = new Schema(
         cost: Number, // ราคาทุน
         price: Number, // ราคาขาย
         profit: Number, // กำไร
-        totlal_profit: Number // กำไรรวมทั้งชุด
+        totlal_profit: Number, // กำไรรวมทั้งชุด
+
+        on_order: Boolean, 
     },
     {
         timestamps: true

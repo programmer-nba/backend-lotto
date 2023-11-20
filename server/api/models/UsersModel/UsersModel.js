@@ -25,7 +25,9 @@ const UserSchema = new Schema(
         },
         line_id : {
             type: String,
-        }
+        },
+        last_logedIn: String,
+        IP: String
         
     },
     {

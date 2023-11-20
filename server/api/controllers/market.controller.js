@@ -12,7 +12,16 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}})
+        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false})
+
+        if(market.length === 0){
+            return res.send({
+                message: `มีฉลากทั้งหมด ${market.length} ชุด`,
+                market
+            })
+        }
+
+
 
         return res.status(200).send({
             message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
