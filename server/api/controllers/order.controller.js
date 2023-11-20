@@ -41,38 +41,45 @@ exports.createOrder = async (req, res) => {
         /* if(new_orders.length>0 && existing_order){
             return res.send('มีออร์เดอร์นี้แล้ว')   
         }  */
-            const bill_no = await genBill()
-            const order_no = await genOrderNo()
-    
-            const new_order = {
-                lotto_id: lotto_id,
-                buyer_id: buyer_id,
-                bill_no: bill_no,
-                status: 'new',
-                order_no: order_no
-            }
-            
-            const order = await Order.create(new_order)
-            
-            if(!order){
-                return res.send('order not created')
-            }
-            
-            for(i in lotto_id){
-                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
-                .then(()=>console.log('updated lotto status'))
-            }
+
+        const bill_no = await genBill()
+        const order_no = await genOrderNo()
+
+        const lotto = await Lotto.findById(lotto_id[0])
+        const seller_id = lotto.seller_id
+
+        const new_order = {
+            lotto_id: lotto_id,
+            buyer_id: buyer_id,
+            seller_id: seller_id,
+            bill_no: bill_no,
+            status: 'new',
+            order_no: order_no
+        }
         
-        const timeBeforeDelete = 30
+        const order = await Order.create(new_order)
+        
+        if(!order){
+            return res.send('order not created')
+        }
+        
+        for(i in lotto_id){
+            await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
+            .then(()=>console.log('updated lotto status'))
+        }
+        
+        const timeBeforeDelete = 30 // วินาที
         timeOut(order._id ,lotto_id, timeBeforeDelete)
 
         return res.send({
-            message: `Order created successfully`,
-            /* order_id: order._id,
+            message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
+            order_id: order._id,
             bill_no: order.bill_no,
             buyer_name: buyer_name,
-            order_start: order.createdAt, */
-            status: 'กำลังรอร้านค้ายืนยัน...'
+            seller_name: lotto.shopname,
+            seller_id: seller_id,
+            order_start: order.createdAt,
+            status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`,
         })
         
     }
@@ -133,17 +140,13 @@ exports.getAllOrders = async (req, res) => {
 
 exports.getMyOrders = async (req, res) => {
     try{
-        const sellerId = req.user.id
-        const orders = await Order.find().populate('lotto_id')
-
-        if(!orders){
+        const myId = req.user.id
+        const myOrders = await Order.find({seller_id:myId})
+        
+        if(!myOrders || myOrders.length===0){
             return res.send('no any orders')
-        }
+        }    
 
-        const myOrders = orders.filter(item=>item.lotto_id.seller_id.toString()===sellerId)
-        if(myOrders.length===0){
-            return res.send('no any orders')
-        }
         const myNewOrders = myOrders.filter(item=>item.status==='new')
 
         return res.send({
