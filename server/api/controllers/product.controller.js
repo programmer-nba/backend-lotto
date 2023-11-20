@@ -354,9 +354,9 @@ exports.editCurrentLotto = async (req, res) => {
 
 exports.getTargetShop = async (req, res) => {
     try{
-        const {lotto_id} = req.body
-        const lotto = await Lotto.findById(lotto_id)
-
+        const {id} = req.params
+        const lotto = await Lotto.findById(id)
+        console.log(lotto)
         const shop_lottos = await Lotto.find({seller_id:lotto.seller_id})
          
         res.send({

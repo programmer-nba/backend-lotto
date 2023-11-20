@@ -42,21 +42,21 @@ exports.getAllLottos = async (req, res)=>{
     try{
         // check token is verified
         if(!req.user){
-            res.send({message:'verify token error', success:false})
+            return res.send({message:'verify token error', success:false})
         }
 
         const lotteries = await Lotto.find()
 
         // check founded lottery in database
         if(!lotteries){
-            res.send({message:"ไม่พบฉลากในระบบ", success: false})
+            return res.send({message:"ไม่พบฉลากในระบบ", success: false})
         } else if(lotteries.length <= 0){
-            res.send({message:"ไม่มีฉลากในระบบ กรุณารอผู้ขายเพิ่มฉลากใหม่", success: true})
+            return res.send({message:"ไม่มีฉลากในระบบ กรุณารอผู้ขายเพิ่มฉลากใหม่", success: true})
         }
 
         
 
-        res.send({
+        return res.send({
             message: `มีฉลากในระบบจำนวน ${lotteries.length} ชุด`,
             success: true,
             data: lotteries

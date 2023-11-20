@@ -19,14 +19,12 @@ exports.getWholesale = async (req, res) => {
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
                 market
             })
-        }
-
-
-
-        return res.status(200).send({
-            message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
-            data: market
-        })
+        } else {
+            return res.status(200).send({
+                message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
+                data: market
+            })
+        } 
     }
     catch(error){
         console.log(error.message)

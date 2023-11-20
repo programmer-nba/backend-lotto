@@ -11,7 +11,13 @@ const orderSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
         },
+        seller_id:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Seller'
+        },
         bill_no: String,
+        order_no: String,
+        status: String
     },
     {
         timestamps: true
