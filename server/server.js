@@ -35,7 +35,7 @@ app.use('/lotto/market', marketRoute)
 app.use('/lotto/order', orderRoute)
 
 // connect app to database -> starting server
-const database_url = process.env.DATABASE_URL_TEST
+const database_url = process.env.DATABASE_URL
 const port = process.env.SERVER_PORT || 3000
 mongoose.connect(database_url)
     .then(()=>{

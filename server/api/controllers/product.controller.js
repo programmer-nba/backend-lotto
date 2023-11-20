@@ -83,7 +83,7 @@ exports.addLottos = async (req, res)=>{
         for(let i in number){
             let number_decoded = 
             (type==='หวยก้อน' || type==='หวยเล่ม') ? `${number[i].substring(0, 9) + 'xxxxxx' + number[i].substring(14+1)}`
-            : number[0]
+            : number[i]
             number_stock.push(number_decoded)
 
             let set_decoded = number[i].substring(6, 7+1)
@@ -349,5 +349,24 @@ exports.editCurrentLotto = async (req, res) => {
     catch(error){
         console.log(error.message)
         res.status(500).send(error.message)
+    }
+}
+
+exports.getTargetShop = async (req, res) => {
+    try{
+        const {lotto_id} = req.body
+        const lotto = await Lotto.findById(lotto_id)
+
+        const shop_lottos = await Lotto.find({seller_id:lotto.seller_id})
+         
+        res.send({
+            message : `เข้าสู่ร้าน : ${lotto.shopname}`,
+            products : shop_lottos
+        })
+
+    }
+    catch(err){
+        res.send('ERROR can not get target lottos')
+        console.log(err)
     }
 }

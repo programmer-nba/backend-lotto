@@ -19,4 +19,6 @@ route.post('/products/addlotto', verifyToken, lottos.addLottos)
 route.delete('/products/delete/:id', verifyToken, lottos.deleteMyLotto)
 route.delete('/products/deleteall', verifyToken, lottos.deleteMyLottos)
 
+route.get('/target-shop', lottos.getTargetShop)
+
 module.exports = route
