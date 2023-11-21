@@ -360,10 +360,17 @@ exports.getTargetShop = async (req, res) => {
             return res.send('lotto no found?')
         }
         const shop_lottos = await Lotto.find({seller_id:lotto.seller_id})
+        if(!shop_lottos || shop_lottos.length===0){
+            return res.send('ไม่พบสินค้าในระบบ')
+        }
+        
+        const on_sell = shop_lottos.filter(item=>{
+            !item.on_order
+        })
          
         res.send({
             message : `เข้าสู่ร้าน : ${lotto.shopname}`,
-            products : shop_lottos
+            products : on_sell
         })
 
     }
