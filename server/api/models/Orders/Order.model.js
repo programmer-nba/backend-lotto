@@ -4,17 +4,21 @@ const {Schema} = mongoose
 const orderSchema = new Schema(
     {
         lotto_id: Array,
-        buyer_id: { 
+        buyer: { 
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
         },
-        seller_id:{
+        seller:{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
         },
         bill_no: String,
         order_no: String,
-        status: String
+        status: String, 
+        getBy: String, // รับเอง, จัดส่ง
+        transfer_cost: Number, // ค่าจัดส่ง
+        receipt: String, // ใบเสร็จรับเงิน
+        paid_slip: String // สลิปโอนเงิน
     },
     {
         timestamps: true

@@ -35,23 +35,23 @@ exports.createOrder = async (req, res) => {
             return res.send('you are not allowed')
         }
 
-        const bill_no = await genBill()
         const order_no = await genOrderNo()
 
         const lotto = await Lotto.findById(lotto_id[0])
+        if(!lotto){
+            return res.send('lotto id not found')
+        }
         const seller_id = lotto.seller_id
 
         const new_order = {
             lotto_id: lotto_id,
-            buyer_id: buyer_id,
-            seller_id: seller_id,
-            bill_no: bill_no,
+            buyer: buyer_id,
+            seller: seller_id,
             status: 'new',
             order_no: order_no
         }
         
         const order = await Order.create(new_order)
-        
         if(!order){
             return res.send('order not created')
         }
@@ -59,7 +59,7 @@ exports.createOrder = async (req, res) => {
         for(i in lotto_id){
             await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
             .then(()=>console.log('updated lotto status'))
-            .catch((err)=>res.send('lotto not found'))
+            .catch(()=>res.send('lotto not found'))
         }
         
         const timeBeforeDelete = 30 // วินาที
@@ -68,7 +68,6 @@ exports.createOrder = async (req, res) => {
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
             order_id: order._id,
-            bill_no: order.bill_no,
             buyer_name: buyer_name,
             seller_name: lotto.shopname,
             seller_id: seller_id,
@@ -136,16 +135,21 @@ exports.getAllOrders = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
-        const myOrders = await Order.find({seller_id:myId})
+        const orders = await Order.find().populate('buyer').populate('seller')
+        if(!orders || orders.length===0){
+            return res.send('orders no found')
+        }
+
+        const myOrders = orders.filter(item=>item.seller._id.toString()===myId)
         
         if(!myOrders || myOrders.length===0){
-            return res.send('no any orders')
+            return res.send('ไม่พบออร์เดอร์ของฉัน')
         } else {
             const myNewOrders = myOrders.filter(item=>item.status==='new')
 
             return res.send({
                 message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}`,
-                myOrders
+                myOrders: myOrders
             })
         }
     }
@@ -174,21 +178,23 @@ exports.deleteAllOrders = async (req, res) => {
     }
 }
 
+// for "ขายปลีก" seller
 exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
 
-        const orders = await Order.find().populate('buyer_id')
+        const orders = await Order.find().populate('buyer').populate('seller')
     
         if(!orders || orders.length===0){
             return res.send('orders no found')
         }
 
-        const myPurchases = orders.filter(item=>item.buyer_id._id.toString()===myId)
+        const myPurchases = orders.filter(item=>item.buyer._id.toString()===myId)
         const myNewPurchases = myPurchases.filter(item=>item.status==='new')
 
         return res.send({
-            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}`
+            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}`,
+            myOrders: myPurchases
         })
     }
     catch(err){
