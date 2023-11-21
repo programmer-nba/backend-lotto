@@ -37,6 +37,13 @@ exports.createOrder = async (req, res) => {
 
         const order_no = await genOrderNo()
 
+        const lotto_list = lotto_id.map(async (id) => {
+            const lotto = await Lotto.findById(id)
+            return lotto
+        })
+
+        const lottos = await Promise.all(lotto_list)
+
         const lotto = await Lotto.findById(lotto_id[0])
         if(!lotto){
             return res.send('lotto id not found')
@@ -51,7 +58,7 @@ exports.createOrder = async (req, res) => {
         const transferBy = (transfer==='address') ? buyer_address.address : transfer  
 
         const new_order = {
-            lotto_id: lotto_id,
+            lotto_id: lottos,
             buyer: buyer_id,
             seller: seller_id,
             status: 'new',
@@ -154,15 +161,18 @@ exports.getMyOrders = async (req, res) => {
         
         if(!myOrders || myOrders.length===0){
             return res.send('ไม่พบออร์เดอร์ของฉัน')
-        } else {
-            const myNewOrders = myOrders.filter(item=>item.status==='new')
-            const myAcceptedOrders = myOrders.filter(item=>item.status==='accepted')
+        } 
 
-            return res.send({
-                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
-                myOrders: myOrders
-            })
-        }
+        const myNewOrders = myOrders.filter(item=>item.status==='new')
+        const myAcceptedOrders = myOrders.filter(item=>item.status==='accepted')
+        
+       
+
+        return res.send({
+            message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
+            myOrders: myOrders,
+        })
+        
     }
     catch(error){
         res.send('ERROR con not get my orders')
