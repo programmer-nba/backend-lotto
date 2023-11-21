@@ -70,7 +70,7 @@ exports.createOrder = async (req, res) => {
             .catch(()=>res.send('lotto not found'))
         }
         
-        const timeBeforeDelete = 30 // วินาที
+        const timeBeforeDelete = 300 // วินาที
         await timeOut(order._id ,lotto_id, timeBeforeDelete)
 
         return res.send({
