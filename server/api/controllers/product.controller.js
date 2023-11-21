@@ -9,13 +9,13 @@ exports.getMyLottos = async (req, res) => {
         const userRole = req.user.role
         
         if(userRole !== 'seller'){
-            res.send({message:"คุณไม่ใช่ seller ไม่สามารถเข้าถึงข้อมูลได้"})
+            return res.send({message:"คุณไม่ใช่ seller ไม่สามารถเข้าถึงข้อมูลได้"})
         }
 
         const myLottos = await Lotto.find({seller_id: userId})
 
         if(myLottos){
-            res.send({
+            return res.send({
                 count: `หวยของฉันมีทั้งหมด ${myLottos.length} ชุด`,
                 myLottos
             })
@@ -363,13 +363,14 @@ exports.getTargetShop = async (req, res) => {
         if(!shop_lottos || shop_lottos.length===0){
             return res.send('ไม่พบสินค้าในระบบ')
         }
-        
-        const on_sell = shop_lottos.filter(item=>{
-            !item.on_order
-        })
+
+        const on_sell = shop_lottos.filter(item=>
+            item.on_order===false
+        )
          
-        res.send({
+        return res.send({
             message : `เข้าสู่ร้าน : ${lotto.shopname}`,
+            amount: `มีสินค้าพร้อมขายในร้าน : ${on_sell.length}`,
             products : on_sell
         })
 
