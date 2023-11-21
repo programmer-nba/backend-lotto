@@ -26,7 +26,7 @@ const genOrderNo = async () => {
 
 exports.createOrder = async (req, res) => {
     try{
-        const {lotto_id} = req.body
+        const {lotto_id, transfer} = req.body
         const buyer_id = req.user.id
         const buyer_role = req.user.seller_role
         const buyer_name = req.user.name
@@ -41,14 +41,22 @@ exports.createOrder = async (req, res) => {
         if(!lotto){
             return res.send('lotto id not found')
         }
-        const seller_id = lotto.seller_id
+        const seller_id = lotto.seller_id 
+
+        const buyer_address = await Seller.findById(buyer_id)
+        if(!buyer_address){
+            buyer_address = 'ไม่ได้เพิ่มที่อยู่'
+        }
+
+        const transferBy = (transfer==='address') ? buyer_address.address : transfer  
 
         const new_order = {
             lotto_id: lotto_id,
             buyer: buyer_id,
             seller: seller_id,
             status: 'new',
-            order_no: order_no
+            order_no: order_no,
+            transferBy: transferBy
         }
         
         const order = await Order.create(new_order)
@@ -68,6 +76,7 @@ exports.createOrder = async (req, res) => {
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
             order_id: order._id,
+            order_transfer: order.transferBy,
             buyer_name: buyer_name,
             seller_name: lotto.shopname,
             seller_id: seller_id,
@@ -150,7 +159,7 @@ exports.getMyOrders = async (req, res) => {
             const myAcceptedOrders = myOrders.filter(item=>item.status==='accepted')
 
             return res.send({
-                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้วช ${myAcceptedOrders.length}`,
+                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
                 myOrders: myOrders
             })
         }
@@ -158,6 +167,34 @@ exports.getMyOrders = async (req, res) => {
     catch(error){
         res.send('ERROR con not get my orders')
         console.log(error.message)
+    }
+}
+
+exports.cancleOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+
+        const me = 
+            (req.user.seller_role==='ขายส่ง') ? 'ร้านค้า' :
+            (req.user.role==='admin') ? 'แอดมิน' : 'ผู้ซื้อ'
+
+        const cancle_order = await Order.findOneAndUpdate(
+            {_id:id, status:'new'}, 
+            {$set:{status:'cancle', detail:`ยกเลิกโดย ${me}`}}, 
+            {new:true}
+        )
+        if(!cancle_order){
+            return res.send('ไม่พบออร์เดอร์นี้')
+        }
+        
+        return res.send({
+            message: `ยกเลิกออร์เดอร์ หมายเลข ${cancle_order.order_no} โดย ${me}`,
+            order: cancle_order
+        })
+    }
+    catch(err){
+        console.log(err.message)
+        res.send('ERROR can not cancle order')
     }
 }
 

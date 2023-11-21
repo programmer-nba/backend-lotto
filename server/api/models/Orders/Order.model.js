@@ -15,10 +15,11 @@ const orderSchema = new Schema(
         bill_no: String,
         order_no: String,
         status: String, 
-        getBy: String, // รับเอง, จัดส่ง
+        transferBy: String, // รับเอง, จัดส่ง
         transfer_cost: Number, // ค่าจัดส่ง
         receipt: String, // ใบเสร็จรับเงิน
-        paid_slip: String // สลิปโอนเงิน
+        paid_slip: String, // สลิปโอนเงิน
+        detail: String // ข้อความ
     },
     {
         timestamps: true

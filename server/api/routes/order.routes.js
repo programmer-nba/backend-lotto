@@ -14,4 +14,7 @@ route.post('/create', verifyToken, orders.createOrder)
 route.put('/accept-order/:id', verifyToken, orders.acceptOrder)
 route.get('/get-myorders', verifyToken, orders.getMyOrders)
 
+// ทุกคน
+route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)
+
 module.exports = route
