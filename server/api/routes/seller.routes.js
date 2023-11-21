@@ -1,4 +1,6 @@
 const route = require('express').Router()
+// middleware
+const {upload, uploadPictures} = require('../middleware/drive.js')
 
 // import controllers
 const sellers = require('../controllers/seller.controller.js')
@@ -8,7 +10,7 @@ const lottos = require('../controllers/product.controller.js')
 const verifyToken = require('../middleware/verifyToken.js')
 
 // Routes of seller role
-route.put('/edit', verifyToken, sellers.editMyProfile)
+route.put('/edit', verifyToken, upload, uploadPictures, sellers.editMyProfile)
 
 route.get('/products/getone', verifyToken, lottos.getCurrentLotto)
 route.put('/products/edit', verifyToken, lottos.editCurrentLotto)

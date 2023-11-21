@@ -87,11 +87,12 @@ const timeOut = async (order_id, lotto_id, seconds) => {
     setTimeout(async () => {
         for(i in lotto_id){
             const lotto = await Lotto.findById(lotto_id[i])
-            if(lotto.on_order){
+            const order = await Order.findById(order_id)
+            if(lotto.on_order && order.status==='new'){
                 await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
                 console.log(`order cancle > lotto is backing to market`)
             } else {
-                console.log(`order confirm > lotto is on process...`)
+                console.log(`--> lotto is (accepted or cancled)`)
             }
         }
     }, seconds*1000)
@@ -117,7 +118,7 @@ exports.getAllOrders = async (req, res) => {
         
         const orders = await Order.find()
         if(!orders || orders.length===0){
-            res.send(`มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`)
+            return res.send(`มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`)
         }
 
         return res.send({
@@ -146,9 +147,10 @@ exports.getMyOrders = async (req, res) => {
             return res.send('ไม่พบออร์เดอร์ของฉัน')
         } else {
             const myNewOrders = myOrders.filter(item=>item.status==='new')
+            const myAcceptedOrders = myOrders.filter(item=>item.status==='accepted')
 
             return res.send({
-                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}`,
+                message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้วช ${myAcceptedOrders.length}`,
                 myOrders: myOrders
             })
         }
@@ -184,21 +186,46 @@ exports.getMyPurchase = async (req, res) => {
         const myId = req.user.id
 
         const orders = await Order.find().populate('buyer').populate('seller')
-    
         if(!orders || orders.length===0){
             return res.send('orders no found')
         }
 
         const myPurchases = orders.filter(item=>item.buyer._id.toString()===myId)
         const myNewPurchases = myPurchases.filter(item=>item.status==='new')
+        const myAcceptedPurchase = myPurchases.filter(item=>item.status==='accepted')
 
         return res.send({
-            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}`,
+            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}, ออร์เดอร์ที่กำลังดำเนินการ = ${myAcceptedPurchase.length}`,
             myOrders: myPurchases
         })
     }
     catch(err){
         res.send('ERROR! can not get purchase')
+        console.log(err.message)
+    }
+}
+
+exports.acceptOrder = async (req, res) => {
+    try {
+        const {id} = req.params
+
+        const accept_order = await Order.findOneAndUpdate(
+            {_id:id, status:'new'}, 
+            {$set:{status:'accepted'}}, 
+            {new:true}
+        )
+        if(!accept_order){
+            return res.send('order not found or already accepted')
+        }
+        
+        return res.send({
+            message: `ร้านค้ารับออร์เดอร์แล้ว...กำลังจัดเตรียมฉลาก`,
+            order: accept_order
+        })
+
+    }
+    catch(err){
+        res.send('ERROR! can not accept order')
         console.log(err.message)
     }
 }

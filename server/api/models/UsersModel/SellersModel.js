@@ -59,7 +59,6 @@ const SellerSchema = new Schema(
         },
         shop_location: {
             type: String,
-            
         },
         shop_img: {
             type: String,
