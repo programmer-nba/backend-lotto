@@ -24,6 +24,34 @@ const genOrderNo = async () => {
     return result
 }
 
+const timeOut = async (order_id, lotto_id, seconds) => {
+    
+    setTimeout(async () => {
+        for(i in lotto_id){
+            const lotto = await Lotto.findById(lotto_id[i])
+            const order = await Order.findById(order_id)
+            if(lotto.on_order && order.status==='new'){
+                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
+                console.log(`order cancle > lotto is backing to market`)
+            } else {
+                console.log(`--> lotto is (accepted or cancled)`)
+            }
+        }
+    }, seconds*1000)
+
+    setTimeout(async () => {
+        const order = await Order.findById(order_id)
+        if(order.status==='new'){
+            await Order.findByIdAndUpdate(order_id, {status:'timeout'})
+            console.log(`order time-out`)
+        } else {
+            console.log(`order confirm > order is on process...`)
+        }
+    }, seconds*1000)
+
+}
+
+// "ขายปลีก" create new order
 exports.createOrder = async (req, res) => {
     try{
         const {lotto_id, transfer} = req.body
@@ -77,7 +105,7 @@ exports.createOrder = async (req, res) => {
             .catch(()=>res.send('lotto not found'))
         }
         
-        const timeBeforeDelete = 300 // วินาที
+        const timeBeforeDelete = 30 // วินาที
         await timeOut(order._id ,lotto_id, timeBeforeDelete)
 
         return res.send({
@@ -98,33 +126,7 @@ exports.createOrder = async (req, res) => {
     }
 }
 
-const timeOut = async (order_id, lotto_id, seconds) => {
-    
-    setTimeout(async () => {
-        for(i in lotto_id){
-            const lotto = await Lotto.findById(lotto_id[i])
-            const order = await Order.findById(order_id)
-            if(lotto.on_order && order.status==='new'){
-                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
-                console.log(`order cancle > lotto is backing to market`)
-            } else {
-                console.log(`--> lotto is (accepted or cancled)`)
-            }
-        }
-    }, seconds*1000)
-
-    setTimeout(async () => {
-        const order = await Order.findById(order_id)
-        if(order.status==='new'){
-            await Order.findByIdAndUpdate(order_id, {status:'timeout'})
-            console.log(`order time-out`)
-        } else {
-            console.log(`order confirm > order is on process...`)
-        }
-    }, seconds*1000)
-
-}
-
+// admin get all orders
 exports.getAllOrders = async (req, res) => {
     try{
         const userRole = req.user.role
@@ -180,6 +182,7 @@ exports.getMyOrders = async (req, res) => {
     }
 }
 
+// seller cancle a current new order
 exports.cancleOrder = async (req, res) => {
     try{
         const {id} = req.params
@@ -208,6 +211,7 @@ exports.cancleOrder = async (req, res) => {
     }
 }
 
+// admin delete all current orders and orders history
 exports.deleteAllOrders = async (req, res) => {
     try{
         const userRole = req.user.role
@@ -227,7 +231,7 @@ exports.deleteAllOrders = async (req, res) => {
     }
 }
 
-// for "ขายปลีก" seller
+// "ขายปลีก" get thire current order list
 exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
@@ -252,6 +256,7 @@ exports.getMyPurchase = async (req, res) => {
     }
 }
 
+// "ขายส่ง" accepted an new order to processing
 exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
@@ -276,3 +281,4 @@ exports.acceptOrder = async (req, res) => {
         console.log(err.message)
     }
 }
+

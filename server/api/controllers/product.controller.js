@@ -14,12 +14,14 @@ exports.getMyLottos = async (req, res) => {
 
         const myLottos = await Lotto.find({seller_id: userId})
 
-        if(myLottos){
-            return res.send({
-                count: `หวยของฉันมีทั้งหมด ${myLottos.length} ชุด`,
-                myLottos
-            })
+        if(!myLottos || myLottos.length===0){
+            return res.send('ไม่มีหวยในคลังของฉัน')
         }
+
+        return res.send({
+            count: `หวยของฉันมีทั้งหมด ${myLottos.length} ชุด`,
+            myLottos
+        })
     }
     catch(err){
         console.log(err.message)
@@ -181,13 +183,13 @@ exports.deleteMyLottos = async (req, res) => {
         const products = await Lotto.find({seller_id: userId})
 
         if(!products || products.length === 0){
-            res.send({message:"ไม่พบสินค้าในระบบ", success:false})
+            return res.send({message:"ไม่พบสินค้าในระบบ", success:false})
         } 
 
         const result = await Lotto.deleteMany({seller_id: userId})
         
         if(!result){
-            res.send({message:"ไม่สามารถลบสินค้าได้", success:false})
+            return res.send({message:"ไม่สามารถลบสินค้าได้", success:false})
         }
 
         return res.status(200).send({
