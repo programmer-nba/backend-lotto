@@ -25,20 +25,7 @@ const genOrderNo = async (id1, id2) => {
     return result
 }
 
-const timeOut = async (order_id, lotto_id, seconds) => {
-    
-    /* setTimeout(async () => {
-        for(i in lotto_id){
-            const lotto = await Lotto.findById(lotto_id[i])
-            const order = await Order.findById(order_id)
-            if(lotto.on_order && order.status==='new'){
-                await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
-                console.log(`order cancle > lotto is backing to market`)
-            } else {
-                console.log(`--> lotto is (accepted or cancled)`)
-            }
-        }
-    }, seconds*1000) */
+const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
         const order = await Order.findById(order_id)
@@ -96,7 +83,7 @@ exports.createOrder = async (req, res) => {
         }
 
         const transferBy = (transfer==='address') ? buyer_address.address : transfer  
-
+        
         const order_no = await genOrderNo(seller_id, buyer_id)
 
         const new_order = {
@@ -120,7 +107,7 @@ exports.createOrder = async (req, res) => {
         }
         
         const timeBeforeDelete = 30 // วินาที
-        await timeOut(order._id ,lotto_id, timeBeforeDelete)
+        await timeOut(order._id , timeBeforeDelete)
 
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
