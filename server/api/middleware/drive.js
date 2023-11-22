@@ -20,17 +20,16 @@ const drive = google.drive({version: 'v3', auth})
 // upload file
 const uploadPictures = async (req, res, next) => {
 
-  console.log(`shopname:${req.body.shopname}, name:${req.body.name}`)
   console.log(`files:${req.files}`)
 
   const {body, files} = req
-  const shopname = body.shop_name || body.name
+  const name = body.shop_name || body.name
   const dataIds = [] // send this to register
 
   try{
     // upload each file to drive
     for(let f=0 ; f<files.length ; f++){
-      const data = await uploadtoDrive(files[f], shopname)
+      const data = await uploadtoDrive(files[f], name)
       if(data===null){
         console.log(`upload failed`)
         res.send('upload failed')
@@ -50,7 +49,7 @@ const uploadPictures = async (req, res, next) => {
   }
 }
 
-const uploadtoDrive = async (fileObjects, shopname) => {
+const uploadtoDrive = async (fileObjects, name) => {
   try{
     // Date time formatting
     const now = new Date()
@@ -71,7 +70,7 @@ const uploadtoDrive = async (fileObjects, shopname) => {
         body: fs.createReadStream(path.join(__dirname, '..', '..', fileObjects.path))
       },
       requestBody : {
-        name: `${fileObjects.fieldname}%^${shopname}#^${formattedDateTime}`,
+        name: `${fileObjects.fieldname}%^${name}#^${formattedDateTime}`,
         parents: ["1C_GASrUjSus7uDC4-_VQWpuYIfistQe7"] // folder id in drive
         //parents: ["1_yaWYR7kqskP9eGjS6jeuwQ9DEmD69i5"] // test folder
       },

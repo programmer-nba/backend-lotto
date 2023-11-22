@@ -282,3 +282,56 @@ exports.acceptOrder = async (req, res) => {
     }
 }
 
+// "ขายส่ง" เตรียมพร้อมแล้ว รอเช็คเงินโอนจาก ขายปลีก
+exports.readyOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+        const ready_order = await Order.findOneAndUpdate(
+            {_id:id, status:'accepted'}, 
+            {$set:{status:'ready'}}, 
+            {new:true}
+        )
+        if(!ready_order){
+            return res.send('order not found or already ready')
+        }
+
+        return res.send({
+            message: `จัดเตรียมออร์เดอร์พร้อมแล้ว...รอลูกค้าชำระเงิน`,
+        })
+    }
+    catch(error){
+        res.send('ERROR! can not ready order')
+        console.log(error)
+    }
+}
+
+// "ขายปลีก" จ่ายเงินและแนบสลิป
+exports.payment = async (req, res) => {
+    try{
+        const dataIds = req.dataIds
+        const {id} = req.params
+
+        const slip_img = (dataIds && dataIds.some(id => id.includes('slip_img/'))) 
+            ? dataIds.filter(id => id.includes('slip_img/'))[0].replace('slip_img/', '')
+            : null
+            const slip_img_link = (slip_img) 
+                ? `https://drive.google.com/file/d/${slip_img}/view` 
+                : `none`
+
+        const order = await Order.findByIdAndUpdate(id, {$set:{paid_slip:slip_img_link}})
+        if(!order){
+            return res.send('not found order id?')
+        }
+
+        return res.send({
+            message: 'upload slip picture success',
+            order_no: order.order_no,
+            slip : slip_img_link
+        })
+    }
+    catch(error){
+        res.send('ERROR! can not payment this order')
+        console.log(error)
+    }
+}
+
