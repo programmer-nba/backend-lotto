@@ -2,7 +2,7 @@ const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js');
 
-const genBill = () => {
+const genBill = (id) => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 as month is zero-based
@@ -13,7 +13,7 @@ const genBill = () => {
 
     const numericDateTime = `${year}${month}${day}${hours}${minutes}${seconds}`;
 
-    const result = `02${numericDateTime}`
+    const result = `${id}${numericDateTime}`
     return result
 }
 
@@ -345,8 +345,11 @@ exports.receipt = async (req, res) => {
             return res.send('order not found')
         }
 
+        const bill_no = genBill(id)
+
         return res.send({
             message: 'ร้านค้ารับยอดเรียบร้อย...รอลูกค้ามารับของ',
+            bill_no: bill_no
         })
     }
     catch(error){
@@ -366,6 +369,7 @@ exports.doneOrder = async (req, res) => {
 
         return res.send({
             message: 'ออร์เดอร์สำเร็จ รับของแล้ว',
+            order
         })
     }
     catch(error){
