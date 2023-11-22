@@ -20,7 +20,7 @@ const genBill = () => {
 const genOrderNo = async (id) => {
     const order = await Order.find()
     const code = `${order.length}`
-    const id_code = `${id[0]}${id[2]}${id[4]}${id[-1]}${id[-2]}${id[-3]}`
+    const id_code = `${id[0]}${id[2]}${id[4]}`
     const result = (code<10) ? `00${code}${id_code}` : (code>=10 && code<100) ? `0${code}${id_code}` : `${code}${id_code}`
     return result
 }
@@ -77,12 +77,12 @@ exports.createOrder = async (req, res) => {
         }
         const seller_id = lotto.seller_id 
 
-        const buyer_address = await Seller.findById(buyer_id)
-        if(!buyer_address){
-            buyer_address = 'ไม่ได้เพิ่มที่อยู่'
+        const buyer = await Seller.findById(buyer_id)
+        if(!buyer){
+            buyer = 'ไม่ได้เพิ่มที่อยู่'
         }
 
-        const transferBy = (transfer==='address') ? buyer_address.address : transfer  
+        const transferBy = (transfer==='address') ? buyer.address : transfer  
 
         const order_no = await genOrderNo(lotto_id[0])
 
@@ -92,7 +92,7 @@ exports.createOrder = async (req, res) => {
             seller: seller_id,
             status: 'new',
             order_no: order_no,
-            transferBy: transferBy
+            transferBy: transferBy,
         }
         
         const order = await Order.create(new_order)
@@ -319,7 +319,7 @@ exports.payment = async (req, res) => {
                 ? `https://drive.google.com/file/d/${slip_img}/view` 
                 : `none`
 
-        const order = await Order.findByIdAndUpdate(id, {$set:{paid_slip:slip_img_link}})
+        const order = await Order.findByIdAndUpdate({_id:id, status:'ready'}, {$set:{paid_slip:slip_img_link}})
         if(!order){
             return res.send('not found order id?')
         }
@@ -332,6 +332,44 @@ exports.payment = async (req, res) => {
     }
     catch(error){
         res.send('ERROR! can not payment this order')
+        console.log(error)
+    }
+}
+
+// "ขายส่ง" รับยอดโอน
+exports.receipt = async (req, res) => {
+    try{
+        const {id} = req.params
+        const order = await Order.findByIdAndUpdate({_id:id, status:'ready'}, {$set:{status:'paid'}})
+        if(!order){
+            return res.send('order not found')
+        }
+
+        return res.send({
+            message: 'ร้านค้ารับยอดเรียบร้อย...รอลูกค้ามารับของ',
+        })
+    }
+    catch(error){
+        res.send('can not send receipt!')
+        console.log(error.message)
+    }
+}
+
+// "ขายปลีก" รับของเรียบร้อย 
+exports.doneOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+        const order = await Order.findByIdAndUpdate({_id:id, status:'paid'}, {$set:{status:'done'}})
+        if(!order){
+            return res.send('order not found')
+        }
+
+        return res.send({
+            message: 'ออร์เดอร์สำเร็จ รับของแล้ว',
+        })
+    }
+    catch(error){
+        res.send('ERROR, can not done-order!')
         console.log(error)
     }
 }

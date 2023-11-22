@@ -62,8 +62,8 @@ exports.login = async (req, res)=>{
 exports.sellerRegister = async (req, res)=>{
     const {
         password, seller_role, line_id, email,
-        name, phone_number, address, personal_id,
-        shop_name, shop_location
+        name, phone_number, personal_id,
+        shop_name, shop_location, address
     } = req.body
     
     const dataIds = req.dataIds
@@ -145,7 +145,8 @@ exports.sellerRegister = async (req, res)=>{
                 shop_img: newSeller.shop_img,
                 shop_cover: newSeller.shop_cover,
                 shop_bank: newSeller.shop_bank,
-                personal_img: newSeller.personal_img
+                personal_img: newSeller.personal_img,
+                address: address
             })
 
         }

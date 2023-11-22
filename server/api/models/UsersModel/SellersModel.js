@@ -39,7 +39,7 @@ const SellerSchema = new Schema(
             
         },
         address: {
-            type: String,
+            type: mongoose.Schema.Types.Mixed,
             
         },
         personal_id: {
