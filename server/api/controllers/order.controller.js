@@ -17,10 +17,10 @@ const genBill = () => {
     return result
 }
 
-const genOrderNo = async (id1, id2) => {
+const genOrderNo = async (id) => {
     const order = await Order.find()
     const code = `${order.length}`
-    const id_code = `${id1[0]}${id1[2]}${id1[4]}${id2[-1]}${id2[-2]}${id2[-3]}`
+    const id_code = `${id[0]}${id[2]}${id[4]}${id[-1]}${id[-2]}${id[-3]}`
     const result = (code<10) ? `00${code}${id_code}` : (code>=10 && code<100) ? `0${code}${id_code}` : `${code}${id_code}`
     return result
 }
@@ -83,8 +83,8 @@ exports.createOrder = async (req, res) => {
         }
 
         const transferBy = (transfer==='address') ? buyer_address.address : transfer  
-        
-        const order_no = await genOrderNo(seller_id, buyer_id)
+
+        const order_no = await genOrderNo(lotto_id[0])
 
         const new_order = {
             lotto_id: lottos,
