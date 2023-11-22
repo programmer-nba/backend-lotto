@@ -17,21 +17,35 @@ const genBill = () => {
     return result
 }
 
-const genOrderNo = async () => {
+const genOrderNo = async (id1, id2) => {
     const order = await Order.find()
     const code = `${order.length}`
-    const result = (code<10) ? `00${code}` : (code>=10 && code<100) ? `0${code}` : `${code}`
+    const id_code = `${id1[0]}${id1[2]}${id1[4]}${id2[-1]}${id2[-2]}${id2[-3]}`
+    const result = (code<10) ? `00${code}${id_code}` : (code>=10 && code<100) ? `0${code}${id_code}` : `${code}${id_code}`
     return result
 }
 
 const timeOut = async (order_id, lotto_id, seconds) => {
     
-    setTimeout(async () => {
+    /* setTimeout(async () => {
         for(i in lotto_id){
             const lotto = await Lotto.findById(lotto_id[i])
             const order = await Order.findById(order_id)
             if(lotto.on_order && order.status==='new'){
                 await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: false})
+                console.log(`order cancle > lotto is backing to market`)
+            } else {
+                console.log(`--> lotto is (accepted or cancled)`)
+            }
+        }
+    }, seconds*1000) */
+
+    setTimeout(async () => {
+        const order = await Order.findById(order_id)
+        for(i in order.lotto_id){
+            const lotto = await Lotto.findById(order.lotto_id[i])
+            if(lotto.on_order && order.status==='new'){
+                await Lotto.findByIdAndUpdate(order.lotto_id[i], {on_order: false})
                 console.log(`order cancle > lotto is backing to market`)
             } else {
                 console.log(`--> lotto is (accepted or cancled)`)
@@ -63,8 +77,6 @@ exports.createOrder = async (req, res) => {
             return res.send('you are not allowed')
         }
 
-        const order_no = await genOrderNo()
-
         const lotto_list = lotto_id.map(async (id) => {
             const lotto = await Lotto.findById(id)
             return lotto
@@ -84,6 +96,8 @@ exports.createOrder = async (req, res) => {
         }
 
         const transferBy = (transfer==='address') ? buyer_address.address : transfer  
+
+        const order_no = await genOrderNo(seller_id, buyer_id)
 
         const new_order = {
             lotto_id: lottos,
