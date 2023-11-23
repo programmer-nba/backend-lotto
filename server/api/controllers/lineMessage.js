@@ -27,4 +27,4 @@ exports.messager = (req, res) => {
         console.error(err);
         res.status(500).end('Internal Server Error');
       });
-};
+}

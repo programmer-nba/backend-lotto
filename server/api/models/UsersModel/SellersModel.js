@@ -40,8 +40,8 @@ const SellerSchema = new Schema(
         },
         address: {
             type: mongoose.Schema.Types.Mixed,
-            
         },
+        
         personal_id: {
             type: String,
             
@@ -57,6 +57,9 @@ const SellerSchema = new Schema(
             type: String,
             
         },
+
+        shop_number: String,
+        
         shop_location: {
             type: String,
         },

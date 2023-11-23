@@ -63,7 +63,7 @@ exports.sellerRegister = async (req, res)=>{
     const {
         password, seller_role, line_id, email,
         name, phone_number, personal_id,
-        shop_name, shop_location, address
+        shop_name, shop_location, address, shop_number
     } = req.body
     
     const dataIds = req.dataIds
@@ -130,6 +130,7 @@ exports.sellerRegister = async (req, res)=>{
                     shop_img : shop_img_link,
                     shop_bank: shop_bank_link, 
                     shop_cover : shop_cover_link,
+                    shop_number: shop_number || phone_number
                 }
             )
     
