@@ -13,7 +13,7 @@ const genBill = async (id) => {
 
     const numericDateTime = `${year}${month}${day}${hours}${minutes}${seconds}`;
 
-    const result = `${id}${numericDateTime}`
+    const result = `${id[0]}${id[1]}${id[2]}${numericDateTime}`
     return result
 }
 
@@ -228,9 +228,9 @@ exports.cancleOrder = async (req, res) => {
         if(!cancle_order){
             const notpaid_order = await Order.findOneAndUpdate(
                 {_id:id, status:'ตรวจสอบยอด'}, 
-                {$set:{status:'ยืนยัน', detail:{
+                {$set:{status:'ปฏิเสธ', detail:{
                     seller: `รอลูกค้าชำระเงินอีกครั้ง`,
-                    buyer: `ร้าร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
+                    buyer: `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
                     msg: `เนื่องจาก ${cancled_reason}`
                 }}}, 
                 {new:true}
@@ -241,9 +241,9 @@ exports.cancleOrder = async (req, res) => {
         }
         
         return res.send({
-            message: `ยกเลิกออร์เดอร์ หมายเลข ${cancle_order.order_no} โดย ${me}`,
-            reason: cancle_order.detail.msg,
-            order: cancle_order
+            message: `ออร์เดอร์ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน`,
+            reason: cancle_order.detail.msg || notpaid_order.detail.msg,
+            order: cancle_order || notpaid_order
         })
     }
     catch(err){
@@ -367,7 +367,7 @@ exports.payment = async (req, res) => {
                 ? `https://drive.google.com/file/d/${slip_img}/view` 
                 : `none`
 
-        const order = await Order.findByIdAndUpdate({_id:id, status:'ยืนยัน'}, {$set:{paid_slip:slip_img_link,
+        const order = await Order.findByIdAndUpdate({_id:id, status:{$in:['ยืนยัน','ปฏิเสธ']}}, {$set:{paid_slip:slip_img_link,
             status: 'ตรวจสอบยอด',
             detail:{
                 seller: 'ลูกค้าแจ้งชำระเงินแล้ว กรุณาตรวจสอบยอดโอน',
@@ -444,6 +444,26 @@ exports.doneOrder = async (req, res) => {
     }
     catch(error){
         res.send('ERROR, can not done-order!')
+        console.log(error)
+    }
+}
+
+// get target order
+exports.getOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+        const order = await Order.findById(id)
+        if(!order){
+            return res.send('order not found')
+        }
+
+        return res.send({
+            message: 'get order success',
+            order
+        })
+    }
+    catch(error){
+        res.send('ERROR, can not get order!')
         console.log(error)
     }
 }

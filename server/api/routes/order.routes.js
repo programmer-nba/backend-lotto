@@ -1,9 +1,11 @@
-const orders = require('../controllers/order.controller.js')
-const verifyToken = require('../middleware/verifyToken.js')
 const route = require('express').Router()
 
-// middleware
+// controllers
+const orders = require('../controllers/order.controller.js')
+
+// middlewares
 const {upload, uploadPictures} = require('../middleware/drive.js')
+const verifyToken = require('../middleware/verifyToken.js')
 
 // admin
 route.delete('/delete-all', verifyToken, orders.deleteAllOrders)
@@ -23,5 +25,6 @@ route.put('/receipt-order/:id', verifyToken, orders.receipt)
 
 // ทุกคน
 route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)
+route.get('/get-order/:id', verifyToken, orders.getOrder)
 
 module.exports = route
