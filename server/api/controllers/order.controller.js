@@ -31,7 +31,7 @@ const timeOut = async (order_id, seconds) => {
         const order = await Order.findById(order_id)
         for(i in order.lotto_id){
             const lotto = await Lotto.findById(order.lotto_id[i])
-            if(lotto.on_order && order.status==='ออร์เดอร์ใหม่'){
+            if(lotto.on_order && order.status==='ใหม่'){
                 await Lotto.findByIdAndUpdate(order.lotto_id[i], {on_order: false})
                 console.log(`order cancle > lotto is backing to market`)
             } else {
@@ -42,8 +42,10 @@ const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
         const order = await Order.findById(order_id)
-        if(order.status==='ออร์เดอร์ใหม่'){
-            await Order.findByIdAndUpdate(order_id, {status:'หมดเวลา'})
+        if(order.status==='ใหม่'){
+            await Order.findByIdAndUpdate(order_id, {status:'หมดเวลา', detail:{
+                msg: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด'
+            }})
             console.log(`order time-out`)
         } else {
             console.log(`order confirm > order is on process...`)
@@ -96,14 +98,14 @@ exports.createOrder = async (req, res) => {
 
         const order_no = await genOrderNo(lotto_id[0])
 
-        const seller_text = 'คุณมีออร์เดอร์ซื้อใหม่ กรุณาตรวจสอบ'
-        const buyer_text = 'ส่งออร์เดอร์แล้ว กรุณารอร้านค้ายืนยัน'
+        const seller_text = 'คุณมีออร์เดอร์ใหม่'
+        const buyer_text = 'กรุณารอร้านค้ายืนยัน'
 
         const new_order = {
             lotto_id: lottos,
             buyer: buyer_id,
             seller: seller_id,
-            status: 'ออร์เดอร์ใหม่',
+            status: 'ใหม่',
             detail: {
                 seller: seller_text,
                 buyer: buyer_text
@@ -188,8 +190,8 @@ exports.getMyOrders = async (req, res) => {
             return res.send('ไม่พบออร์เดอร์ของฉัน')
         } 
 
-        const myNewOrders = myOrders.filter(item=>item.status==='ออร์เดอร์ใหม่')
-        const myAcceptedOrders = myOrders.filter(item=>item.status==='ร้านค้ารับออร์เดอร์แล้ว')
+        const myNewOrders = myOrders.filter(item=>item.status==='ใหม่')
+        const myAcceptedOrders = myOrders.filter(item=>item.status==='ยืนยัน')
         
        
 
@@ -215,8 +217,8 @@ exports.cancleOrder = async (req, res) => {
             (req.user.role==='admin') ? 'แอดมิน' : 'ผู้ซื้อ'
 
         const cancle_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ออร์เดอร์ใหม่'}, 
-            {$set:{status:'ถูกยกเลิก', detail:{
+            {_id:id, status:'ใหม่'}, 
+            {$set:{status:'ยกเลิก', detail:{
                 seller: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
                 buyer: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
                 msg: `เนื่องจาก ${cancled_reason}`
@@ -259,7 +261,7 @@ exports.deleteAllOrders = async (req, res) => {
     }
 }
 
-// "ขายปลีก" get thire current order list
+// "ขายปลีก" get thire current order list  
 exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
@@ -270,8 +272,8 @@ exports.getMyPurchase = async (req, res) => {
         }
 
         const myPurchases = orders.filter(item=>item.buyer._id.toString()===myId)
-        const myNewPurchases = myPurchases.filter(item=>item.status==='ออร์เดอร์ใหม่')
-        const myAcceptedPurchase = myPurchases.filter(item=>item.status==='ร้านค้ารับออร์เดอร์แล้ว')
+        const myNewPurchases = myPurchases.filter(item=>item.status==='ใหม่')
+        const myAcceptedPurchase = myPurchases.filter(item=>item.status==='ยืนยัน')
 
         return res.send({
             message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}, ออร์เดอร์ที่กำลังดำเนินการ = ${myAcceptedPurchase.length}`,
@@ -290,10 +292,10 @@ exports.acceptOrder = async (req, res) => {
         const {id} = req.params
 
         const accept_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ออร์เดอร์ใหม่'}, 
-            {$set:{status:'ร้านค้ารับออร์เดอร์แล้ว', detail:{
-                seller: `กรุณาจัดเตรียมฉลากให้พร้อม`,
-                buyer: `กรุณารอร้านค้าจัดเตรียมฉลาก`,
+            {_id:id, status:'ใหม่'}, 
+            {$set:{status:'ยืนยัน', detail:{
+                seller: `จัดเตรียมฉลากให้พร้อม รอลุกค้าชำระเงิน`,
+                buyer: `ร้านค้ายืนยันแล้ว กรุณาชำระเงิน`,
             }}}, 
             {new:true}
         )
@@ -318,11 +320,11 @@ exports.readyOrder = async (req, res) => {
     try{
         const {id} = req.params
         const ready_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ร้านค้ารับออร์เดอร์แล้ว'}, 
-            {$set:{status:'เตรียมออร์เดอร์เสร็จแล้ว',
+            {_id:id, status:'ยืนยัน'}, 
+            {$set:{status:'รอชำระเงิน',
             detail:{
                 seller: 'กรุณารอลูกค้าแจ้งชำระเงิน',
-                buyer: 'กรุณาชำระเงิน'
+                buyer: 'ฉลากพร้อมแล้ว กรุณาชำระเงิน'
             }
         }}, 
             {new:true}
@@ -354,10 +356,11 @@ exports.payment = async (req, res) => {
                 ? `https://drive.google.com/file/d/${slip_img}/view` 
                 : `none`
 
-        const order = await Order.findByIdAndUpdate({_id:id, status:'เตรียมออร์เดอร์เสร็จแล้ว'}, {$set:{paid_slip:slip_img_link,
+        const order = await Order.findByIdAndUpdate({_id:id, status:'ยืนยัน'}, {$set:{paid_slip:slip_img_link,
+            status: 'ตรวจสอบยอด',
             detail:{
                 seller: 'ลูกค้าแจ้งชำระเงินแล้ว กรุณาตรวจสอบยอดโอน',
-                buyer: 'แจ้งชำระเงินแล้ว กรุณารอร้านค้าตรวจสอบยอดเงิน'
+                buyer: 'กรุณารอร้านค้าตรวจสอบยอดเงิน'
             }
         }})
         if(!order){
@@ -382,12 +385,12 @@ exports.receipt = async (req, res) => {
         const {id} = req.params
         const bill_no = await genBill(id)
         const order = await Order.findByIdAndUpdate(
-            {_id:id, status:'เตรียมออร์เดอร์เสร็จแล้ว'}, 
+            {_id:id, status:'ตรวจสอบยอด'}, 
             {$set:{
-                status:'ชำระเงินแล้ว', 
+                status:'ชำระแล้ว', 
                 detail:{
-                    seller: 'ยืนยันรับยอดโอนจากลูกค้า กรุณาส่งฉลาก หรือ รอลูกค้ารับฉลาก',
-                    buyer: 'ร้านค้ารับยอดโอนแล้ว รอร้านค้าส่งฉลาก หรือ รับฉลากได้เลย'
+                    seller: 'กรุณาส่งฉลาก หรือ รอลูกค้ารับฉลาก',
+                    buyer: 'รอร้านค้าส่งฉลาก หรือ รับฉลากที่ร้านได้เลย'
                 },
                 bill_no:bill_no
             }}
@@ -415,7 +418,7 @@ exports.doneOrder = async (req, res) => {
         const seller_text = 'ออร์เดอร์สำเร็จ ลูกค้าได้รับฉลากแล้ว'
         const buyer_text = 'ออร์เดอร์สำเร็จ คุณได้รับฉลากแล้ว'
 
-        const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระเงินแล้ว'}, {$set:{status:'ออร์เดอร์สำเร็จ', detail:{
+        const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระแล้ว'}, {$set:{status:'สำเร็จ', detail:{
             seller: seller_text,
             buyer: buyer_text
         }}})
