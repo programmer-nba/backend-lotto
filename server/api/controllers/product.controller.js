@@ -36,12 +36,13 @@ exports.addLottos = async (req, res)=>{
 
         const {
             number, // หมายเลขฉลาก
+            code, // เลข barcode
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
             price, // ราคาขายหวย/ใบ
             retail, // boolean
-            wholesale // boolean
-
+            wholesale, // boolean
+            amount // จำนวนชุด, ใบ
         } = req.body
 
         const seller = await Seller.findById(userId)
@@ -49,8 +50,8 @@ exports.addLottos = async (req, res)=>{
 
         // will run on admin site----------------------------
 
-        const year = "25" + number[0][0] + number[0][1]
-        const day = number[0][3] + number[0][4]
+        const year = "25" + code[0][0] + code[0][1]
+        const day = code[0][3] + code[0][4]
         
         const now = new Date()
         const monthIndex = now.getMonth()
@@ -64,8 +65,6 @@ exports.addLottos = async (req, res)=>{
         const period = `${day} ${currentMonth} ${year}`
 
         //----------------------------------------------
-
-        const amount = number.length
     
         const unit = 
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
@@ -77,12 +76,10 @@ exports.addLottos = async (req, res)=>{
             (retail===false && wholesale===true) ? "wholesale" :
             (retail===true && wholesale===true) ? "all" :
             "none"
-
-        let number_stock = [] // โค้ดหวย
         
-        let set_stock = [] // ชุดที่
+        /* let set_stock = [] // ชุดที่ */
         
-        for(let i in number){
+        /* for(let i in number){
             let number_decoded = 
             (type==='หวยก้อน' || type==='หวยเล่ม') ? `${number[i].substring(0, 9) + 'xxxxxx' + number[i].substring(14+1)}`
             : number[i]
@@ -90,15 +87,17 @@ exports.addLottos = async (req, res)=>{
 
             let set_decoded = number[i].substring(6, 7+1)
             set_stock.push(set_decoded)
-        }
+        } */
 
-        const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่
+        /* const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่ */
 
-        const set_string = set_stock.join(", ")
+        /* const set_string = set_stock.join(", ") */
 
-        const six_number = (type==='หวยเล่ม') ? `xxxx00-xxxx99`
+        /* const six_number = (type==='หวยเล่ม') ? `xxxx00-xxxx99`
         : (type==='หวยก้อน') ? `xxxx00-xxxx99 x${amount}`
-        : number[0].substring(9, 14+1)
+        : number[0].substring(9, 14+1) */
+
+        const set = code[0][6]+code[0][7]
 
         const pcs =
             (type==='หวยเล่ม') ? 100 :
@@ -110,15 +109,16 @@ exports.addLottos = async (req, res)=>{
                 seller_id: userId,
                 shopname: shopname,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                number: number_stock, // หมายเลขฉลาก xx-xx-xx-xxxxxx-xxxx
-                six_number: six_number, // เลข 6 หลัก
+                /* number: number_stock, // หมายเลขฉลาก 6 หลัก */
+                code: code, // เลข barcode
+                six_number: number, // เลข 6 หลัก
                 amount: amount, // จำนวนหวย (ชุด)
                 period: period, // งวดที่ออก
                 book: book, // เล่มที่
-                set: set_stock, // ชุดที่
-                cost: cost,
-                price: price,
-                profit: price-cost,
+                set: set, // ชุดที่
+                cost: cost, // ต้นทุน
+                price: price, // ราคาขาย
+                profit: price-cost, // กำไร
                 market: market, // ตลาดที่หวยชุดนี้ลงขาย
                 pcs: pcs, // จำนวนหวย (ใบ)
                 on_order: false, // 
@@ -128,10 +128,10 @@ exports.addLottos = async (req, res)=>{
 
         if(lotto){
             res.send({
-                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} หมายเลข 6 หลัก = ${six_number} ชุดที่ = ${set_string} เล่มที่ = ${book}`,
+                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} หมายเลข 6 หลัก = ${number} ชุดที่ = ${set}`,
                 data:lotto,
-                six_number: six_number,
-                set: set_string,
+                six_number: number,
+                set: set,
                 unit: unit,
                 success: true,
             })
