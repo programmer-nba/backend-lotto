@@ -27,6 +27,9 @@ const uploadPictures = async (req, res, next) => {
   const dataIds = [] // send this to register
 
   try{
+    if(!files){
+      return res.send('no files')
+    }
     // upload each file to drive
     for(let f=0 ; f<files.length ; f++){
       const data = await uploadtoDrive(files[f], name)

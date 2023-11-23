@@ -19,7 +19,8 @@ const orderSchema = new Schema(
         transfer_cost: Number, // ค่าจัดส่ง
         receipt: String, // ใบเสร็จรับเงิน
         paid_slip: String, // สลิปโอนเงิน
-        detail: String // ข้อความ
+        detail: String, // ข้อความ
+        lottos_price: Number // ราคาสินค้ารวมในออร์เดอร์
     },
     {
         timestamps: true

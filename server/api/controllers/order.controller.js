@@ -2,7 +2,7 @@ const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js');
 
-const genBill = (id) => {
+const genBill = async (id) => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 as month is zero-based
@@ -75,11 +75,21 @@ exports.createOrder = async (req, res) => {
         if(!lotto){
             return res.send('lotto id not found')
         }
+
+        const lottos_price = Promise.all(
+            lottos.map((lotto)=>{
+                const price = lotto.price
+                return Promise.resolve(price)
+            })
+        )
+        const resolved_prices = await lottos_price
+        const total_prices = resolved_prices.reduce((a, b) => a + b, 0)
+
         const seller_id = lotto.seller_id 
 
         const buyer = await Seller.findById(buyer_id)
         if(!buyer){
-            buyer = 'ไม่ได้เพิ่มที่อยู่'
+            buyer = 'ไม่พบ buyer นี้'
         }
 
         const transferBy = (transfer==='address') ? buyer.address : transfer  
@@ -93,6 +103,8 @@ exports.createOrder = async (req, res) => {
             status: 'new',
             order_no: order_no,
             transferBy: transferBy,
+            transfer_cost: 0,
+            lottos_price: total_prices
         }
         
         const order = await Order.create(new_order)
@@ -117,6 +129,8 @@ exports.createOrder = async (req, res) => {
             seller_name: lotto.shopname,
             seller_id: seller_id,
             order_start: order.createdAt,
+            transfer_cost: order.transfer_cost,
+            lottos_price: total_prices,
             status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`,
         })
         
@@ -340,16 +354,21 @@ exports.payment = async (req, res) => {
 exports.receipt = async (req, res) => {
     try{
         const {id} = req.params
-        const order = await Order.findByIdAndUpdate({_id:id, status:'ready'}, {$set:{status:'paid'}})
+        const bill_no = await genBill(id)
+        const order = await Order.findByIdAndUpdate(
+            {_id:id, status:'ready'}, 
+            {$set:{
+                status:'paid', 
+                bill_no:bill_no
+            }}
+        )
         if(!order){
             return res.send('order not found')
         }
 
-        const bill_no = genBill(id)
-
         return res.send({
-            message: 'ร้านค้ารับยอดเรียบร้อย...รอลูกค้ามารับของ',
-            bill_no: bill_no
+            message: 'ร้านค้ารับยอดเรียบร้อย...รอลูกค้ายืนยันรับของ',
+            bill_no: order.bill_no
         })
     }
     catch(error){
