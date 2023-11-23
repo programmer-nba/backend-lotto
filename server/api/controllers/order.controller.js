@@ -207,7 +207,7 @@ exports.getMyOrders = async (req, res) => {
     }
 }
 
-// seller cancle a current new order
+// seller cancle a current new order or reject payment
 exports.cancleOrder = async (req, res) => {
     try{
         const {id} = req.params
@@ -226,7 +226,18 @@ exports.cancleOrder = async (req, res) => {
             {new:true}
         )
         if(!cancle_order){
-            return res.send('ไม่พบออร์เดอร์นี้')
+            const notpaid_order = await Order.findOneAndUpdate(
+                {_id:id, status:'ตรวจสอบยอด'}, 
+                {$set:{status:'ยืนยัน', detail:{
+                    seller: `รอลูกค้าชำระเงินอีกครั้ง`,
+                    buyer: `ร้าร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
+                    msg: `เนื่องจาก ${cancled_reason}`
+                }}}, 
+                {new:true}
+            )
+            if(!notpaid_order){
+                return res.send('ไม่พบออร์เดอร์นี้')
+            }
         }
         
         return res.send({
