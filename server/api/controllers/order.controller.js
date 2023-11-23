@@ -44,7 +44,8 @@ const timeOut = async (order_id, seconds) => {
         const order = await Order.findById(order_id)
         if(order.status==='ใหม่'){
             await Order.findByIdAndUpdate(order_id, {status:'หมดเวลา', detail:{
-                msg: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด'
+                seller: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด',
+                buyer: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด'
             }})
             console.log(`order time-out`)
         } else {
