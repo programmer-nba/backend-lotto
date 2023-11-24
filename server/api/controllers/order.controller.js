@@ -261,16 +261,17 @@ exports.cancleOrder = async (req, res) => {
             order.detail.seller = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
             order.detail.buyer = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
             order.detail.msg = `เนื่องจาก ${cancled_reason}`
-            /* const cancle_order = await Order.findOneAndUpdate(
-                {_id:id, status:'ใหม่'}, 
-                {$set:{status:'ยกเลิก', detail:{
-                    seller: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
-                    buyer: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
-                    msg: `เนื่องจาก ${cancled_reason}`
-                }}}, 
-                {new:true}
-            ) */
             await order.save()
+
+            const lottos_list = order.lotto_id.map( async (item)=>{
+                const lotto = await Lotto.findById(item)
+                lotto.on_order = false
+                /* lotto.market = 'none' */
+                lotto.save()
+            })
+            Promise.all(lottos_list)
+                .then(()=>console.log('Success, set all lottos on_order = false '))
+                .catch(()=>console.log('ERROR, can not change lottos on_order to false'))
         }
         
         else if(order.status==='ตรวจสอบยอด'){
@@ -280,21 +281,6 @@ exports.cancleOrder = async (req, res) => {
             order.detail.msg = `เนื่องจาก ${cancled_reason}`
             await order.save()
         }
-        /* const notpaid_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ตรวจสอบยอด'}, 
-            {$set:{
-                status:'ปฏิเสธ', 
-                detail:{
-                    seller: `รอลูกค้าชำระเงินอีกครั้ง`,
-                    buyer: `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
-                    msg: `เนื่องจาก ${cancled_reason}`
-                }
-            }}, 
-            {new:true}
-        )
-        if(!notpaid_order){
-            return res.send('ไม่พบออร์เดอร์นี้')
-        } */
 
         else {
             return res.send('ออร์เดอร์นี้ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน ไปแล้วนะจ๊ะ')
