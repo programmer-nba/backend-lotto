@@ -58,6 +58,17 @@ const timeOut = async (order_id, seconds) => {
 
 }
 
+const cutStocks = async (lottos_id, buyer_id) => {
+    const lottos_list = lottos_id.map( async (id)=>{
+        const lotto = await Lotto.findById(id)
+        lotto.buyer_id = buyer_id
+        const buyer = await Seller.findById(buyer_id)
+        lotto.buyer_name = buyer.name
+        await lotto.save()
+    })
+    return Promise.all(lottos_list)
+}
+
 // "ขายปลีก" create new order
 exports.createOrder = async (req, res) => {
     try{
@@ -240,34 +251,59 @@ exports.cancleOrder = async (req, res) => {
             (req.user.seller_role==='ขายส่ง') ? 'ร้านค้า' :
             (req.user.role==='admin') ? 'แอดมิน' : 'ผู้ซื้อ'
 
-        const cancle_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ใหม่'}, 
-            {$set:{status:'ยกเลิก', detail:{
-                seller: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
-                buyer: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
-                msg: `เนื่องจาก ${cancled_reason}`
-            }}}, 
-            {new:true}
-        )
-        if(!cancle_order){
-            const notpaid_order = await Order.findOneAndUpdate(
-                {_id:id, status:'ตรวจสอบยอด'}, 
-                {$set:{status:'ปฏิเสธ', detail:{
-                    seller: `รอลูกค้าชำระเงินอีกครั้ง`,
-                    buyer: `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
+        const order = await Order.findById(id)
+        if(!order){
+            return res.send('ไม่พบออร์เดอร์นี้')
+        }
+
+        if(order.status==='ใหม่'){
+            order.status = 'ยกเลิก'
+            order.detail.seller = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
+            order.detail.buyer = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
+            order.detail.msg = `เนื่องจาก ${cancled_reason}`
+            /* const cancle_order = await Order.findOneAndUpdate(
+                {_id:id, status:'ใหม่'}, 
+                {$set:{status:'ยกเลิก', detail:{
+                    seller: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
+                    buyer: `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`,
                     msg: `เนื่องจาก ${cancled_reason}`
                 }}}, 
                 {new:true}
-            )
-            if(!notpaid_order){
-                return res.send('ไม่พบออร์เดอร์นี้')
-            }
+            ) */
+            await order.save()
+        }
+        
+        else if(order.status==='ตรวจสอบยอด'){
+            order.status = 'ปฏิเสธ',
+            order.detail.seller = `รอลูกค้าชำระเงินอีกครั้ง`
+            order.detail.buyer = `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`
+            order.detail.msg = `เนื่องจาก ${cancled_reason}`
+            await order.save()
+        }
+        /* const notpaid_order = await Order.findOneAndUpdate(
+            {_id:id, status:'ตรวจสอบยอด'}, 
+            {$set:{
+                status:'ปฏิเสธ', 
+                detail:{
+                    seller: `รอลูกค้าชำระเงินอีกครั้ง`,
+                    buyer: `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`,
+                    msg: `เนื่องจาก ${cancled_reason}`
+                }
+            }}, 
+            {new:true}
+        )
+        if(!notpaid_order){
+            return res.send('ไม่พบออร์เดอร์นี้')
+        } */
+
+        else {
+            return res.send('ออร์เดอร์นี้ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน ไปแล้วนะจ๊ะ')
         }
         
         return res.send({
             message: `ออร์เดอร์ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน`,
-            reason: cancle_order.detail.msg || notpaid_order.detail.msg,
-            order: cancle_order || notpaid_order
+            reason: order.detail.msg,
+            order: order
         })
     }
     catch(err){
@@ -432,6 +468,11 @@ exports.receipt = async (req, res) => {
         )
         if(!order){
             return res.send('order not found')
+        }
+
+        const cutStock = await cutStocks(order.lotto_id, order.buyer)
+        if(!cutStock){
+            return res.send('can not cut stock')
         }
 
         return res.send({

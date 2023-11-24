@@ -18,7 +18,11 @@ const orderSchema = new Schema(
         status: String, // new > timeout, cancle, accepted > cancle, ready > 
         transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง
        
-        detail: mongoose.Schema.Types.Mixed, // ข้อความ
+        detail: {
+            seller: String,
+            buyer: String,
+            msg: String
+        }, // ข้อความ
 
         /* lottos_price: Number, // ราคาสินค้ารวมในออร์เดอร์
         transfer_cost: Number, // ค่าจัดส่ง
@@ -35,7 +39,7 @@ const orderSchema = new Schema(
             transfer: Number, // ค่าส่ง
             total: Number // ราคารวมทั้งหมด
         },
-        
+
         paid_slip: String, // สลิปโอนเงิน
         receipt: String, // ใบเสร็จรับเงิน
     },
