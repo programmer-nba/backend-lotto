@@ -2,6 +2,7 @@ const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js');
 
+// สร้างเลขบิล > หลังจ่ายเงินแล้ว
 const genBill = async (id) => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -17,6 +18,7 @@ const genBill = async (id) => {
     return result
 }
 
+// สร้างเลขออร์เดอร์
 const genOrderNo = async (id) => {
     const order = await Order.find()
     const code = `${order.length}`
@@ -25,6 +27,7 @@ const genOrderNo = async (id) => {
     return result
 }
 
+// หมดเวลา 
 const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
@@ -102,6 +105,17 @@ exports.createOrder = async (req, res) => {
         const seller_text = 'คุณมีออร์เดอร์ใหม่'
         const buyer_text = 'กรุณารอร้านค้ายืนยัน'
 
+        const amount = lottos.map((item)=>{
+            return item.amount
+        })
+
+        const sum_amount = amount.reduce((a, b)=> a + b, 0)
+
+        const each_lotto = 80
+        const all_lottos = 80*sum_amount // ราคาหวยรวมทุกใบ = 80*amount
+        const transfer_cost = 0 // ค่าส่ง
+        const service = total_prices - transfer_cost - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+
         const new_order = {
             lotto_id: lottos,
             buyer: buyer_id,
@@ -111,10 +125,19 @@ exports.createOrder = async (req, res) => {
                 seller: seller_text,
                 buyer: buyer_text
             },
+
             order_no: order_no,
             transferBy: transferBy,
-            transfer_cost: 0,
-            lottos_price: total_prices,
+            /* transfer_cost: 0,
+            lottos_price: total_prices, */
+
+            price: {
+                each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
+                all_lottos: all_lottos, // ราคาหวยรวมทุกใบ = 80*amount
+                service: service, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+                transfer: transfer_cost, // ค่าส่ง
+                total: total_prices // ราคารวมทั้งหมด
+            },
             
         }
         
@@ -140,7 +163,7 @@ exports.createOrder = async (req, res) => {
             seller_name: lotto.shopname,
             seller_id: seller_id,
             order_start: order.createdAt,
-            transfer_cost: order.transfer_cost,
+            transfer_cost: order.price.transfer,
             lottos_price: total_prices,
             status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`,
         })

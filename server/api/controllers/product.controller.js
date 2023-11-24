@@ -50,8 +50,8 @@ exports.addLottos = async (req, res)=>{
 
         // will run on admin site----------------------------
 
-        const year = "25" + code[0][0] + code[0][1]
-        const day = code[0][3] + code[0][4]
+        const year = "2566"
+        const day = '16'
         
         const now = new Date()
         const monthIndex = now.getMonth()
@@ -114,7 +114,8 @@ exports.addLottos = async (req, res)=>{
                 six_number: number, // เลข 6 หลัก
                 amount: amount, // จำนวนหวย (ชุด)
                 period: period, // งวดที่ออก
-                book: book, // เล่มที่
+                lotto_period : code[0][3]+code[0][4], // เลขงวด 
+                /* book: book, // เล่มที่ */
                 set: set, // ชุดที่
                 cost: cost, // ต้นทุน
                 price: price, // ราคาขาย

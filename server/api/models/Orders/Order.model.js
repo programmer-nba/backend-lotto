@@ -3,7 +3,9 @@ const {Schema} = mongoose
 
 const orderSchema = new Schema(
     {
+        order_no: String,
         lotto_id: Array,
+
         buyer: { 
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
@@ -12,15 +14,30 @@ const orderSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
         },
-        bill_no: String,
-        order_no: String,
+        
         status: String, // new > timeout, cancle, accepted > cancle, ready > 
         transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง
-        transfer_cost: Number, // ค่าจัดส่ง
-        receipt: String, // ใบเสร็จรับเงิน
-        paid_slip: String, // สลิปโอนเงิน
+       
         detail: mongoose.Schema.Types.Mixed, // ข้อความ
-        lottos_price: Number // ราคาสินค้ารวมในออร์เดอร์
+
+        /* lottos_price: Number, // ราคาสินค้ารวมในออร์เดอร์
+        transfer_cost: Number, // ค่าจัดส่ง
+        total_price: Number, // ราคามรวมทั้งออร์เดอร์ */
+
+        bill_no: String,
+        price: {
+            each_lotto: { // ราคาหวยต่อใบ = 80.-
+                type: Number,
+                default: 80
+            }, 
+            all_lottos: Number, // ราคาหวยรวมทุกใบ = 80*amount
+            service: Number, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+            transfer: Number, // ค่าส่ง
+            total: Number // ราคารวมทั้งหมด
+        },
+        
+        paid_slip: String, // สลิปโอนเงิน
+        receipt: String, // ใบเสร็จรับเงิน
     },
     {
         timestamps: true
