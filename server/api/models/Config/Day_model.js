@@ -3,11 +3,9 @@ const {Schema} = mongoose
 
 const daySchema = new Schema(
     {
-        day: [
-            {
+        day: {
             type: String,
-        }
-        ],
+        },
         open_markets: {
             wholesale: Boolean,
             retail: Boolean

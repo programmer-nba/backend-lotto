@@ -4,6 +4,7 @@ const Lotto = require('../models/Products/lotto.model.js')
 exports.getWholesale = async (req, res) => {
     try{
         const userRole = req.user.role
+        const setday = req.date
 
         // check role
         if(userRole === "user"){

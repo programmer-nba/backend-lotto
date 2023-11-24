@@ -3,6 +3,7 @@ const Lotto = require("../models/Products/lotto.model.js")
 const Seller = require("../models/UsersModel/SellersModel.js")
 const User = require('../models/UsersModel/UsersModel.js')
 const Admin = require('../models/UsersModel/AdminModel.js')
+const Day = require('../models/Config/Day_model.js')
 
 const jwt = require('jsonwebtoken')
 
@@ -325,6 +326,43 @@ exports.deleteSeller = async (req, res) => {
         }
 
         res.send('delete seller success!')
+    }
+    catch(error){
+        res.send('ERROR!')
+        console.log(error)
+    }
+}
+
+exports.createConfigDate = async (req, res) => {
+    try{
+        const dayconfig = await Day.create({})
+        if(!dayconfig){
+            return res.send('day not found')
+        }
+        return res.send('create config date success!')
+    }
+    catch(error){
+        res.send('ERROR!')
+        console.log(error)
+    }
+}
+
+exports.updateDate = async (req, res) => {
+    try{
+        const {day, wholesale, retail} = req.body
+
+        const dayconfig = await Day.findById('65606917cad49fe89593b9ba')
+        if(!dayconfig){
+            return res.send('day-config not found')
+        }
+
+        dayconfig.day = day
+        dayconfig.open_markets.wholesale = wholesale
+        dayconfig.open_markets.retail = retail
+
+        await dayconfig.save()
+
+        return res.send({message:'update config date success!', dayconfig})
     }
     catch(error){
         res.send('ERROR!')
