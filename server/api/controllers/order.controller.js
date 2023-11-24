@@ -258,9 +258,8 @@ exports.cancleOrder = async (req, res) => {
 
         if(order.status==='ใหม่'){
             order.status = 'ยกเลิก'
-            order.detail.seller = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
-            order.detail.buyer = `ออร์เดอร์ หมายเลข ${id} ถูกยกเลิกโดย ${me}`
-            order.detail.msg = `เนื่องจาก ${cancled_reason}`
+            order.detail.seller = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
+            order.detail.buyer = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
             await order.save()
 
             const lottos_list = order.lotto_id.map( async (item)=>{
@@ -276,9 +275,9 @@ exports.cancleOrder = async (req, res) => {
         
         else if(order.status==='ตรวจสอบยอด'){
             order.status = 'ปฏิเสธ',
-            order.detail.seller = `รอลูกค้าชำระเงินอีกครั้ง`
-            order.detail.buyer = `ร้านค้าปฏิเสธการรับยอด กรุณาตรวจสอบการชำระเงินอีกครั้ง`
-            order.detail.msg = `เนื่องจาก ${cancled_reason}`
+            order.detail.seller = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
+            order.detail.buyer = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
+           /*  order.detail.msg = `เนื่องจาก ${cancled_reason}` */
             await order.save()
         }
 
