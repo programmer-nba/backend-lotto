@@ -1,6 +1,6 @@
 // import database
+const { Timestamp } = require('mongodb')
 const Lotto = require('../models/Products/lotto.model.js')
-const Seller = require('../models/UsersModel/SellersModel.js')
 const User = require('../models/UsersModel/UsersModel.js')
 
 // get my all lotteries data
@@ -29,13 +29,31 @@ exports.getMyLottos = async (req, res) => {
 // update profile
 exports.editMyProfile = async (req, res)=> {
     try{
-        
         const userId = req.user.id
+        const {
+            name,
+            address,
+            line_id
+        } = req.body
 
-        await Seller.findByIdAndUpdate(userId, req.body)
+        const user = await User.findById(userId)
+        if(!user){
+            return res.send({message:"ไม่พบข้อมูลผู้ใช้งาน"})
+        }
+        
+        user.name= name
+        user.address= address
+        user.line_id= line_id
+        user.updatedAt= new Timestamp()
 
-        res.send({
+        const updated_user = await user.save()
+        if(!updated_user){
+            return res.send({message:"ไม่สามารถอัพเดทข้อมูลได้"})
+        }
+
+        return res.send({
             message:"อัพเดทข้อมูลส่วนตัวเสร็จสิ้น",
+            user: updated_user
         })
     }
     catch(err){
