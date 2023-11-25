@@ -8,8 +8,7 @@ const UserSchema = new Schema(
             
         },
         address: {
-            type: String,
-
+            type: mongoose.Schema.Types.Mixed,
         },
         password: {
             type: String,

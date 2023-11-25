@@ -163,13 +163,13 @@ exports.userRegister = async (req, res)=>{
     const {password, phone_number, name, address, line_id} = req.body
     try{
         if(!password || !phone_number || !name ){
-            res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
+            return res.send('กรุณากรอกข้อมูลให้ถูกต้อง')
         } else {
             const userExisting = await User.findOne({phone_number})
             const sellerExisting = await Seller.findOne({phone_number})
 
             if(userExisting || sellerExisting){
-                res.send('หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
+                return res.send('หมายเลขโทรศัพท์ นี้ มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง')
             } else {
                 const newUser = new User(
                     {
@@ -178,13 +178,18 @@ exports.userRegister = async (req, res)=>{
                         phone_number,
                         address,
                         line_id,
-
+                        last_logedIn: new Date().toString(),
+                        IP: req.ip,
                         role : 'user'
                     }
                 )
         
                 await newUser.save()
-                res.send(newUser)
+                return res.send({
+                    message: 'ลงทะเบียน user สำเร็จ',
+                    success: true,
+                    user: newUser
+                })
             }
         }
     }

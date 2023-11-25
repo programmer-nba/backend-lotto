@@ -27,7 +27,7 @@ const genOrderNo = async (id) => {
     return result
 }
 
-// หมดเวลา 
+/* // หมดเวลา 
 const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
@@ -56,7 +56,7 @@ const timeOut = async (order_id, seconds) => {
         }
     }, seconds*1000)
 
-}
+} */
 
 const cutStocks = async (lottos_id, buyer_id) => {
     const lottos_list = lottos_id.map( async (id)=>{
@@ -139,8 +139,6 @@ exports.createOrder = async (req, res) => {
 
             order_no: order_no,
             transferBy: transferBy,
-            /* transfer_cost: 0,
-            lottos_price: total_prices, */
 
             price: {
                 each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
@@ -163,8 +161,8 @@ exports.createOrder = async (req, res) => {
             .catch(()=>res.send('lotto not found'))
         }
         
-        const timeBeforeDelete = 30 // วินาที
-        await timeOut(order._id , timeBeforeDelete)
+        /* const timeBeforeDelete = 30 // วินาที */
+        /* await timeOut(order._id , timeBeforeDelete) */
 
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,

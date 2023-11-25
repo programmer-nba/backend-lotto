@@ -8,6 +8,7 @@ const {upload, uploadPictures} = require('../middleware/drive.js')
 route.post('/register/seller', upload, uploadPictures, auths.sellerRegister)
 
 route.post('/register/user', auths.userRegister)
+
 route.post('/login', auths.login)
 
 module.exports = route
