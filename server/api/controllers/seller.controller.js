@@ -5,7 +5,6 @@ const Seller = require('../models/UsersModel/SellersModel.js')
 exports.editMyProfile = async (req, res)=> {
     const userId = req.user.id
     const dataIds = req.dataIds
-    console.log(dataIds.length)
 
     const prev_info = await Seller.findById(userId)
     if(!prev_info){

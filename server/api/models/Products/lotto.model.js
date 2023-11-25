@@ -17,16 +17,13 @@ const lottoSchema = new Schema(
         market: String,
         
         type: String, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
-        /* number: Array, // หมายเลขฉลาก */
-        set: Array, // ชุดที่
-        /* book: String, // เล่มที่ */
-        six_number: String, // เลข 6 หลัก
+        
         code: [{type: String}], // barcode หวย
         pcs: Number, // จำนวนหวย (ใบ)
 
         amount: Number, // จำนวนใบ
-        period: String, // งวดที่ออก
-        lotto_period : String, // เลขงวด
+        
+        
         cost: Number, // ราคาทุน
         price: Number, // ราคาขาย
         profit: Number, // กำไร

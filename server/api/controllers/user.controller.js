@@ -28,6 +28,7 @@ exports.getMyLottos = async (req, res) => {
 
 // update profile
 exports.editMyProfile = async (req, res)=> {
+    const dataIds = req.dataIds
     try{
         const userId = req.user.id
         const {

@@ -174,7 +174,7 @@ exports.createOrder = async (req, res) => {
             order_start: order.createdAt,
             transfer_cost: order.price.transfer,
             lottos_price: total_prices,
-            status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`,
+            /* status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`, */
         })
         
     }

@@ -26,7 +26,10 @@ const UserSchema = new Schema(
             type: String,
         },
         last_logedIn: String,
-        IP: String
+        IP: String,
+
+        profile_img: String,
+        cover_img: String
         
     },
     {

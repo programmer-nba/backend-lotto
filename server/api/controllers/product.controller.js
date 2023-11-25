@@ -77,46 +77,35 @@ exports.addLottos = async (req, res)=>{
             (retail===true && wholesale===true) ? "all" :
             "none"
         
-        /* let set_stock = [] // ชุดที่ */
-        
-        /* for(let i in number){
-            let number_decoded = 
-            (type==='หวยก้อน' || type==='หวยเล่ม') ? `${number[i].substring(0, 9) + 'xxxxxx' + number[i].substring(14+1)}`
-            : number[i]
-            number_stock.push(number_decoded)
-
-            let set_decoded = number[i].substring(6, 7+1)
-            set_stock.push(set_decoded)
-        } */
-
-        /* const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่ */
-
-        /* const set_string = set_stock.join(", ") */
-
-        /* const six_number = (type==='หวยเล่ม') ? `xxxx00-xxxx99`
-        : (type==='หวยก้อน') ? `xxxx00-xxxx99 x${amount}`
-        : number[0].substring(9, 14+1) */
-
-        const set = code[0][6]+code[0][7]
-
         const pcs =
             (type==='หวยเล่ม') ? 100 :
             (type==='หวยก้อน') ? amount*100 :
             amount
 
+        const decoded_list = code.map((item)=>{
+            const decoded_list = item.split('-') // 0 1 2 3 4
+            const decoded = {
+                year: decoded_list[0],
+                period: decoded_list[1],
+                set: decoded_list[2],
+                six_number: decoded_list[3],
+                book: decoded_list[4],
+            }
+            return decoded
+        })
+
+        console.log(decoded_list)
+
         const newLotto = 
             {
                 seller_id: userId,
                 shopname: shopname,
+                date: period,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                /* number: number_stock, // หมายเลขฉลาก 6 หลัก */
                 code: code, // เลข barcode
-                six_number: number, // เลข 6 หลัก
+                decoded : decoded_list,
+                unit: unit, // หน่วย
                 amount: amount, // จำนวนหวย (ชุด)
-                period: period, // งวดที่ออก
-                lotto_period : code[0][3]+code[0][4], // เลขงวด 
-                /* book: book, // เล่มที่ */
-                set: set, // ชุดที่
                 cost: cost, // ต้นทุน
                 price: price, // ราคาขาย
                 profit: price-cost, // กำไร
@@ -128,17 +117,15 @@ exports.addLottos = async (req, res)=>{
         const lotto = await Lotto.create(newLotto)
 
         if(lotto){
-            res.send({
-                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} หมายเลข 6 หลัก = ${number} ชุดที่ = ${set}`,
-                data:lotto,
+            return res.send({
+                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} `,
+                lotto,
                 six_number: number,
-                set: set,
-                unit: unit,
                 success: true,
             })
         }
         else {
-            res.send({
+            return res.send({
                 message: 'ไม่สามารถเพิ่มฉลากได้',
                 success: false
             })
