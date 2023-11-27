@@ -84,3 +84,37 @@ exports.changeMarket = async (req, res) => {
     }
 }
 
+exports.getRetail = async (req, res) => {
+    try{
+        const userRole = req.user.role
+        const setday = req.date
+
+        // check role
+        if(userRole === "seller"){
+            return res.send({
+                message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
+            })
+        }
+        
+        const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false})
+
+        if(market.length === 0){
+            return res.send({
+                message: `มีฉลากทั้งหมด ${market.length} ชุด`,
+                market
+            })
+        } else {
+            return res.status(200).send({
+                message: `มีสินค้าในตลาดขายปลีกทั้งหมด ${market.length} ชุด`,
+                market: market
+            })
+        } 
+    }
+    catch(error){
+        console.log(error.message)
+        res.status(500).send({
+            message: "ERROR : please check console"
+        })
+    }
+}
+

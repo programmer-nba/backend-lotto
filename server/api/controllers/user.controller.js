@@ -14,11 +14,18 @@ exports.getMyLottos = async (req, res) => {
         }
 
         const myLottos = await Lotto.find({seller_id: userId})
-        console.log(myLottos)
 
-        if(myLottos){
-            res.send(myLottos)
+        if(!myLottos){
+            return res.send({message:"ไม่พบข้อมูลฉลาก"})
+        } else if ( myLottos.length ===0 ) {
+            return res.send({message:"ฉลากของคุณมี 0 ชุด กรุณาเพิ่มฉลากใหม่"})
         }
+
+        return res.send({
+            message: `ฉลากของคุณมี ${myLottos.length} ชุด`,
+            myLottos: myLottos,
+            success: true
+        })
     }
     catch(err){
         console.log(err.message)

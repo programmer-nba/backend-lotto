@@ -1,6 +1,7 @@
 const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
-const Seller = require('../models/UsersModel/SellersModel.js');
+const Seller = require('../models/UsersModel/SellersModel.js')
+const User = require('../models/UsersModel/UsersModel.js')
 
 // สร้างเลขบิล > หลังจ่ายเงินแล้ว
 const genBill = async (id) => {
@@ -69,16 +70,20 @@ const cutStocks = async (lottos_id, buyer_id) => {
     return Promise.all(lottos_list)
 }
 
-// "ขายปลีก" create new order
+// "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
         const {lotto_id, transfer} = req.body
         const buyer_id = req.user.id
         const buyer_role = req.user.seller_role
         const buyer_name = req.user.name
-        
+        console.log(buyer_role)
+        console.log(buyer_name)
+        console.log(req.user.role)
         if(buyer_role!=='ขายปลีก'){
-            return res.send('you are not allowed')
+            if(req.user.role!=='user'){
+                return res.send('you are not allowed')
+            }
         }
 
         const lotto_list = lotto_id.map(async (id) => {
@@ -105,7 +110,10 @@ exports.createOrder = async (req, res) => {
 
         const buyer = await Seller.findById(buyer_id)
         if(!buyer){
-            buyer = 'ไม่พบ buyer นี้'
+            const buyer = await User.findById(buyer_id)
+            if(!buyer) {
+                return res.send('ไม่พบ buyer นี้')
+            }
         }
 
         const transferBy = (transfer==='address') ? buyer.address : transfer  
@@ -124,9 +132,10 @@ exports.createOrder = async (req, res) => {
         const each_lotto = 80
         const all_lottos = 80*sum_amount // ราคาหวยรวมทุกใบ = 80*amount
         const transfer_cost = 
-            (transfer==='รับเอง') ? 0 :
-            (transfer==='ฝากตรวจ') ? 0 : 0
-            
+            (transfer==='รับเอง') ? 0 
+            : (transfer==='ฝากตรวจ') ? 0 
+            : 50
+
         const service = total_prices - transfer_cost - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
 
         const new_order = {
@@ -171,8 +180,7 @@ exports.createOrder = async (req, res) => {
             seller_name: lotto.shopname,
             seller_id: seller_id,
             order_start: order.createdAt,
-            transfer_cost: order.price.transfer,
-            lottos_price: total_prices,
+            lottos_price: order.price,
         })
         
     }
@@ -206,7 +214,7 @@ exports.getAllOrders = async (req, res) => {
     }
 }
 
-// for "ขายส่ง" seller
+// for seller
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
@@ -224,8 +232,6 @@ exports.getMyOrders = async (req, res) => {
         const myNewOrders = myOrders.filter(item=>item.status==='ใหม่')
         const myAcceptedOrders = myOrders.filter(item=>item.status==='ยืนยัน')
         
-       
-
         return res.send({
             message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
             myOrders: myOrders,
