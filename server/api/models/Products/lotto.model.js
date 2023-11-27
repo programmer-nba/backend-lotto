@@ -17,7 +17,7 @@ const lottoSchema = new Schema(
         market: String,
         
         type: String, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
-        
+        date: String,
         code: [{type: String}], // barcode หวย
         pcs: Number, // จำนวนหวย (ใบ)
 

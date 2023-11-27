@@ -31,9 +31,11 @@ exports.getMyLottos = async (req, res) => {
 
 // create new lotto set
 exports.addLottos = async (req, res)=>{
+    console.log(req.config)
     try{
         const userId = req.user.id
-
+        const date = req.config.period
+        
         const {
             code, // เลข barcode
             type, // ประเภทหวย
@@ -46,24 +48,6 @@ exports.addLottos = async (req, res)=>{
 
         const seller = await Seller.findById(userId)
         const shopname = seller.shop_name
-
-        // will run on admin site----------------------------
-
-        const year = "2566"
-        const day = '16'
-        
-        const now = new Date()
-        const monthIndex = now.getMonth()
-        const months = [
-            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤษจิกายน", "ธันวาคม"
-        ]
-
-        const currentMonth = months[monthIndex]
-
-        const period = `${day} ${currentMonth} ${year}`
-
-        //----------------------------------------------
     
         const unit = 
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
@@ -93,13 +77,11 @@ exports.addLottos = async (req, res)=>{
             return decoded
         })
 
-        console.log(decoded_list)
-
         const newLotto = 
             {
                 seller_id: userId,
                 shopname: shopname,
-                date: period,
+                date: date,
                 type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
                 code: code, // เลข barcode
                 decoded : decoded_list,
