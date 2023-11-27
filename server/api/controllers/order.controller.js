@@ -1,3 +1,4 @@
+const { Timestamp } = require('mongodb')
 const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
@@ -28,14 +29,14 @@ const genOrderNo = async (id) => {
     return result
 }
 
-/* // หมดเวลา 
+// หมดเวลา 
 const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
         const order = await Order.findById(order_id)
         for(i in order.lotto_id){
             const lotto = await Lotto.findById(order.lotto_id[i])
-            if(lotto.on_order && order.status==='ใหม่'){
+            if(lotto.on_order && order.status==='ยืนยัน'){
                 await Lotto.findByIdAndUpdate(order.lotto_id[i], {on_order: false})
                 console.log(`order cancle > lotto is backing to market`)
             } else {
@@ -46,10 +47,10 @@ const timeOut = async (order_id, seconds) => {
 
     setTimeout(async () => {
         const order = await Order.findById(order_id)
-        if(order.status==='ใหม่'){
+        if(order.status==='ยืนยัน'){
             await Order.findByIdAndUpdate(order_id, {status:'หมดเวลา', detail:{
-                seller: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด',
-                buyer: 'ร้านค้าไม่ได้ยืนยันออร์เดอร์ภายในเวลาที่กำหนด'
+                seller: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด',
+                buyer: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด'
             }})
             console.log(`order time-out`)
         } else {
@@ -57,7 +58,7 @@ const timeOut = async (order_id, seconds) => {
         }
     }, seconds*1000)
 
-} */
+} 
 
 const cutStocks = async (lottos_id, buyer_id) => {
     const lottos_list = lottos_id.map( async (id)=>{
@@ -70,6 +71,152 @@ const cutStocks = async (lottos_id, buyer_id) => {
     return Promise.all(lottos_list)
 }
 
+// admin get all orders
+exports.getAllOrders = async (req, res) => {
+    try{
+        const userRole = req.user.role
+        if(userRole!=='admin'){
+           return res.send('you are not allowed!') 
+        }
+        
+        const orders = await Order.find()
+        if(!orders || orders.length===0){
+            return res.send(`มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`)
+        }
+
+        return res.send({
+            message: `มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`,
+            orders
+        })
+    }
+    catch (err) {
+        console.log(err.message)
+        res.send('ERROR, con not get all orders')
+    }
+}
+
+// for seller
+exports.getMyOrders = async (req, res) => {
+    try{
+        const myId = req.user.id
+
+        const myOrders = await Order.find({seller:myId}).populate('buyer').populate('seller')
+        
+        if(!myOrders || myOrders.length===0){
+            return res.send('ไม่พบออร์เดอร์ของฉัน')
+        } 
+
+        const myNewOrders = myOrders.filter(item=>item.status==='ใหม่')
+        const myAcceptedOrders = myOrders.filter(item=>item.status==='ยืนยัน')
+        
+        return res.send({
+            message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
+            myOrders: myOrders,
+        })
+        
+    }
+    catch(error){
+        res.send('ERROR con not get my orders')
+        console.log(error.message)
+    }
+}
+
+// admin delete all current orders and orders history
+exports.deleteAllOrders = async (req, res) => {
+    try{
+        const userRole = req.user.role
+        if(userRole!=='admin'){
+            return res.send('you are not alloed!')
+        }
+
+        const deletedOrders = await Order.deleteMany()
+        if(!deletedOrders){
+            return res.send('can not delete!')
+        }
+        res.send('delete success!')
+    }
+    catch(err){
+        res.send('ERROR can not delete all order history')
+        console.log(err.message)
+    }
+}
+
+// "ขายปลีก" get thire current order list  
+exports.getMyPurchase = async (req, res) => {
+    try{
+        const myId = req.user.id
+
+        const myPurchases = await Order.find({buyer:myId}).populate('buyer').populate('seller')
+        if(!myPurchases || myPurchases.length===0){
+            return res.send('orders no found')
+        }
+
+        const myNewPurchases = myPurchases.filter(item=>item.status==='ใหม่')
+        const myAcceptedPurchase = myPurchases.filter(item=>item.status==='ยืนยัน')
+
+        return res.send({
+            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}, ออร์เดอร์ที่กำลังดำเนินการ = ${myAcceptedPurchase.length}`,
+            myOrders: myPurchases
+        })
+    }
+    catch(err){
+        res.send('ERROR! can not get purchase')
+        console.log(err.message)
+    }
+}
+
+/* // "ขายส่ง" เตรียมพร้อมแล้ว รอเช็คเงินโอนจาก ขายปลีก
+exports.readyOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+        const ready_order = await Order.findOneAndUpdate(
+            {_id:id, status:'ยืนยัน'}, 
+            {$set:{status:'รอชำระเงิน',
+            detail:{
+                seller: 'รอชำระเงิน',
+                buyer: 'รอชำระเงิน'
+            }
+        }}, 
+            {new:true}
+        )
+        if(!ready_order){
+            return res.send('order not found or already ready')
+        }
+
+        return res.send({
+            message: `จัดเตรียมออร์เดอร์พร้อมแล้ว...รอลูกค้าชำระเงิน`,
+        })
+    }
+    catch(error){
+        res.send('ERROR! can not ready order')
+        console.log(error)
+    }
+} */
+
+// get target order
+exports.getOrder = async (req, res) => {
+    try{
+        const {id} = req.params
+        const order = await Order.findById(id)
+        if(!order){
+            return res.send('order not found')
+        }
+
+        return res.send({
+            message: 'get order success',
+            order
+        })
+    }
+    catch(error){
+        res.send('ERROR, can not get order!')
+        console.log(error)
+    }
+}
+
+
+
+//----------------------------- order sequence ---------------------------------
+
 // "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
@@ -77,9 +224,7 @@ exports.createOrder = async (req, res) => {
         const buyer_id = req.user.id
         const buyer_role = req.user.seller_role
         const buyer_name = req.user.name
-        console.log(buyer_role)
-        console.log(buyer_name)
-        console.log(buyer_id)
+    
         if(buyer_role!=='ขายปลีก'){
             if(req.user.role!=='user'){
                 return res.send('you are not allowed')
@@ -158,6 +303,11 @@ exports.createOrder = async (req, res) => {
                 transfer: transfer_cost, // ค่าส่ง
                 total: total_prices // ราคารวมทั้งหมด
             },
+
+            statusHis: {
+                status: 'ใหม่',
+                timeAt: new Date() 
+            }
             
         }
         
@@ -191,56 +341,6 @@ exports.createOrder = async (req, res) => {
     }
 }
 
-// admin get all orders
-exports.getAllOrders = async (req, res) => {
-    try{
-        const userRole = req.user.role
-        if(userRole!=='admin'){
-           return res.send('you are not allowed!') 
-        }
-        
-        const orders = await Order.find()
-        if(!orders || orders.length===0){
-            return res.send(`มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`)
-        }
-
-        return res.send({
-            message: `มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`,
-            orders
-        })
-    }
-    catch (err) {
-        console.log(err.message)
-        res.send('ERROR, con not get all orders')
-    }
-}
-
-// for seller
-exports.getMyOrders = async (req, res) => {
-    try{
-        const myId = req.user.id
-
-        const myOrders = await Order.find({seller:myId}).populate('buyer').populate('seller')
-        
-        if(!myOrders || myOrders.length===0){
-            return res.send('ไม่พบออร์เดอร์ของฉัน')
-        } 
-
-        const myNewOrders = myOrders.filter(item=>item.status==='ใหม่')
-        const myAcceptedOrders = myOrders.filter(item=>item.status==='ยืนยัน')
-        
-        return res.send({
-            message: `ออร์เดอร์ใหม่= ${myNewOrders.length}, ออร์เดอร์ทั้งหมด= ${myOrders.length}, ออร์เดอร์ที่รับแล้ว= ${myAcceptedOrders.length}`,
-            myOrders: myOrders,
-        })
-        
-    }
-    catch(error){
-        res.send('ERROR con not get my orders')
-        console.log(error.message)
-    }
-}
-
 // seller cancle a current new order or reject payment
 exports.cancleOrder = async (req, res) => {
     try{
@@ -259,6 +359,11 @@ exports.cancleOrder = async (req, res) => {
             order.status = 'ยกเลิก'
             order.detail.seller = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
             order.detail.buyer = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
+            order.statusHis.push({
+                status: 'ยกเลิก',
+                timeAt: new Date()
+            })
+
             await order.save()
 
             const lottos_list = order.lotto_id.map( async (item)=>{
@@ -277,6 +382,11 @@ exports.cancleOrder = async (req, res) => {
             order.detail.seller = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
             order.detail.buyer = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
            /*  order.detail.msg = `เนื่องจาก ${cancled_reason}` */
+            order.statusHis.push({
+                status: 'ปฏิเสธ',
+                timeAt: new Date()
+            })
+
             await order.save()
         }
 
@@ -286,7 +396,7 @@ exports.cancleOrder = async (req, res) => {
         
         return res.send({
             message: `ออร์เดอร์ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน`,
-            reason: order.detail.msg,
+            reason: order.detail.seller,
             order: order
         })
     }
@@ -296,66 +406,35 @@ exports.cancleOrder = async (req, res) => {
     }
 }
 
-// admin delete all current orders and orders history
-exports.deleteAllOrders = async (req, res) => {
-    try{
-        const userRole = req.user.role
-        if(userRole!=='admin'){
-            return res.send('you are not alloed!')
-        }
-
-        const deletedOrders = await Order.deleteMany()
-        if(!deletedOrders){
-            return res.send('can not delete!')
-        }
-        res.send('delete success!')
-    }
-    catch(err){
-        res.send('ERROR can not delete all order history')
-        console.log(err.message)
-    }
-}
-
-// "ขายปลีก" get thire current order list  
-exports.getMyPurchase = async (req, res) => {
-    try{
-        const myId = req.user.id
-
-        const myPurchases = await Order.find({buyer:myId}).populate('buyer').populate('seller')
-        if(!myPurchases || myPurchases.length===0){
-            return res.send('orders no found')
-        }
-
-        const myNewPurchases = myPurchases.filter(item=>item.status==='ใหม่')
-        const myAcceptedPurchase = myPurchases.filter(item=>item.status==='ยืนยัน')
-
-        return res.send({
-            message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}, ออร์เดอร์ที่กำลังดำเนินการ = ${myAcceptedPurchase.length}`,
-            myOrders: myPurchases
-        })
-    }
-    catch(err){
-        res.send('ERROR! can not get purchase')
-        console.log(err.message)
-    }
-}
-
-// "ขายส่ง" accepted an new order to processing
+// "seller" accepted an new order to processing
 exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
 
         const accept_order = await Order.findOneAndUpdate(
             {_id:id, status:'ใหม่'}, 
-            {$set:{status:'ยืนยัน', detail:{
-                seller: `จัดเตรียมฉลากให้พร้อม รอลุกค้าชำระเงิน`,
-                buyer: `ร้านค้ายืนยันแล้ว กรุณาชำระเงิน`,
-            }}}, 
+            {
+                $set:{
+                    status:'ยืนยัน', 
+                    detail:{
+                        seller: `รอลูกค้าชำระเงิน`,
+                        buyer: `กรุณาชำระเงิน`,
+                    },
+                },
+                $push:{
+                    statusHis:{
+                        status: 'ยืนยัน', 
+                        timeAt: new Date()
+                    },
+                }
+            }, 
             {new:true}
         )
         if(!accept_order){
             return res.send('order not found or already accepted')
         }
+
+        timeOut(id, 60)
         
         return res.send({
             message: `ร้านค้ารับออร์เดอร์แล้ว...กำลังจัดเตรียมฉลาก`,
@@ -366,34 +445,6 @@ exports.acceptOrder = async (req, res) => {
     catch(err){
         res.send('ERROR! can not accept order')
         console.log(err.message)
-    }
-}
-
-// "ขายส่ง" เตรียมพร้อมแล้ว รอเช็คเงินโอนจาก ขายปลีก
-exports.readyOrder = async (req, res) => {
-    try{
-        const {id} = req.params
-        const ready_order = await Order.findOneAndUpdate(
-            {_id:id, status:'ยืนยัน'}, 
-            {$set:{status:'รอชำระเงิน',
-            detail:{
-                seller: 'กรุณารอลูกค้าแจ้งชำระเงิน',
-                buyer: 'ฉลากพร้อมแล้ว กรุณาชำระเงิน'
-            }
-        }}, 
-            {new:true}
-        )
-        if(!ready_order){
-            return res.send('order not found or already ready')
-        }
-
-        return res.send({
-            message: `จัดเตรียมออร์เดอร์พร้อมแล้ว...รอลูกค้าชำระเงิน`,
-        })
-    }
-    catch(error){
-        res.send('ERROR! can not ready order')
-        console.log(error)
     }
 }
 
@@ -410,13 +461,23 @@ exports.payment = async (req, res) => {
                 ? `https://drive.google.com/file/d/${slip_img}/view` 
                 : `none`
 
-        const order = await Order.findByIdAndUpdate({_id:id, status:{$in:['ยืนยัน','ปฏิเสธ']}}, {$set:{paid_slip:slip_img_link,
-            status: 'ตรวจสอบยอด',
-            detail:{
-                seller: 'ลูกค้าแจ้งชำระเงินแล้ว กรุณาตรวจสอบยอดโอน',
-                buyer: 'กรุณารอร้านค้าตรวจสอบยอดเงิน'
+        const order = await Order.findByIdAndUpdate({_id:id, status:{$in:['ยืนยัน','ปฏิเสธ']}}, 
+        {
+            $set:{
+                paid_slip:slip_img_link,
+                status: 'ตรวจสอบยอด',
+                detail:{
+                    seller: 'รอตรวจสอบยอด',
+                    buyer: 'รอตรวจสอบยอด'
+                }
+            },
+            $push:{
+                statusHis:{
+                    status: 'ตรวจสอบยอด', 
+                    timeAt: new Date()
+                },
             }
-        }})
+        })
         if(!order){
             return res.send('not found order id?')
         }
@@ -433,21 +494,29 @@ exports.payment = async (req, res) => {
     }
 }
 
-// "ขายส่ง" รับยอดโอน
+// "admin" รับยอดโอน
 exports.receipt = async (req, res) => {
     try{
         const {id} = req.params
         const bill_no = await genBill(id)
         const order = await Order.findByIdAndUpdate(
             {_id:id, status:'ตรวจสอบยอด'}, 
-            {$set:{
-                status:'ชำระแล้ว', 
-                detail:{
-                    seller: 'กรุณาส่งฉลาก หรือ รอลูกค้ารับฉลาก',
-                    buyer: 'รอร้านค้าส่งฉลาก หรือ รับฉลากที่ร้านได้เลย'
+            {
+                $set:{
+                    status:'ชำระแล้ว', 
+                    detail:{
+                        seller: 'รอลูกค้ารับฉลาก',
+                        buyer: 'กรุณารับฉลากที่ร้านค้า'
+                    },
+                    bill_no:bill_no
                 },
-                bill_no:bill_no
-            }}
+                $push:{
+                    statusHis:{
+                        status: 'ชำระแล้ว', 
+                        timeAt: new Date()
+                    },
+                }
+            }
         )
         if(!order){
             return res.send('order not found')
@@ -459,7 +528,7 @@ exports.receipt = async (req, res) => {
         }
 
         return res.send({
-            message: 'ร้านค้ารับยอดเรียบร้อย...รอลูกค้ายืนยันรับของ',
+            message: 'แอดมินรับยอดเรียบร้อย...รอลูกค้ายืนยันรับของ',
             bill_no: order.bill_no
         })
     }
@@ -496,23 +565,60 @@ exports.doneOrder = async (req, res) => {
     }
 }
 
-// get target order
-exports.getOrder = async (req, res) => {
-    try{
-        const {id} = req.params
-        const order = await Order.findById(id)
-        if(!order){
+// Bill
+exports.orderReceipt = async (req, res) => {
+    const {id} = req.params
+
+    try {
+        const order = await Order.findById(id).populate('seller').populate('buyer')
+        if( !order ) {
             return res.send('order not found')
         }
+        if( !['สำเร็จ','ชำระแล้ว'].includes(order.status) ) {
+            return res.send('ออร์เดอร์นี้ยังไม่ผ่านการตรวจสอบการชำระเงิน')
+        }
 
-        return res.send({
-            message: 'get order success',
-            order
+        const lotto_list = order.lotto_id.map(item=>{
+            const lotto = {
+                text: `${item.type} เลข${item.decoded[0].six_number} งวดที่ ${item.date} จำนวน ${item.amount} ${item.unit}`,
+                type: item.type,
+                date: item.date,
+                amount: item.amount,
+                number: item.decoded[0].six_number,
+                price: item.price
+            }
+            return lotto
         })
+
+        const receipt = {
+            shop: {
+                name: order.seller.shop_name,
+                address: order.seller.shop_location || order.seller.address,
+                tel: order.seller.shop_number || order.seller.phone_number,
+                taxId: order.seller.personal_id
+            },
+            buyer: {
+                name: order.buyer.name,
+                address: order.transferBy,
+                tel: order.buyer.phone_number || order.buyer.phone_number,
+                taxId: order.buyer.personal_id
+            },
+            lotto: lotto_list,
+            order: {
+                amount: order.lotto_id.length,
+                bill_no: order.bill_no,
+                order_no: order.order_no,
+                price: order.price
+            },
+            date: order.createdAt
+        }
+
+        return res.send(receipt)
     }
     catch(error){
-        res.send('ERROR, can not get order!')
+        res.send('ERROR, can not order-bill!')
         console.log(error)
     }
 }
+
 

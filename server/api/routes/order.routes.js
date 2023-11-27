@@ -20,11 +20,12 @@ route.put('/done-order/:id', verifyToken, orders.doneOrder)
 // ขายส่ง
 route.put('/accept-order/:id', verifyToken, orders.acceptOrder)
 route.get('/get-myorders', verifyToken, orders.getMyOrders)
-route.put('/ready-order/:id', verifyToken, orders.readyOrder)
+/* route.put('/ready-order/:id', verifyToken, orders.readyOrder) */
 route.put('/receipt-order/:id', verifyToken, orders.receipt)
 
 // ทุกคน
 route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)
 route.get('/:id', verifyToken, orders.getOrder)
+route.get('/receipt/:id', verifyToken, orders.orderReceipt)
 
 module.exports = route

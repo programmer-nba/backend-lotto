@@ -4,7 +4,13 @@ const Lotto = require('../models/Products/lotto.model.js')
 exports.getWholesale = async (req, res) => {
     try{
         const userRole = req.user.role
-        const setday = req.date
+        const openMarket = req.config.market
+
+        if(openMarket!=='open'){
+            return res.send({
+                message: "ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ... เวลา ..."
+            })
+        }
 
         // check role
         if(userRole === "user"){

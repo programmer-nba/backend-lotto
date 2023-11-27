@@ -74,6 +74,9 @@ const SellerSchema = new Schema(
         shop_cover: {
             type: String,
         },
+        personWithCard: String,
+        personWithShop: String,
+
         last_logedIn: String,
         IP: String,
         

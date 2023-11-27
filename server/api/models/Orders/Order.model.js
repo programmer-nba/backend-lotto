@@ -1,3 +1,4 @@
+const { Timestamp } = require('mongodb')
 const mongoose = require('mongoose')
 const {Schema} = mongoose
 
@@ -16,6 +17,13 @@ const orderSchema = new Schema(
         },
         
         status: String, // new > timeout, cancle, accepted > cancle, ready > 
+        statusHis: [
+            {
+                status: String,
+                timeAt: Date
+            },
+        ],
+
         transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง
        
         detail: {
@@ -28,6 +36,7 @@ const orderSchema = new Schema(
         transfer_cost: Number, // ค่าจัดส่ง
         total_price: Number, // ราคามรวมทั้งออร์เดอร์ */
 
+        paid: Boolean,
         bill_no: String,
         price: {
             each_lotto: { // ราคาหวยต่อใบ = 80.-
