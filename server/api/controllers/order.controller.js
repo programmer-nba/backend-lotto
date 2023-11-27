@@ -85,7 +85,6 @@ exports.createOrder = async (req, res) => {
             const lotto = await Lotto.findById(id)
             return lotto
         })
-
         const lottos = await Promise.all(lotto_list)
 
         const lotto = await Lotto.findById(lotto_id[0])
@@ -124,7 +123,10 @@ exports.createOrder = async (req, res) => {
 
         const each_lotto = 80
         const all_lottos = 80*sum_amount // ราคาหวยรวมทุกใบ = 80*amount
-        const transfer_cost = 0 // ค่าส่ง
+        const transfer_cost = 
+            (transfer==='รับเอง') ? 0 :
+            (transfer==='ฝากตรวจ') ? 0 : 0
+            
         const service = total_prices - transfer_cost - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
 
         const new_order = {
@@ -160,9 +162,6 @@ exports.createOrder = async (req, res) => {
             .then(()=>console.log('updated lotto status'))
             .catch(()=>res.send('lotto not found'))
         }
-        
-        /* const timeBeforeDelete = 30 // วินาที */
-        /* await timeOut(order._id , timeBeforeDelete) */
 
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
@@ -174,7 +173,6 @@ exports.createOrder = async (req, res) => {
             order_start: order.createdAt,
             transfer_cost: order.price.transfer,
             lottos_price: total_prices,
-            /* status: `กำลังรอร้านค้ายืนยัน...ภายใน ${timeBeforeDelete/60} นาที`, */
         })
         
     }

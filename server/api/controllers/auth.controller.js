@@ -154,6 +154,7 @@ exports.sellerRegister = async (req, res)=>{
 
             res.send({
                 message: 'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ',
+                success: true,
                 id: newSeller._id,
                 role: newSeller.role,
                 seller_role: newSeller.seller_role,
