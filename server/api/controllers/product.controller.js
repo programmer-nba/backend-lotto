@@ -35,7 +35,6 @@ exports.addLottos = async (req, res)=>{
         const userId = req.user.id
 
         const {
-            number, // หมายเลขฉลาก
             code, // เลข barcode
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
@@ -120,7 +119,6 @@ exports.addLottos = async (req, res)=>{
             return res.send({
                 message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} `,
                 lotto,
-                six_number: number,
                 success: true,
             })
         }

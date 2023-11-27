@@ -74,28 +74,42 @@ exports.sellerRegister = async (req, res)=>{
         : null
         const shop_img_link = (shop_img) 
             ? `https://drive.google.com/file/d/${shop_img}/view` 
-            : `https://drive.google.com/file/d/1k7aUdgwRxAiVuq4a9lzQAstUQZ9JEfoG/view`
+            : `ไม่มีรูป`
 
     const shop_cover = (dataIds.length>0 && dataIds.some(id => id.includes('shop_cover/'))) 
         ? dataIds.filter(id => id.includes('shop_cover'))[0].replace('shop_cover/', '')
         : null
         const shop_cover_link = (shop_cover && dataIds.some(id => id.includes('shop_cover/'))) 
             ? `https://drive.google.com/file/d/${shop_cover}/view` 
-            : `https://drive.google.com/file/d/1JBSYh7BdZTPHIxCrxQ7Talpp9R-hDRK7/view`
+            : `ไม่มีรูป`
 
     const shop_bank = (dataIds.length>0 && dataIds.some(id => id.includes('shop_bank/')))
         ? dataIds.filter(id => id.includes('shop_bank'))[0].replace('shop_bank/', '')
         : null
         const shop_bank_link = (shop_bank) 
             ? `https://drive.google.com/file/d/${shop_bank}/view` 
-            : `https://drive.google.com/file/d/1DMQ4c8_K5HBmSyremT80Q2KXySYIPOJ6/view`
+            : `ไม่มีรูป`
 
     const personal_img = (dataIds.length>0 && dataIds.some(id => id.includes('personal_img/'))) 
         ? dataIds.filter(id => id.includes('personal_img'))[0].replace('personal_img/', '')
         : null
         const personal_img_link = (personal_img) 
             ? `https://drive.google.com/file/d/${personal_img}/view` 
-            : `https://drive.google.com/file/d/1C7EGQr0qIuiXdA8HCGU1C-C2imzseg-W/view`
+            : `ไม่มีรูป`
+
+    const personWithCard = (dataIds.length>0 && dataIds.some(id => id.includes('personWithCard/'))) 
+        ? dataIds.filter(id => id.includes('personWithCard'))[0].replace('personWithCard/', '')
+        : null
+        const personWithCard_link = (personWithCard) 
+            ? `https://drive.google.com/file/d/${personWithCard}/view` 
+            : `ไม่มีรูป`
+
+    const personWithShop = (dataIds.length>0 && dataIds.some(id => id.includes('personWithShop/'))) 
+        ? dataIds.filter(id => id.includes('personWithShop'))[0].replace('personWithShop/', '')
+        : null
+        const personWithShop_link = (personWithShop) 
+            ? `https://drive.google.com/file/d/${personWithShop}/view` 
+            : `ไม่มีรูป`
 
     try{
         
@@ -124,13 +138,15 @@ exports.sellerRegister = async (req, res)=>{
                     address,
                     shop_location,
                     shop_name: shop_name || name,
+                    shop_number: shop_number || phone_number,
 
                     // img
                     personal_img : personal_img_link,
                     shop_img : shop_img_link,
                     shop_bank: shop_bank_link, 
                     shop_cover : shop_cover_link,
-                    shop_number: shop_number || phone_number
+                    personWithCard: personWithCard_link,
+                    personWithShop : personWithShop_link
                 }
             )
     
@@ -142,11 +158,12 @@ exports.sellerRegister = async (req, res)=>{
                 role: newSeller.role,
                 seller_role: newSeller.seller_role,
                 status: newSeller.status,
-                success: true,
                 shop_img: newSeller.shop_img,
                 shop_cover: newSeller.shop_cover,
                 shop_bank: newSeller.shop_bank,
                 personal_img: newSeller.personal_img,
+                personWithCard: newSeller.personWithCard,
+                personWithShop: newSeller.personWithShop,
                 address: address
             })
 

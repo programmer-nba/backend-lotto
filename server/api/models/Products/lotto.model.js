@@ -22,8 +22,15 @@ const lottoSchema = new Schema(
         pcs: Number, // จำนวนหวย (ใบ)
 
         amount: Number, // จำนวนใบ
-        
-        
+        decoded: [
+            {
+                year: String,
+                period: String,
+                set: String,
+                six_number: String,
+                book: String,
+            }
+        ],
         cost: Number, // ราคาทุน
         price: Number, // ราคาขาย
         profit: Number, // กำไร
