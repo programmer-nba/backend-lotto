@@ -25,6 +25,6 @@ route.put('/receipt-order/:id', verifyToken, orders.receipt)
 
 // ทุกคน
 route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)
-route.get('/get-order/:id', verifyToken, orders.getOrder)
+route.get('/:id', verifyToken, orders.getOrder)
 
 module.exports = route

@@ -79,7 +79,7 @@ exports.createOrder = async (req, res) => {
         const buyer_name = req.user.name
         console.log(buyer_role)
         console.log(buyer_name)
-        console.log(req.user.role)
+        console.log(buyer_id)
         if(buyer_role!=='ขายปลีก'){
             if(req.user.role!=='user'){
                 return res.send('you are not allowed')
@@ -176,6 +176,7 @@ exports.createOrder = async (req, res) => {
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
             order_id: order._id,
             order_transfer: order.transferBy,
+            buyer_id: buyer_id,
             buyer_name: buyer_name,
             seller_name: lotto.shopname,
             seller_id: seller_id,
@@ -218,12 +219,8 @@ exports.getAllOrders = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
-        const orders = await Order.find().populate('buyer').populate('seller')
-        if(!orders || orders.length===0){
-            return res.send('orders no found')
-        }
 
-        const myOrders = orders.filter(item=>item.seller._id.toString()===myId)
+        const myOrders = await Order.find({seller:myId}).populate('buyer').populate('seller')
         
         if(!myOrders || myOrders.length===0){
             return res.send('ไม่พบออร์เดอร์ของฉัน')
@@ -324,12 +321,11 @@ exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
 
-        const orders = await Order.find().populate('buyer').populate('seller')
-        if(!orders || orders.length===0){
+        const myPurchases = await Order.find({buyer:myId}).populate('buyer').populate('seller')
+        if(!myPurchases || myPurchases.length===0){
             return res.send('orders no found')
         }
 
-        const myPurchases = orders.filter(item=>item.buyer._id.toString()===myId)
         const myNewPurchases = myPurchases.filter(item=>item.status==='ใหม่')
         const myAcceptedPurchase = myPurchases.filter(item=>item.status==='ยืนยัน')
 
