@@ -7,11 +7,9 @@ const SellerSchema = new Schema(
             type: String,
             default: 'กำลังตรวจสอบ'
         },
-
         // main infomaion
         email: {
             type: String,
-            
         },
         password: {
             type: String,
@@ -47,20 +45,17 @@ const SellerSchema = new Schema(
             
         },
 
-
-        personal_img: {
-            type: String,
-        },
-
         // shop profile
         shop_name: {
             type: String,
             
         },
-
         shop_number: String,
         
         shop_location: {
+            type: String,
+        },
+        personal_img: {
             type: String,
         },
         shop_img: {
@@ -78,8 +73,7 @@ const SellerSchema = new Schema(
         personWithShop: String,
 
         last_logedIn: String,
-        IP: String,
-        
+        IP: String, 
     },
     {
         timestamps: true
