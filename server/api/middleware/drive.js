@@ -1,6 +1,17 @@
 // multer
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/', limits: {fileSize: 5 * 1024 * 1024}}).any()
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png'];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only JPEG and PNG are allowed.'));
+  }
+};
+
+const upload = multer({ dest: 'uploads/', limits: {fileSize: 100 * 1024 * 1024}, fileFilter:fileFilter}).any()
 
 // google drive
 const { google } = require('googleapis')
