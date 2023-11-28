@@ -2,7 +2,7 @@
 const multer = require('multer')
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png'];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -11,7 +11,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ dest: 'uploads/', limits: {fileSize: 100 * 1024 * 1024}, fileFilter:fileFilter}).any()
+const upload = multer({
+  dest: 'uploads/', // Specify the destination folder
+  limits: { fileSize: 100 * 1024 * 1024 }, // Set the maximum file size to 100 MB
+  fileFilter: fileFilter, // Specify the file filter function
+}).any()
 
 // google drive
 const { google } = require('googleapis')
@@ -34,8 +38,9 @@ const uploadPictures = async (req, res, next) => {
   console.log(`files:${req.files}`)
 
   const {body, files} = req
-  const name = body.shop_name || body.name
+  const name = body.name || body.shop_name
   const dataIds = [] // send this to register
+  console.log(`name : ${name}`)
 
   try{
     if(!files){
