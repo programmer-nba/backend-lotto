@@ -593,13 +593,14 @@ exports.orderReceipt = async (req, res) => {
                 name: order.seller.shop_name, // ชื่อร้านค้า
                 address: order.seller.shop_location || order.seller.address, // ที่อยู่ร้านค้า
                 tel: order.seller.shop_number || order.seller.phone_number, // เบอร์โทรร้านค้า
-                taxId: order.seller.personal_id // เลขประจำตัวผู้เสียภาษีของร้านค้า
+                taxId: order.seller.personal_id, // เลขประจำตัวผู้เสียภาษีของร้านค้า
+                logo: order.seller.shop_img // โลโก้ร้าน
             },
             buyer: {
                 name: order.buyer.name, // ชื่อผู้รับสินค้า
                 address: order.transferBy, // ที่อยู่จัดส่งสินค้า
                 tel: order.buyer.phone_number || order.buyer.phone_number, // เบอร์โทรผู้ซื้อ
-                taxId: order.buyer.personal_id // เลขประจำตัวผู้เสียภาษีของผู้ซื้อ
+                taxId: order.buyer.personal_id, // เลขประจำตัวผู้เสียภาษีของผู้ซื้อ
             },
             lotto: lotto_list, // รายละเอียดฉลากที่ซื้อแต่ละรายการ
             order: {
