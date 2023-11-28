@@ -1,4 +1,3 @@
-const { Timestamp } = require('mongodb')
 const Order = require('../models/Orders/Order.model.js')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
@@ -212,8 +211,6 @@ exports.getOrder = async (req, res) => {
         console.log(error)
     }
 }
-
-
 
 //----------------------------- order sequence ---------------------------------
 
@@ -581,36 +578,37 @@ exports.orderReceipt = async (req, res) => {
         const lotto_list = order.lotto_id.map(item=>{
             const lotto = {
                 text: `${item.type} เลข${item.decoded[0].six_number} งวดที่ ${item.date} จำนวน ${item.amount} ${item.unit}`,
-                type: item.type,
-                date: item.date,
-                amount: item.amount,
-                number: item.decoded[0].six_number,
-                price: item.price
+                type: item.type, // ประเภทฉลาก
+                date: item.date, // งวดที่ออก
+                amount: item.amount, // จำนวน ชุด,เล่ม
+                pcs: item.pcs, // จำนวนหวย ใบ
+                number: item.decoded[0].six_number, // เลขหกหลัก
+                price: item.price // ราคารวม
             }
             return lotto
         })
 
         const receipt = {
             shop: {
-                name: order.seller.shop_name,
-                address: order.seller.shop_location || order.seller.address,
-                tel: order.seller.shop_number || order.seller.phone_number,
-                taxId: order.seller.personal_id
+                name: order.seller.shop_name, // ชื่อร้านค้า
+                address: order.seller.shop_location || order.seller.address, // ที่อยู่ร้านค้า
+                tel: order.seller.shop_number || order.seller.phone_number, // เบอร์โทรร้านค้า
+                taxId: order.seller.personal_id // เลขประจำตัวผู้เสียภาษีของร้านค้า
             },
             buyer: {
-                name: order.buyer.name,
-                address: order.transferBy,
-                tel: order.buyer.phone_number || order.buyer.phone_number,
-                taxId: order.buyer.personal_id
+                name: order.buyer.name, // ชื่อผู้รับสินค้า
+                address: order.transferBy, // ที่อยู่จัดส่งสินค้า
+                tel: order.buyer.phone_number || order.buyer.phone_number, // เบอร์โทรผู้ซื้อ
+                taxId: order.buyer.personal_id // เลขประจำตัวผู้เสียภาษีของผู้ซื้อ
             },
-            lotto: lotto_list,
+            lotto: lotto_list, // รายละเอียดฉลากที่ซื้อแต่ละรายการ
             order: {
-                amount: order.lotto_id.length,
-                bill_no: order.bill_no,
-                order_no: order.order_no,
-                price: order.price
+                amount: order.lotto_id.length, // จำนวนรายการชุดฉลากที่ซื้อ
+                bill_no: order.bill_no, // เลขที่ใบเสร็จ
+                order_no: order.order_no, // หมายเลขออร์เดอร์
+                price: order.price // ราคารวมสุทธิ
             },
-            date: order.createdAt
+            date: order.createdAt // วันที่สั่งออร์เดอร์
         }
 
         return res.send(receipt)
