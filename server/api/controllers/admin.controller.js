@@ -347,7 +347,7 @@ exports.createConfigDate = async (req, res) => {
     }
 }
 
-exports.updateDate = async (req, res) => {
+exports.updateConfig = async (req, res) => {
     try{
         const {day, wholesale, retail} = req.body
 

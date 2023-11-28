@@ -22,6 +22,6 @@ route.get('/users', verifyToken, admins.getAllUsers)
 route.delete('/users', verifyToken, admins.deleteAllUsers)
 
 route.post('/config/date', verifyToken, admins.createConfigDate)
-route.put('/config/date', verifyToken, admins.updateDate)
+route.put('/config/date', verifyToken, admins.updateConfig)
 
 module.exports = route
