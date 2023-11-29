@@ -144,8 +144,20 @@ exports.deleteAllOrders = async (req, res) => {
 exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
+        const userRole = req.user.role
 
-        const myPurchases = await Order.find({buyer:myId}).populate('buyer').populate('seller')
+        let myPurchases = null
+        let userAsBuyer = null
+        if(userRole==='user'){
+            myPurchases = await Order.find({buyer:myId}).populate('seller').lean()
+            userAsBuyer = await User.findById(myId)
+            myPurchases.forEach((item)=>{
+                item.buyer = userAsBuyer
+            })
+        } else {
+            myPurchases = await Order.find({buyer:myId}).populate('buyer').populate('seller')
+        }
+
         if(!myPurchases || myPurchases.length===0){
             return res.send('orders no found')
         }
@@ -155,7 +167,8 @@ exports.getMyPurchase = async (req, res) => {
 
         return res.send({
             message : `ออร์เดอร์ทั้งหมด = ${myPurchases.length}, ออร์เดอร์ใหม่ = ${myNewPurchases.length}, ออร์เดอร์ที่กำลังดำเนินการ = ${myAcceptedPurchase.length}`,
-            myOrders: myPurchases
+            myOrders: myPurchases,
+            
         })
     }
     catch(err){
@@ -323,7 +336,7 @@ exports.createOrder = async (req, res) => {
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
             order_id: order._id,
             order_transfer: order.transferBy,
-            buyer_id: buyer_id,
+            buyer_id: order.buyer,
             buyer_name: buyer_name,
             seller_name: lotto.shopname,
             seller_id: seller_id,

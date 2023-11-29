@@ -77,6 +77,7 @@ exports.shopData = async (req, res) => {
         })
     }
     const userId = req.user.id
+    const date = req.config.period
 
     try {
         // seller data
@@ -95,7 +96,8 @@ exports.shopData = async (req, res) => {
             })
         }
         const revenue = order.map(item=>{
-            return item.price
+           
+            return item.price.total
         })
         const orderReport = {
             total: order.length,
@@ -112,16 +114,24 @@ exports.shopData = async (req, res) => {
         }
         const lottoReport = {
             tatal : lotto.length,
-            wholeSale: lotto.filter(item=>item.market==='wholesale').length + lotto.filter(item=>item.market==='all').length,
-            retail: lotto.filter(item=>item.market==='retail').length + lotto.filter(item=>item.market==='all').length,
+            all: lotto.filter(item=>item.market==='all').length ,
+            wholeSale: lotto.filter(item=>item.market==='wholesale').length ,
+            retail: lotto.filter(item=>item.market==='retail').length ,
             none: lotto.filter(item=>item.market==='none').length
         }
 
         const Report = {
+            period: date,
             lotto : lottoReport,
             order : orderReport,
         }
 
+        return res.send({
+            message: "report success!",
+            success: true,
+            seller: seller.shop_name,
+            Report,
+        })
         
     }
     catch(err){
