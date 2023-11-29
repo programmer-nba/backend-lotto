@@ -20,7 +20,7 @@ const lottoSchema = new Schema(
         date: String,
         code: [{type: String}], // barcode หวย
         pcs: Number, // จำนวนหวย (ใบ)
-
+        unit: String, // หน่วย
         amount: Number, // จำนวนใบ
         decoded: [
             {

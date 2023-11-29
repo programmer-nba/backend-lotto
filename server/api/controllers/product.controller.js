@@ -34,6 +34,7 @@ exports.addLottos = async (req, res)=>{
     console.log(req.config)
     try{
         const userId = req.user.id
+        const sellerRole = req.user.seller_role
         const date = req.config.period
         
         const {
@@ -53,6 +54,13 @@ exports.addLottos = async (req, res)=>{
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
             (type==='หวยชุด') ? 'ชุด' :
             'หน่วย'
+
+        // avoid wholesale from reatil role
+        if(sellerRole==='ขายปลีก'){
+            wholesale = false
+        } else {
+            wholesale = wholesale
+        }
 
         const market = 
             (retail===true && wholesale===false) ? "retail" :
