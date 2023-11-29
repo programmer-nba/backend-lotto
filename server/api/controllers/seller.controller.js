@@ -95,13 +95,20 @@ exports.shopData = async (req, res) => {
                 message: "ไม่พบรายการขาย"
             })
         }
-        const revenue = order.map(item=>{
-           
+        const success = order.filter(item=>item.status==='สำเร็จ')
+        const revenue = success.map(item=>{
             return item.price.total
         })
         const orderReport = {
             total: order.length,
-            success: order.filter(item=>item.status==='สำเร็จ').length || 0,
+            success: order.filter(item=>item.status==='สำเร็จ').length,
+            current: {
+                total: order.filter(item=>item.status!=='สำเร็จ').length,
+                new: order.filter(item=>item.status==='ใหม่').length,
+                accepted: order.filter(item=>item.status==='ยืนยัน').length,
+                pending: order.filter(item=>item.status==='รอตรวจสอบ').length,
+                paid: order.filter(item=>item.status==='ชำระแล้ว').length,
+            },
             revenue: revenue.reduce((a, b) => a + b, 0)
         }
 
@@ -114,10 +121,14 @@ exports.shopData = async (req, res) => {
         }
         const lottoReport = {
             tatal : lotto.length,
-            all: lotto.filter(item=>item.market==='all').length ,
-            wholeSale: lotto.filter(item=>item.market==='wholesale').length ,
-            retail: lotto.filter(item=>item.market==='retail').length ,
-            none: lotto.filter(item=>item.market==='none').length
+            on_market: {
+                total: lotto.filter(item=>item.on_order===false).length,
+                all: lotto.filter(item=>item.market==='all' && item.on_order===false).length ,
+                wholeSale: lotto.filter(item=>item.market==='wholesale' && item.on_order===false).length ,
+                retail: lotto.filter(item=>item.market==='retail' && item.on_order===false).length ,
+                none: lotto.filter(item=>item.market==='none' && item.on_order===false).length 
+            },
+            on_order: lotto.filter(item=>item.on_order===true).length
         }
 
         const Report = {

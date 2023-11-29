@@ -98,8 +98,20 @@ exports.getAllOrders = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
+        const sellerRole = req.user.seller_role
 
-        const myOrders = await Order.find({seller:myId}).populate('buyer').populate('seller')
+        let myOrders = null
+        if(sellerRole==='ขายปลีก'){
+            myOrders = await Order.find({seller:myId}).populate('seller').lean()
+            
+            for (const item of myOrders) {
+                const userAsBuyer = await User.findById(item.buyer.toString()).lean()
+                item.buyer = userAsBuyer
+            }
+
+        } else {
+            myOrders = await Order.find({seller:myId}).populate('buyer').populate('seller')
+        }
         
         if(!myOrders || myOrders.length===0){
             return res.send('ไม่พบออร์เดอร์ของฉัน')
