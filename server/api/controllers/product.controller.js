@@ -37,7 +37,7 @@ exports.addLottos = async (req, res)=>{
         const sellerRole = req.user.seller_role
         const date = req.config.period
         
-        const {
+        let {
             code, // เลข barcode
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
