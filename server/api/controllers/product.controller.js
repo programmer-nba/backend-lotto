@@ -6,13 +6,14 @@ const Seller = require('../models/UsersModel/SellersModel.js')
 exports.getMyLottos = async (req, res) => {
     try{
         const userId = req.user.id
-        const userRole = req.user.role
-        
-        if(userRole !== 'seller'){
-            return res.send({message:"คุณไม่ใช่ seller ไม่สามารถเข้าถึงข้อมูลได้"})
-        }
-
-        const myLottos = await Lotto.find({seller_id: userId})
+        const myLottos = await Lotto.find(
+            {
+                $or: [
+                    {seller_id: userId},
+                    {buyer_id: userId},
+                ]
+            }
+        )
 
         if(!myLottos || myLottos.length===0){
             return res.send('ไม่มีหวยในคลังของฉัน')
