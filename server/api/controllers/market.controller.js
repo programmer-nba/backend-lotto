@@ -19,7 +19,7 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false})
+        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, buyer_id: undefined, buyer_name: undefined})
 
         if(market.length === 0){
             return res.send({
@@ -43,9 +43,10 @@ exports.getWholesale = async (req, res) => {
 
 exports.changeMarket = async (req, res) => {
     try{
-        const {wholesale, retail} = req.body
+        let {wholesale, retail} = req.body
 
         const userRole = req.user.role
+        const sellerRole = req.user.seller_role
 
         const {id} = req.params
 
@@ -61,7 +62,12 @@ exports.changeMarket = async (req, res) => {
                 message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
             })
         }
-
+        if(sellerRole==='ขายปลีก'){
+            wholesale = false
+        } else {
+            wholesale = wholesale
+        }
+        
         const newMarket = 
             (retail===true && wholesale===false) ? "retail" :
             (retail===false && wholesale===true) ? "wholesale" :
