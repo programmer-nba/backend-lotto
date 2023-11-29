@@ -11,7 +11,7 @@ const orderSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
         },
-        
+
         seller:{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller'
@@ -20,6 +20,7 @@ const orderSchema = new Schema(
         status: String, // new > timeout, cancle, accepted > cancle, ready > 
         statusHis: [
             {
+                name: String,
                 status: String,
                 timeAt: Date
             },

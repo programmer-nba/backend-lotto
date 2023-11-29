@@ -63,8 +63,13 @@ const cutStocks = async (lottos_id, buyer_id) => {
     const lottos_list = lottos_id.map( async (id)=>{
         const lotto = await Lotto.findById(id)
         lotto.buyer_id = buyer_id
-        const buyer = await Seller.findById(buyer_id)
-        lotto.buyer_name = buyer.name
+        const seller = await Seller.findById(buyer_id)
+        if(!seller){
+            const user = await User.findById(buyer_id)
+            lotto.buyer_name = user.name
+        } else {
+            lotto.buyer_name = seller.name
+        }
         await lotto.save()
     })
     return Promise.all(lottos_list)
@@ -520,6 +525,7 @@ exports.payment = async (req, res) => {
 exports.receipt = async (req, res) => {
     try{
         const {id} = req.params
+        const userName = req.user.name
         const bill_no = await genBill(id)
         const order = await Order.findByIdAndUpdate(
             {_id:id, status:'ตรวจสอบยอด'}, 
@@ -534,6 +540,7 @@ exports.receipt = async (req, res) => {
                 },
                 $push:{
                     statusHis:{
+                        name: userName || req.user.username,
                         status: 'ชำระแล้ว', 
                         timeAt: new Date()
                     },
@@ -592,14 +599,33 @@ exports.orderReceipt = async (req, res) => {
     const {id} = req.params
 
     try {
-        const order = await Order.findById(id).populate('seller').populate('buyer')
-        if( !order ) {
+
+        let order = null
+        const thisOrder = await Order.findById(id)
+        if(!thisOrder){
             return res.send('order not found')
         }
-        if( !['สำเร็จ','ชำระแล้ว'].includes(order.status) ) {
-            return res.send('ออร์เดอร์นี้ยังไม่ผ่านการตรวจสอบการชำระเงิน')
-        }
 
+        const userAsBuyer = await User.findById(thisOrder.buyer.toString()).lean()
+        if(userAsBuyer){
+            order = await Order.findById(id).populate('seller').lean()
+            order.buyer = userAsBuyer 
+            if( !order ) {
+                return res.send('order not found')
+            }
+            if( !['สำเร็จ','ชำระแล้ว'].includes(order.status) ) {
+                return res.send('ออร์เดอร์นี้ยังไม่ผ่านการตรวจสอบการชำระเงิน')
+            }
+        } else {
+            order = await Order.findById(id).populate('seller').populate('buyer')
+            if( !order ) {
+                return res.send('order not found')
+            }
+            if( !['สำเร็จ','ชำระแล้ว'].includes(order.status) ) {
+                return res.send('ออร์เดอร์นี้ยังไม่ผ่านการตรวจสอบการชำระเงิน')
+            }
+        }
+        
         const lotto_list = order.lotto_id.map(item=>{
             const lotto = {
                 text: `${item.type} เลข${item.decoded[0].six_number} งวดที่ ${item.date} จำนวน ${item.amount} ${item.unit}`,
