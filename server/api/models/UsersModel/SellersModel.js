@@ -73,7 +73,7 @@ const SellerSchema = new Schema(
         personWithShop: String,
 
         last_logedIn: [{
-            date: String,
+            date: Date,
             IP: String,
         }],
     },

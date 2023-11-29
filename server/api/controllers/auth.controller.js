@@ -35,10 +35,18 @@ exports.login = async (req, res)=>{
             // If a user is found and the password is correct, generate a token
             const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role, name: user.name || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '24h' });
 
-            const date = new Date().toString()
+            const date = new Date()
             const userRole = user.role
-            const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {$push:{last_logedIn: {date: date, IP: req.ip}}}) 
-            : await Seller.findByIdAndUpdate(user._id, {$push:{last_logedIn: {date: date, IP: req.ip}}})
+            const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {
+                $addToSet: {
+                  last_logedIn: { date: date, IP: req.ip }
+                }
+              },) 
+            : await Seller.findByIdAndUpdate(user._id, {
+                $addToSet: {
+                  last_logedIn: { date: date, IP: req.ip }
+                }
+              },)
 
             return res.status(200).json({
                 token,
@@ -49,7 +57,6 @@ exports.login = async (req, res)=>{
                 status: user.status,
                 success: true,
                 last_login: savedLoginDate.last_logedIn,
-                userIP: savedLoginDate.IP,
             });
         }
     } catch (err) {
@@ -146,7 +153,12 @@ exports.sellerRegister = async (req, res)=>{
                     shop_bank: shop_bank_link, 
                     shop_cover : shop_cover_link,
                     personWithCard: personWithCard_link,
-                    personWithShop : personWithShop_link
+                    personWithShop : personWithShop_link,
+
+                    last_logedIn: {
+                        date: new Date(),
+                        IP: req.ip
+                    },
                 }
             )
     
@@ -196,8 +208,10 @@ exports.userRegister = async (req, res)=>{
                         phone_number,
                         address,
                         line_id,
-                        last_logedIn: new Date().toString(),
-                        IP: req.ip,
+                        last_logedIn: {
+                            date: new Date(),
+                            IP: req.ip
+                        },
                         role : 'user'
                     }
                 )
