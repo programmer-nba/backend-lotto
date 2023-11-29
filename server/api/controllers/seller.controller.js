@@ -1,5 +1,7 @@
 // import database
 const Seller = require('../models/UsersModel/SellersModel.js')
+const Order = require('../models/Orders/Order.model.js')
+const Lotto = require('../models/Products/lotto.model.js')
 
 // update profile
 exports.editMyProfile = async (req, res)=> {
@@ -63,5 +65,69 @@ exports.editMyProfile = async (req, res)=> {
     catch(err){
         res.send('ERROR : please check console')
         console.log({ERROR:err.message})
+    }
+}
+
+// shop data & report
+exports.shopData = async (req, res) => {
+    const userRole = req.user.role
+    if(userRole!=='seller'){
+        return res.send({
+            message: "ขออภัยคุณไม่ใช่ 'คนขาย' ไม่สามารถเข้าดูรายการนี้ได้"
+        })
+    }
+    const userId = req.user.id
+
+    try {
+        // seller data
+        const seller = await Seller.findById(userId)
+        if(!seller){
+            return res.send({
+                message: "ไม่พบข้อมูลส่วนตัวของคุณ"
+            })
+        }
+
+        // order data
+        const order = await Order.find({seller:userId})
+        if(!order){
+            return res.send({
+                message: "ไม่พบรายการขาย"
+            })
+        }
+        const revenue = order.map(item=>{
+            return item.price
+        })
+        const orderReport = {
+            total: order.length,
+            success: order.filter(item=>item.status==='สำเร็จ').length || 0,
+            revenue: revenue.reduce((a, b) => a + b, 0)
+        }
+
+        // lotto data
+        const lotto = await Lotto.find({seller_id:userId})
+        if(!lotto){
+            return res.send({
+                message: "ไม่พบข้อมูลหวย"
+            })
+        }
+        const lottoReport = {
+            tatal : lotto.length,
+            wholeSale: lotto.filter(item=>item.market==='wholesale').length + lotto.filter(item=>item.market==='all').length,
+            retail: lotto.filter(item=>item.market==='retail').length + lotto.filter(item=>item.market==='all').length,
+            none: lotto.filter(item=>item.market==='none').length
+        }
+
+        const Report = {
+            lotto : lottoReport,
+            order : orderReport,
+        }
+
+        
+    }
+    catch(err){
+        res.send('ERROR [shopData] : please check console')
+        console.log('-------------------')
+        console.log({ERROR:err.message})
+        console.log('-------------------')
     }
 }

@@ -215,44 +215,21 @@ exports.getCurrentLotto = async (req, res) => {
 
 exports.editCurrentLotto = async (req, res) => {
     try{
-        const userId = req.user.id
+        const sellerRole = req.user.seller_role
 
-        const {
+        let {
             cost, // ต้นทุนหวย/ใบ
             price, // ราคาขายหวย/ใบ
             retail, // boolean
             wholesale, // boolean
             id
-
         } = req.body
 
-        /* const seller = await Seller.findById(userId) */
-        /* const shopname = seller.shop_name */
-
-        // will run on admin site----------------------------
-
-        /* const year = "25" + number[0][0] + number[0][1]
-        const day = number[0][3] + number[0][4]
-        
-        const now = new Date()
-        const monthIndex = now.getMonth()
-        const months = [
-            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤษจิกายน", "ธันวาคม"
-        ]
-
-        const currentMonth = months[monthIndex]
-
-        const period = `${day} ${currentMonth} ${year}` */
-
-        //----------------------------------------------
-
-        /* const amount = number.length */
-    
-        /* const unit = 
-            (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
-            (type==='หวยชุด') ? 'ชุด' :
-            'หน่วย' */
+        if(sellerRole==='ขายปลีก'){
+            wholesale = false
+        } else {
+            wholesale = wholesale
+        }
 
         const market = 
             (retail===true && wholesale===false) ? "retail" :
@@ -260,65 +237,24 @@ exports.editCurrentLotto = async (req, res) => {
             (retail===true && wholesale===true) ? "all" :
             "none"
 
-        /* let number_stock = [] // โค้ดหวย
-        
-        let set_stock = [] // ชุดที่ */
-        
-        /* for(let i in number){
-            let number_decoded = 
-            (type==='หวยก้อน' || type==='หวยเล่ม') ? `${number[i].substring(0, 9) + 'xxxxxx' + number[i].substring(14+1)}`
-            : number[0]
-            number_stock.push(number_decoded)
-
-            let set_decoded = number[i].substring(6, 7+1)
-            set_stock.push(set_decoded)
-        } */
-
-        /* const book = `${number[0].substring(16,19) + number[0].substring(19)}` // เล่มที่
- */
-        /* const set_string = set_stock.join(", ")
-
-        const six_number = (type==='หวยเล่ม') ? `xxxx00-xxxx99`
-        : (type==='หวยก้อน') ? `xxxx00-xxxx99 x${amount}`
-        : number[0].substring(9, 14+1)
-
-        const pcs =
-            (type==='หวยเล่ม') ? 100 :
-            (type==='หวยก้อน') ? amount*100 :
-            amount */
-
         const newLotto = 
             {
-                /* seller_id: userId,
-                shopname: shopname,
-                type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                number: number_stock, // หมายเลขฉลาก xx-xx-xx-xxxxxx-xxxx
-                six_number: six_number, // เลข 6 หลัก
-                amount: amount, // จำนวนหวย (ชุด)
-                period: period, // งวดที่ออก
-                book: book, // เล่มที่
-                set: set_stock, // ชุดที่ */
                 cost: cost,
                 price: price,
                 profit: price-cost,
-                market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                /* pcs: pcs // จำนวนหวย (ใบ) */
+                market: market,
             }
 
-        const lotto = await Lotto.findByIdAndUpdate(id, newLotto)
+        const lotto = await Lotto.findByIdAndUpdate(id, newLotto, {new:true})
 
         if(lotto){
-            res.send({
+            return res.send({
                 message: `แก้ไขฉลากแล้ว`,
-                /* data:lotto, */
-                /* six_number: six_number,
-                set: set_string,
-                unit: unit, */
                 success: true,
+                lotto,
             })
-        }
-        else {
-            res.send({
+        } else {
+            return res.send({
                 message: 'ไม่สามารถแก้ไขฉลากได้',
                 success: false
             })
