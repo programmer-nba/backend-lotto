@@ -19,7 +19,7 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, buyer_id: undefined, buyer_name: undefined})
+        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false})
 
         if(market.length === 0){
             return res.send({
@@ -67,7 +67,7 @@ exports.changeMarket = async (req, res) => {
         } else {
             wholesale = wholesale
         }
-        
+
         const newMarket = 
             (retail===true && wholesale===false) ? "retail" :
             (retail===false && wholesale===true) ? "wholesale" :
@@ -99,7 +99,6 @@ exports.changeMarket = async (req, res) => {
 exports.getRetail = async (req, res) => {
     try{
         const userRole = req.user.role
-        const setday = req.date
 
         // check role
         if(userRole === "seller"){
@@ -108,7 +107,7 @@ exports.getRetail = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false})
+        const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false, sold: false})
 
         if(market.length === 0){
             return res.send({

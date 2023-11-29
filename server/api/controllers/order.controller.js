@@ -63,6 +63,7 @@ const cutStocks = async (lottos_id, buyer_id) => {
     const lottos_list = lottos_id.map( async (id)=>{
         const lotto = await Lotto.findById(id)
         lotto.buyer_id = buyer_id
+        lotto.sold = true
         const seller = await Seller.findById(buyer_id)
         if(!seller){
             const user = await User.findById(buyer_id)
@@ -99,7 +100,7 @@ exports.getAllOrders = async (req, res) => {
     }
 }
 
-// for seller
+// for sellers
 exports.getMyOrders = async (req, res) => {
     try{
         const myId = req.user.id
@@ -157,7 +158,7 @@ exports.deleteAllOrders = async (req, res) => {
     }
 }
 
-// "ขายปลีก" get thire current order list  
+// "ขายปลีก or user" get thire current order list  
 exports.getMyPurchase = async (req, res) => {
     try{
         const myId = req.user.id
@@ -332,10 +333,11 @@ exports.createOrder = async (req, res) => {
             },
 
             statusHis: {
+                name: buyer_name,
                 status: 'ใหม่',
                 timeAt: new Date() 
-            }
-            
+            },
+
         }
         
         const order = await Order.create(new_order)
@@ -372,10 +374,9 @@ exports.createOrder = async (req, res) => {
 exports.cancleOrder = async (req, res) => {
     try{
         const {id} = req.params
+        const userName = req.user.name
         const {cancled_reason} = req.body
-        const me = 
-            (req.user.seller_role==='ขายส่ง') ? 'ร้านค้า' :
-            (req.user.role==='admin') ? 'แอดมิน' : 'ผู้ซื้อ'
+        const me = userName
 
         const order = await Order.findById(id)
         if(!order){
@@ -387,6 +388,7 @@ exports.cancleOrder = async (req, res) => {
             order.detail.seller = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
             order.detail.buyer = `ถูกยกเลิกโดย ${me} เนื่องจาก ${cancled_reason}`
             order.statusHis.push({
+                name: userName, 
                 status: 'ยกเลิก',
                 timeAt: new Date()
             })
@@ -396,7 +398,6 @@ exports.cancleOrder = async (req, res) => {
             const lottos_list = order.lotto_id.map( async (item)=>{
                 const lotto = await Lotto.findById(item)
                 lotto.on_order = false
-                /* lotto.market = 'none' */
                 lotto.save()
             })
             Promise.all(lottos_list)
@@ -408,8 +409,8 @@ exports.cancleOrder = async (req, res) => {
             order.status = 'ปฏิเสธ',
             order.detail.seller = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
             order.detail.buyer = `ร้านค้าปฏิเสธการรับยอด เนื่องจาก ${cancled_reason}`
-           /*  order.detail.msg = `เนื่องจาก ${cancled_reason}` */
             order.statusHis.push({
+                name: userName,
                 status: 'ปฏิเสธ',
                 timeAt: new Date()
             })
@@ -423,7 +424,7 @@ exports.cancleOrder = async (req, res) => {
         
         return res.send({
             message: `ออร์เดอร์ถูกยกเลิก หรือ ถูกปฏิเสธการชำระเงิน`,
-            reason: order.detail.seller,
+            reason: order.detail.seller || order.detail.buyer,
             order: order
         })
     }
@@ -437,6 +438,7 @@ exports.cancleOrder = async (req, res) => {
 exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
+        const userName = req.user.name
 
         const accept_order = await Order.findOneAndUpdate(
             {_id:id, status:'ใหม่'}, 
@@ -450,6 +452,7 @@ exports.acceptOrder = async (req, res) => {
                 },
                 $push:{
                     statusHis:{
+                        name: userName,
                         status: 'ยืนยัน', 
                         timeAt: new Date()
                     },
@@ -479,6 +482,7 @@ exports.acceptOrder = async (req, res) => {
 exports.payment = async (req, res) => {
     try{
         const dataIds = req.dataIds
+        const userName = req.user.name
         const {id} = req.params
 
         const slip_img = (dataIds && dataIds.some(id => id.includes('slip_img/'))) 
@@ -500,6 +504,7 @@ exports.payment = async (req, res) => {
             },
             $push:{
                 statusHis:{
+                    name: userName,
                     status: 'ตรวจสอบยอด', 
                     timeAt: new Date()
                 },
@@ -571,14 +576,28 @@ exports.receipt = async (req, res) => {
 exports.doneOrder = async (req, res) => {
     try{
         const {id} = req.params
+        const userName = req.user.name
 
         const seller_text = 'ออร์เดอร์สำเร็จ ลูกค้าได้รับฉลากแล้ว'
         const buyer_text = 'ออร์เดอร์สำเร็จ คุณได้รับฉลากแล้ว'
 
-        const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระแล้ว'}, {$set:{status:'สำเร็จ', detail:{
-            seller: seller_text,
-            buyer: buyer_text
-        }}})
+        const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระแล้ว'}, 
+        {
+            $set:{
+                status:'สำเร็จ', 
+                detail:{
+                    seller: seller_text,
+                    buyer: buyer_text
+                }
+            },
+            $push:{
+                statusHis:{
+                    name: userName,
+                    status: 'สำเร็จ', 
+                    timeAt: new Date()
+                },
+            }
+        })
         if(!order){
             return res.send('order not found')
         }

@@ -35,7 +35,10 @@ const lottoSchema = new Schema(
         price: Number, // ราคาขาย
         profit: Number, // กำไร
         totlal_profit: Number, // กำไรรวมทั้งชุด
-
+        sold: {
+            type: Boolean,
+            default: false
+        },
         on_order: Boolean, 
     },
     {
