@@ -227,10 +227,21 @@ exports.readyOrder = async (req, res) => {
 exports.getOrder = async (req, res) => {
     try{
         const {id} = req.params
-        const order = await Order.findById(id)
+        let order = await Order.findById(id).lean()
         if(!order){
             return res.send('order not found')
         }
+        const seller = await Seller.findById(order.buyer)
+        if(!seller){
+            const user = await User.findById(order.buyer).lean()
+            if(!user){
+                return res.send('buyer not found')
+            }
+            order.buyer = user
+        } else {
+            order = await Order.findById(id).populate('buyer').populate('seller')
+        }
+        
 
         return res.send({
             message: 'get order success',

@@ -3,36 +3,6 @@ const { Timestamp } = require('mongodb')
 const Lotto = require('../models/Products/lotto.model.js')
 const User = require('../models/UsersModel/UsersModel.js')
 
-// get my all lotteries data
-exports.getMyLottos = async (req, res) => {
-    try{
-        const userId = req.user.id
-        const userRole = req.user.role
-        
-        if(userRole !== 'seller'){
-            res.send({message:"คุณไม่ใช่ seller ไม่สามารถเข้าถึงข้อมูลได้"})
-        }
-
-        const myLottos = await Lotto.find({seller_id: userId})
-
-        if(!myLottos){
-            return res.send({message:"ไม่พบข้อมูลฉลาก"})
-        } else if ( myLottos.length ===0 ) {
-            return res.send({message:"ฉลากของคุณมี 0 ชุด กรุณาเพิ่มฉลากใหม่"})
-        }
-
-        return res.send({
-            message: `ฉลากของคุณมี ${myLottos.length} ชุด`,
-            myLottos: myLottos,
-            success: true
-        })
-    }
-    catch(err){
-        console.log(err.message)
-        res.send({message:"ERROR : please check console"})
-    }
-}
-
 // update profile
 exports.editMyProfile = async (req, res)=> {
     const dataIds = req.dataIds
@@ -69,3 +39,5 @@ exports.editMyProfile = async (req, res)=> {
         console.log({ERROR:err.message})
     }
 }
+
+

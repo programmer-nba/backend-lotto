@@ -9,6 +9,5 @@ const {upload, uploadPictures} = require('../middleware/drive.js')
 
 // Routes of user role
 route.put('/edit', verifyToken, upload, uploadPictures, users.editMyProfile)
-route.get('/mylottos', verifyToken, users.getMyLottos)
 
 module.exports = route
