@@ -37,8 +37,8 @@ exports.login = async (req, res)=>{
 
             const date = new Date().toString()
             const userRole = user.role
-            const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {last_logedIn: date, IP: req.ip}) 
-            : await Seller.findByIdAndUpdate(user._id, {last_logedIn: date, IP: req.ip})
+            const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {$push:{last_logedIn: {date: date, IP: req.ip}}}) 
+            : await Seller.findByIdAndUpdate(user._id, {$push:{last_logedIn: {date: date, IP: req.ip}}})
 
             return res.status(200).json({
                 token,

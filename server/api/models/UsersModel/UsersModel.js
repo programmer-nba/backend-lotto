@@ -25,9 +25,11 @@ const UserSchema = new Schema(
         line_id : {
             type: String,
         },
-        last_logedIn: String,
-        IP: String,
-
+        last_logedIn: [{
+            date: String,
+            IP: String,
+        }],
+        
         profile_img: String,
         cover_img: String
         

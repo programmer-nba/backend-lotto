@@ -72,8 +72,10 @@ const SellerSchema = new Schema(
         personWithCard: String,
         personWithShop: String,
 
-        last_logedIn: String,
-        IP: String, 
+        last_logedIn: [{
+            date: String,
+            IP: String,
+        }],
     },
     {
         timestamps: true
