@@ -42,11 +42,16 @@ exports.login = async (req, res)=>{
                   last_logedIn: { date: date, IP: req.ip }
                 }
               },) 
-            : await Seller.findByIdAndUpdate(user._id, {
-                $addToSet: {
-                  last_logedIn: { date: date, IP: req.ip }
-                }
-              },)
+            : await Seller.findByIdAndUpdate(user._id, 
+                {
+                    $addToSet: {
+                    last_logedInHis: { date: date, IP: req.ip }
+                    },
+                    $set: {
+                        last_logedIn: new Date()
+                    }
+                },
+                )
 
             return res.status(200).json({
                 token,
@@ -154,8 +159,8 @@ exports.sellerRegister = async (req, res)=>{
                     shop_cover : shop_cover_link,
                     personWithCard: personWithCard_link,
                     personWithShop : personWithShop_link,
-
-                    last_logedIn: {
+                    last_logedIn: new Date(),
+                    last_logedInHis: {
                         date: new Date(),
                         IP: req.ip
                     },
@@ -208,7 +213,8 @@ exports.userRegister = async (req, res)=>{
                         phone_number,
                         address,
                         line_id,
-                        last_logedIn: {
+                        last_logedIn: new Date(),
+                        last_logedInHis: {
                             date: new Date(),
                             IP: req.ip
                         },

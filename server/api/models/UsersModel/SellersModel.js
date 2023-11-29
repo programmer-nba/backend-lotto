@@ -71,8 +71,8 @@ const SellerSchema = new Schema(
         },
         personWithCard: String,
         personWithShop: String,
-
-        last_logedIn: [{
+        last_logedIn: Date,
+        last_logedInHis: [{
             date: Date,
             IP: String,
         }],
