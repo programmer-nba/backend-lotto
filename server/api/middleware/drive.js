@@ -2,7 +2,7 @@
 const multer = require('multer')
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'text'];
 
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -35,23 +35,25 @@ const drive = google.drive({version: 'v3', auth})
 // upload file
 const uploadPictures = async (req, res, next) => {
 
-  console.log(`files:${req.files}`)
+  const date = new Date()
+  const time = date.getTime().toString()
 
   const {body, files} = req
-  const name = body.name || body.shop_name
+  const name = body.name || body.shop_name || time
   const dataIds = [] // send this to register
   console.log(`name : ${name}`)
+  console.log(`files:${req.files}`)
 
   try{
     if(!files){
-      return res.send('no files')
+      return res.send('no any files ?')
     }
     // upload each file to drive
     for(let f=0 ; f<files.length ; f++){
       const data = await uploadtoDrive(files[f], name)
-      if(data===null){
+      if(!data){
         console.log(`upload failed`)
-        res.send('upload failed')
+        return res.send('upload failed')
       }
       const prefix = `${files[f].fieldname}/`
       console.log(`dataId = ${data.id}`)
@@ -65,6 +67,7 @@ const uploadPictures = async (req, res, next) => {
   }
   catch(err){
     console.log(err)
+    res.send('fail upload files')
   }
 }
 

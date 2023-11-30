@@ -38,7 +38,7 @@ app.use('/lotto/test', testRoute)
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
-const port = process.env.SERVER_PORT || 3000
+const port = process.env.SERVER_PORT || 5555
 mongoose.connect(database_url)
     .then(()=>{
         console.log(`----------😀 LOTTO----------`)

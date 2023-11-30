@@ -77,59 +77,23 @@ exports.sellerRegister = async (req, res)=>{
         name, phone_number, personal_id,
         shop_name, shop_location, address, shop_number
     } = req.body
-    
-    const dataIds = req.dataIds
-    console.log(dataIds.length)
-
-    const shop_img = (dataIds.length>0 && dataIds.some(id => id.includes('shop_img/'))) 
-        ? dataIds.filter(id => id.includes('shop_img'))[0].replace('shop_img/', '')
-        : null
-        const shop_img_link = (shop_img) 
-            ? `https://drive.google.com/file/d/${shop_img}/view` 
-            : `ไม่มีรูป`
-
-    const shop_cover = (dataIds.length>0 && dataIds.some(id => id.includes('shop_cover/'))) 
-        ? dataIds.filter(id => id.includes('shop_cover'))[0].replace('shop_cover/', '')
-        : null
-        const shop_cover_link = (shop_cover && dataIds.some(id => id.includes('shop_cover/'))) 
-            ? `https://drive.google.com/file/d/${shop_cover}/view` 
-            : `ไม่มีรูป`
-
-    const shop_bank = (dataIds.length>0 && dataIds.some(id => id.includes('shop_bank/')))
-        ? dataIds.filter(id => id.includes('shop_bank'))[0].replace('shop_bank/', '')
-        : null
-        const shop_bank_link = (shop_bank) 
-            ? `https://drive.google.com/file/d/${shop_bank}/view` 
-            : `ไม่มีรูป`
-
-    const personal_img = (dataIds.length>0 && dataIds.some(id => id.includes('personal_img/'))) 
-        ? dataIds.filter(id => id.includes('personal_img'))[0].replace('personal_img/', '')
-        : null
-        const personal_img_link = (personal_img) 
-            ? `https://drive.google.com/file/d/${personal_img}/view` 
-            : `ไม่มีรูป`
-
-    const personWithCard = (dataIds.length>0 && dataIds.some(id => id.includes('personWithCard/'))) 
-        ? dataIds.filter(id => id.includes('personWithCard'))[0].replace('personWithCard/', '')
-        : null
-        const personWithCard_link = (personWithCard) 
-            ? `https://drive.google.com/file/d/${personWithCard}/view` 
-            : `ไม่มีรูป`
-
-    const personWithShop = (dataIds.length>0 && dataIds.some(id => id.includes('personWithShop/'))) 
-        ? dataIds.filter(id => id.includes('personWithShop'))[0].replace('personWithShop/', '')
-        : null
-        const personWithShop_link = (personWithShop) 
-            ? `https://drive.google.com/file/d/${personWithShop}/view` 
-            : `ไม่มีรูป`
 
     try{
-        
-        const sellerExisting = await Seller.findOne({phone_number})
-        const userExisting = await User.findOne({phone_number})
 
+        const Myaddress = {
+            province: address.province,
+            district: address.district,
+            subdistrict: address.subdistrict,
+            postcode: address.postcode,
+            address: address.address
+        }
+
+        const sellerExisting = await Seller.findOne({phone_number:phone_number})
+        const userExisting = await User.findOne({phone_number:phone_number})
+        console.log(userExisting)
+        console.log(sellerExisting)
         if(sellerExisting || userExisting){
-            res.json({message:'เบอร์มือถือนี้มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง'})
+            return res.send({message:'กรุณาลองใหม่อีกครั้ง'})
         } 
         else {
             const newSeller = new Seller(
@@ -147,18 +111,10 @@ exports.sellerRegister = async (req, res)=>{
 
                     // for update
                     email,
-                    address,
+                    address: Myaddress,
                     shop_location,
                     shop_name: shop_name || name,
                     shop_number: shop_number || phone_number,
-
-                    // img
-                    personal_img : personal_img_link,
-                    shop_img : shop_img_link,
-                    shop_bank: shop_bank_link, 
-                    shop_cover : shop_cover_link,
-                    personWithCard: personWithCard_link,
-                    personWithShop : personWithShop_link,
                     last_logedIn: new Date(),
                     last_logedInHis: {
                         date: new Date(),
@@ -176,12 +132,7 @@ exports.sellerRegister = async (req, res)=>{
                 role: newSeller.role,
                 seller_role: newSeller.seller_role,
                 status: newSeller.status,
-                shop_img: newSeller.shop_img,
-                shop_cover: newSeller.shop_cover,
-                shop_bank: newSeller.shop_bank,
-                personal_img: newSeller.personal_img,
-                personWithCard: newSeller.personWithCard,
-                personWithShop: newSeller.personWithShop,
+                name: newSeller.name,
                 address: address
             })
 

@@ -41,17 +41,47 @@ exports.editMyProfile = async (req, res)=> {
             ? `https://drive.google.com/file/d/${personal_img}/view` 
             : prev_info.personal_img
 
+    const personWithCard = (dataIds.length>0 && dataIds.some(id => id.includes('personWithCard/'))) 
+        ? dataIds.filter(id => id.includes('personWithCard'))[0].replace('personWithCard/', '')
+        : null
+        const personWithCard_link = (personWithCard) 
+            ? `https://drive.google.com/file/d/${personWithCard}/view` 
+            : prev_info.personWithCard
+    
+    const personWithShop = (dataIds.length>0 && dataIds.some(id => id.includes('personWithShop/'))) 
+        ? dataIds.filter(id => id.includes('personWithShop'))[0].replace('personWithShop/', '')
+        : null
+        const personWithShop_link = (personWithShop) 
+            ? `https://drive.google.com/file/d/${personWithShop}/view` 
+            : prev_info.personWithShop
+
     try{
 
         const {address}=req.body
+        
+        const new_province = (address.province!=='') ? address.province : prev_info.address.province
+        const new_district = (address.district!=='') ? address.district : prev_info.address.district
+        const new_subdistrict = (address.subdistrict!=='') ? address.subdistrict : prev_info.address.subdistrict
+        const new_postcode = (address.postcode!=='') ? address.postcode : prev_info.address.postcode
+        const new_address = (address.address!=='') ? address.address : prev_info.address.address
+
+        const newAddress = {
+            province: new_province,
+            district: new_district,
+            subdistrict: new_subdistrict,
+            postcode: new_postcode,
+            address: new_address
+        }
 
         const seller = await Seller.findByIdAndUpdate(userId, {
-            address:address,
+            address: newAddress,
             // img
             personal_img : personal_img_link,
             shop_img : shop_img_link,
             shop_bank: shop_bank_link, 
             shop_cover : shop_cover_link,
+            personWithCard: personWithCard_link,
+            personWithShop: personWithShop_link,
         }, {new:true})
         if(!seller){
             return res.send('can not update profile')

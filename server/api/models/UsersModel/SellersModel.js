@@ -55,6 +55,7 @@ const SellerSchema = new Schema(
         shop_location: {
             type: String,
         },
+
         personal_img: {
             type: String,
         },
@@ -71,6 +72,7 @@ const SellerSchema = new Schema(
         },
         personWithCard: String,
         personWithShop: String,
+        
         last_logedIn: Date,
         last_logedInHis: [{
             date: Date,

@@ -300,7 +300,9 @@ exports.createOrder = async (req, res) => {
             }
         }
 
-        const transferBy = (transfer==='address') ? buyer.address : transfer  
+        let myAddress = {...buyer.address, tel: buyer.phone_number, name: buyer.name}
+
+        const transferBy = (transfer==='address') ? myAddress : transfer  
 
         const order_no = await genOrderNo(lotto_id[0])
 
@@ -320,7 +322,7 @@ exports.createOrder = async (req, res) => {
             : (transfer==='ฝากตรวจ') ? 0 
             : 50
 
-        const service = total_prices - transfer_cost - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+        const service = total_prices - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
 
         const new_order = {
             lotto_id: lottos,
