@@ -19,7 +19,7 @@ exports.editMyProfile = async (req, res)=> {
         }
 
         let newAddress = {
-            province: (address.province!=='') ? address.province : user,
+            province: (address.province!=='') ? address.province : user.province,
             district: address.district,
             subdistrict: address.subdistrict,
             postcode: address.postcode,

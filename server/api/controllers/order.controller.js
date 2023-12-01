@@ -261,15 +261,8 @@ exports.createOrder = async (req, res) => {
     try{
         const {lotto_id, transfer} = req.body
         const buyer_id = req.user.id
-        const buyer_role = req.user.seller_role
         const buyer_name = req.user.name
     
-        if(buyer_role!=='ขายปลีก'){
-            if(req.user.role!=='user'){
-                return res.send('you are not allowed')
-            }
-        }
-
         const lotto_list = lotto_id.map(async (id) => {
             const lotto = await Lotto.findById(id)
             return lotto
