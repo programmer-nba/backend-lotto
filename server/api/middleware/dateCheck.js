@@ -13,11 +13,11 @@ module.exports = dateCheck = async (req, res, next) => {
         let nextt = null
 
         if (today>1 && today<16) {
-            dateofperiod.day = '16'
+            dateofperiod.day = 16
             await dateofperiod.save()
             nextt = 0
         } else if (today>16) {
-            dateofperiod.day = '01'
+            dateofperiod.day = 1
             await dateofperiod.save()
             nextt = 1
         }
@@ -34,21 +34,22 @@ module.exports = dateCheck = async (req, res, next) => {
             "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤษจิกายน", "ธันวาคม"
         ]
 
-        const currentMonth = months[monthIndex]
+        const targetMonth = months[monthIndex]
+        const currMounth = months[mountpre]
 
-        const mount_year = `${currentMonth} ${year}`
+        const mount_year = `${targetMonth} ${year}`
 
         //----------------------------------------------
         
         const setday = dateofperiod.day
 
         const result = (today.toString()===setday) ? 'close' : 'open'
-        console.log(`today is : ${today}`)
-        console.log(`setday is : ${setday}`)
+        console.log(`today is : ${today} ${currMounth} ${year}`)
+        console.log(`setday is : ${setday} ${mount_year}`)
 
         req.config = {
             period: `${setday} ${mount_year}`,
-            market: result
+            market: 'open' //result
         }
 
         console.log(`market is : ${req.config.market}`)

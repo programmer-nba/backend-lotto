@@ -1,11 +1,10 @@
 // import database
-const { Timestamp } = require('mongodb')
 const Lotto = require('../models/Products/lotto.model.js')
 const User = require('../models/UsersModel/UsersModel.js')
 
 // update profile
 exports.editMyProfile = async (req, res)=> {
-    const dataIds = req.dataIds
+    
     try{
         const userId = req.user.id
         const {
@@ -18,11 +17,19 @@ exports.editMyProfile = async (req, res)=> {
         if(!user){
             return res.send({message:"ไม่พบข้อมูลผู้ใช้งาน"})
         }
+
+        let newAddress = {
+            province: (address.province!=='') ? address.province : user,
+            district: address.district,
+            subdistrict: address.subdistrict,
+            postcode: address.postcode,
+            address: address.address
+        }
         
         user.name= name
-        user.address= address
+        user.address= newAddress
         user.line_id= line_id
-        user.updatedAt= new Timestamp()
+        user.updatedAt= new Date()
 
         const updated_user = await user.save()
         if(!updated_user){

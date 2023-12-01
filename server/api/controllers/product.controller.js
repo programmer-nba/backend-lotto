@@ -269,8 +269,8 @@ exports.editCurrentLotto = async (req, res) => {
 
 exports.getTargetShop = async (req, res) => {
     try{
-        const {id} = req.params
-        const lotto = await Lotto.findById(id)
+        const {id} = req.params // id of lotto
+        const lotto = await Lotto.findById(id).populate('seller_id')
         if(!lotto){
             return res.send('lotto no found?')
         }
