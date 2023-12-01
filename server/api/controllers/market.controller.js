@@ -128,4 +128,3 @@ exports.getRetail = async (req, res) => {
         })
     }
 }
-
