@@ -285,15 +285,16 @@ exports.createOrder = async (req, res) => {
 
         const seller_id = lotto.seller_id 
 
-        const buyer = await Seller.findById(buyer_id)
+        let buyer = await Seller.findById(buyer_id)
         if(!buyer){
-            const buyer = await User.findById(buyer_id)
+            buyer = await User.findById(buyer_id)
             if(!buyer) {
                 return res.send('ไม่พบ buyer นี้')
             }
         }
 
         let myAddress = {...buyer.address, tel: buyer.phone_number, name: buyer.name}
+        console.log(myAddress)
 
         const transferBy = (transfer==='address') ? myAddress : transfer  
 
