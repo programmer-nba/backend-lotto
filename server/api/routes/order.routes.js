@@ -14,7 +14,7 @@ route.get('/get-all', verifyToken, orders.getAllOrders)
 // ขายปลีก
 route.get('/get-mypurchases', verifyToken, orders.getMyPurchase)
 route.post('/create', verifyToken, orders.createOrder)
-route.put('/payment-order/:id', verifyToken, upload, uploadPictures, orders.payment)
+route.put('/payment-order/:id', verifyToken, upload.any(), uploadPictures, orders.payment)
 route.put('/done-order/:id', verifyToken, orders.doneOrder)
 
 // ขายส่ง

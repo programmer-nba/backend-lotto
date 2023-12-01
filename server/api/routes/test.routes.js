@@ -1,7 +1,7 @@
 const route = require('express').Router()
 const {upload, uploadPictures} = require('../middleware/drive.js')
 
-route.post('/upload', upload, uploadPictures, (req, res) => {
+route.post('/upload', upload.any(), uploadPictures, (req, res) => {
     const dataIds = req.dataIds
     res.send(dataIds[0])
 })

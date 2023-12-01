@@ -1,8 +1,10 @@
 const route = require('express').Router()
 const admins = require('../controllers/admin.controller.js')
+const pictures = require('../controllers/picture.controller.js')
 
 // middleware
 const verifyToken = require('../middleware/verifyToken.js')
+const {upload, uploadPictures} = require('../middleware/drive.js')
 
 // Admin routes control
 route.post('/login', admins.login)
@@ -23,5 +25,12 @@ route.delete('/users', verifyToken, admins.deleteAllUsers)
 
 route.post('/config/date', verifyToken, admins.createConfigDate)
 route.put('/config/date', verifyToken, admins.updateConfig)
+
+// pictures of main page
+route.post('/config/picture', verifyToken, upload.any(), uploadPictures, pictures.uploadAdminPicture)
+route.get('/config/picture', verifyToken, pictures.getAdminPictures) 
+route.get('/config/picture/:id', verifyToken, pictures.getAdminPicture) 
+route.put('/config/picture/:id', verifyToken, upload.any(), uploadPictures, pictures.updateAdminPicture)
+route.delete('/config/picture/:id', verifyToken, pictures.deleteAdminPicture) //
 
 module.exports = route

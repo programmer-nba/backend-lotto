@@ -19,7 +19,7 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false}).populate('seller_id')
+        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false}).populate('seller_id', '_id name shop_name shop_img')
 
         if(market.length === 0){
             return res.send({

@@ -1,7 +1,7 @@
 const Picture = require('../models/Pictures/picture.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
-exports.uploadPicture = async (req, res) => {
+exports.uploadSellerPicture = async (req, res) => {
     const dataIds = req.dataIds
     const {owner, name} = req.body
     const fileId = dataIds[0].replace('file/', '')
@@ -83,5 +83,115 @@ exports.uploadPicture = async (req, res) => {
     catch (err) {
         console.log(err)
         res.send('error to upload file !')
+    }
+}
+
+exports.uploadAdminPicture = async (req, res) => {
+    const dataIds = req.dataIds
+    const {name} = req.body
+    const fileId = dataIds[0].replace('file/', '')
+    const imgLink = `https://drive.google.com/file/d/${fileId}/view`
+    try {
+         const newPicture = new Picture(
+            {
+                owner: 'admin',
+                name: name,
+                imgLink: imgLink,
+            }
+        )
+        const savedPicture = await newPicture.save()
+        if(!savedPicture){
+            return res.send('ไม่สามารถบันทึกได้')
+        }
+
+        return res.send({
+            message: 'บันทึกเรียบร้อย',
+            success: true,
+            picture: savedPicture,
+        })
+        
+    }
+    catch (err) {
+        console.log(err)
+        res.send('error to upload file !')
+    }
+}
+
+exports.getAdminPictures = async (req, res) => {
+    try {
+        const pictures = await Picture.find({owner:'admin'})
+        if(!pictures || pictures.length===0){
+            return res.send('no any pictures')
+        }
+        return res.send(pictures)
+    }
+    catch (err) {
+        console.log(err)
+        res.send('error to get file !')
+    }
+}
+
+exports.getAdminPicture = async (req, res) => {
+    try {
+        const picture = await Picture.findById(req.params.id)
+        if(!picture){
+            return res.send('no any picture')
+        }
+        return res.send(picture)
+    }
+    catch (err) {
+        console.log(err)
+        res.send('error to get file!')
+    }
+}
+
+exports.updateAdminPicture = async (req, res) => {
+    const dataIds = req.dataIds
+    const {name} = req.body
+    const {id} = req.params
+    const fileId = dataIds[0].replace('file/', '')
+    const imgLink = `https://drive.google.com/file/d/${fileId}/view`
+    try {
+        let picture = await Picture.findById(id)
+        if(!picture){
+            return res.send('ไม่พบรูปนี้')
+        }
+        picture.owner = picture.owner
+        picture.name = (name!=='') ? name : picture.name
+        picture.imgLink = (fileId) ? imgLink : picture.imgLink
+
+        const updatedPicture = await picture.save()
+        if(!updatedPicture){
+            return res.send('ไม่สามารถบันทึกได้')
+        }
+
+        return res.send({
+            message: 'บันทึกเรียบร้อย',
+            success: true,
+            picture: updatedPicture,
+        })
+        
+    }
+    catch (err) {
+        console.log(err)
+        res.send('error to upload file !')
+    }
+}
+
+exports.deleteAdminPicture = async (req, res) => {
+    const {id} = req.params
+    try{
+        const deletedPicture = await Picture.findByIdAndDelete(id)
+        if(!deletedPicture){
+            return res.send('ไม่สามารถลบได้')
+        }
+        res.send({
+            message: 'ลบเรียบร้อย',
+            success: true,
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.send('error to delete file!')
     }
 }

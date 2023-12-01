@@ -15,7 +15,7 @@ const upload = multer({
   dest: 'uploads/', // Specify the destination folder
   limits: { fileSize: 100 * 1024 * 1024 }, // Set the maximum file size to 100 MB
   fileFilter: fileFilter, // Specify the file filter function
-}).any()
+})
 
 // google drive
 const { google } = require('googleapis')
