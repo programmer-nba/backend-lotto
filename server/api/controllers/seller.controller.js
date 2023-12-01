@@ -57,7 +57,7 @@ exports.editMyProfile = async (req, res)=> {
 
     try{
 
-        const {address}=req.body
+        const { address, shop_name, shop_number } = req.body
         
         const new_province = (address.province!=='') ? address.province : prev_info.address.province
         const new_district = (address.district!=='') ? address.district : prev_info.address.district
@@ -73,8 +73,14 @@ exports.editMyProfile = async (req, res)=> {
             address: new_address
         }
 
+        const new_shop_name = (shop_name!=='') ? shop_name : prev_info.shop_name
+        const new_shop_number = (shop_number!=='') ? shop_number : prev_info.shop_number
+
         const seller = await Seller.findByIdAndUpdate(userId, {
             address: newAddress,
+            shop_name: new_shop_name,
+            shop_phone: new_shop_number,
+
             // img
             personal_img : personal_img_link,
             shop_img : shop_img_link,
@@ -82,6 +88,8 @@ exports.editMyProfile = async (req, res)=> {
             shop_cover : shop_cover_link,
             personWithCard: personWithCard_link,
             personWithShop: personWithShop_link,
+
+
         }, {new:true})
         if(!seller){
             return res.send('can not update profile')

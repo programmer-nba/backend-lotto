@@ -5,6 +5,7 @@ const pictures = require('../controllers/picture.controller.js')
 // middleware
 const verifyToken = require('../middleware/verifyToken.js')
 const {upload, uploadPictures} = require('../middleware/drive.js')
+const dateCheck = require('../middleware/dateCheck.js')
 
 // Admin routes control
 route.post('/login', admins.login)
@@ -31,6 +32,8 @@ route.post('/config/picture', verifyToken, upload.any(), uploadPictures, picture
 route.get('/config/picture', verifyToken, pictures.getAdminPictures) 
 route.get('/config/picture/:id', verifyToken, pictures.getAdminPicture) 
 route.put('/config/picture/:id', verifyToken, upload.any(), uploadPictures, pictures.updateAdminPicture)
-route.delete('/config/picture/:id', verifyToken, pictures.deleteAdminPicture) //
+route.delete('/config/picture/:id', verifyToken, pictures.deleteAdminPicture)
+
+route.get('/config/date', dateCheck, admins.getConfigDate)
 
 module.exports = route

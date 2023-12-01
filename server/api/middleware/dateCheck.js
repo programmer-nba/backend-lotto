@@ -12,7 +12,7 @@ module.exports = dateCheck = async (req, res, next) => {
         const today = newdate.getDate()
         let nextt = null
 
-        if (today>1 && today<16) {
+        if (today>=1 && today<16) {
             dateofperiod.day = 16
             await dateofperiod.save()
             nextt = 0
