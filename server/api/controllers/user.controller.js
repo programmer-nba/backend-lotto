@@ -9,9 +9,10 @@ exports.editMyProfile = async (req, res)=> {
         const userId = req.user.id
         const {
             name,
-            address,
-            line_id
+            address
         } = req.body
+
+        console.log(address)
 
         const user = await User.findById(userId)
         if(!user){
@@ -19,16 +20,15 @@ exports.editMyProfile = async (req, res)=> {
         }
 
         let newAddress = {
-            province: (address.province!=='') ? address.province : user.province,
-            district: address.district,
-            subdistrict: address.subdistrict,
-            postcode: address.postcode,
-            address: address.address
+            province: (address.province!=='' || address.province!== null) ? address.province : user.address.province,
+            district: (address.district!=='') ? address.district : user.address.district,
+            subdistrict: (address.subdistrict!=='') ? address.subdistrict : user.address.subdistrict,
+            postcode: (address.postcode!=='') ? address.postcode : user.address.postcode,
+            address: (address.address!=='') ? address.address : user.address.address
         }
         
         user.name= name
         user.address= newAddress
-        user.line_id= line_id
         user.updatedAt= new Date()
 
         const updated_user = await user.save()

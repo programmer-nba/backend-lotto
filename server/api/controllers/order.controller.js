@@ -294,7 +294,6 @@ exports.createOrder = async (req, res) => {
         }
 
         let myAddress = {...buyer.address, tel: buyer.phone_number, name: buyer.name}
-        console.log(myAddress)
 
         const transferBy = (transfer==='address') ? myAddress : transfer  
 

@@ -274,7 +274,7 @@ exports.getTargetShop = async (req, res) => {
         if(!lotto){
             return res.send('lotto no found?')
         }
-        const shop_lottos = await Lotto.find({seller_id:lotto.seller_id})
+        const shop_lottos = await Lotto.find({seller_id:lotto.seller_id._id})
         if(!shop_lottos || shop_lottos.length===0){
             return res.send('ไม่พบสินค้าในระบบ')
         }

@@ -5,7 +5,6 @@ const UserSchema = new Schema(
     {
         name: {
             type: String,
-            
         },
         address: {
             type: mongoose.Schema.Types.Mixed,
