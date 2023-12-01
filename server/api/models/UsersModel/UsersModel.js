@@ -26,7 +26,7 @@ const UserSchema = new Schema(
             type: String,
         },
         last_logedIn: Date,
-        last_logedIn: [{
+        last_logedInHis: [{
             date: Date,
             IP: String,
         }],

@@ -39,7 +39,7 @@ exports.login = async (req, res)=>{
             const userRole = user.role
             const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {
                 $addToSet: {
-                  last_logedIn: { date: date, IP: req.ip }
+                  last_logedInHis: { date: date, IP: req.ip }
                 }
               },) 
             : await Seller.findByIdAndUpdate(user._id, 
