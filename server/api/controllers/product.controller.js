@@ -76,7 +76,7 @@ exports.addLottos = async (req, res)=>{
             (type==='หวยก้อน') ? amount*100 :
             amount
 
-        const decoded_list = code.map((item)=>{
+        /* const decoded_list = code.map((item)=>{
             const decoded_list = item.split('-') // 0 1 2 3 4
             const decoded = {
                 year: decoded_list[0],
@@ -86,52 +86,65 @@ exports.addLottos = async (req, res)=>{
                 book: decoded_list[4],
             }
             return decoded
-        })
+        }) */
 
-        const newLotto = 
-            {
-                seller_id: userId,
-                shopname: shopname,
-                date: date,
-                type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                code: code, // เลข barcode
-                decoded : decoded_list,
-                unit: unit, // หน่วย
-                amount: amount, // จำนวนหวย (ชุด)
-                cost: cost, // ต้นทุน
-                price: price, // ราคาขาย > ตลาดขายส่ง
-                prices: {
-                    wholesale: {
-                        total: wholesale_price, // ราคารวมทั้งหมด
-                        service: wholesale_price - (80*amount)
+        for(i of code) {
+
+            
+            const decoded_list = i.split('-') // 0 1 2 3 4
+            const decoded = {
+                year: decoded_list[0],
+                period: decoded_list[1],
+                set: decoded_list[2],
+                six_number: decoded_list[3],
+                book: decoded_list[4],
+            }
+                
+    
+            const newLotto = 
+                {
+                    seller_id: userId,
+                    shopname: shopname,
+                    date: date,
+                    type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
+                    code: i, // เลข barcode
+                    decoded : decoded,
+                    unit: unit, // หน่วย
+                    amount: amount, // จำนวนหวย (ชุด)
+                    cost: cost, // ต้นทุน
+                    price: price, // ราคาขาย > ตลาดขายส่ง
+                    prices: {
+                        wholesale: {
+                            total: wholesale_price, // ราคารวมทั้งหมด
+                            service: wholesale_price - (80*amount)
+                        },
+                        retail: {
+                            total: retail_price,
+                            service: retail_price - (80*amount)
+                        },
                     },
-                    retail: {
-                        total: retail_price,
-                        service: retail_price - (80*amount)
-                    },
-                },
-                profit: price-cost, // กำไร
-                market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                pcs: pcs, // จำนวนหวย (ใบ)
-                on_order: false, // 
-                text: `${type} จำนวน ${amount} ${unit}`
+                    profit: price-cost, // กำไร
+                    market: market, // ตลาดที่หวยชุดนี้ลงขาย
+                    pcs: pcs, // จำนวนหวย (ใบ)
+                    on_order: false, // 
+                    text: `${type} จำนวน ${amount} ${unit}`
+                }
+
+            const lotto = await Lotto.create(newLotto)
+            if(!lotto){
+                return res.send({
+                    message: 'ไม่สามารถเพิ่มฉลากได้',
+                    success: false
+                })
             }
 
-        const lotto = await Lotto.create(newLotto)
+        }
+        
+        return res.send({
+            message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${code.length} ${unit} ลงขายในตลาด ${market}`,
+            success: true,
+        })
 
-        if(lotto){
-            return res.send({
-                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market}`,
-                lotto,
-                success: true,
-            })
-        }
-        else {
-            return res.send({
-                message: 'ไม่สามารถเพิ่มฉลากได้',
-                success: false
-            })
-        }
     }
     catch(error){
         console.log(error.message)
