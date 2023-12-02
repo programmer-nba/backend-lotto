@@ -97,18 +97,29 @@ exports.addLottos = async (req, res)=>{
                 unit: unit, // หน่วย
                 amount: amount, // จำนวนหวย (ชุด)
                 cost: cost, // ต้นทุน
-                price: price, // ราคาขาย
+                price: price, // ราคาขาย > ตลาดขายส่ง
+                prices: {
+                    wholesale: {
+                        total: wholesale_price, // ราคารวมทั้งหมด
+                        service: wholesale_price - (80*amount)
+                    },
+                    retail: {
+                        total: retail_price,
+                        service: retail_price - (80*amount)
+                    },
+                },
                 profit: price-cost, // กำไร
                 market: market, // ตลาดที่หวยชุดนี้ลงขาย
                 pcs: pcs, // จำนวนหวย (ใบ)
                 on_order: false, // 
+                text: `${type} จำนวน ${amount} ${unit}`
             }
 
         const lotto = await Lotto.create(newLotto)
 
         if(lotto){
             return res.send({
-                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market} `,
+                message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${amount} ${unit} ลงขายในตลาด ${market}`,
                 lotto,
                 success: true,
             })
@@ -192,7 +203,7 @@ exports.getCurrentLotto = async (req, res) => {
         }
 
         const userRole = req.user.role
-        const allowRole = ['admin', 'seller']
+        const allowRole = ['admin', 'seller', 'user']
         if(!userRole in allowRole){
             return res.send('you are not allow!')
         }
@@ -270,6 +281,7 @@ exports.editCurrentLotto = async (req, res) => {
 exports.getTargetShop = async (req, res) => {
     try{
         const {id} = req.params // id of lotto
+        const role = req.user.seller_role
         const lotto = await Lotto.findById(id).populate('seller_id')
         if(!lotto){
             return res.send('lotto no found?')
@@ -279,10 +291,21 @@ exports.getTargetShop = async (req, res) => {
             return res.send('ไม่พบสินค้าในระบบ')
         }
 
-        const on_sell = shop_lottos.filter(item=>
-            item.on_order===false
-        )
-         
+        let on_sell = null
+        if(role==='ขายปลีก'){
+            on_sell = shop_lottos.filter(item=>
+                item.on_order===false && ['wholesale', 'all'].includes(item.market)
+            )
+        } else if (role==='user') {
+            on_sell = shop_lottos.filter(item=>
+                item.on_order===false && ['retail', 'all'].includes(item.market)
+            )
+        } else {
+            on_sell = shop_lottos.filter(item=>
+                item.on_order===false 
+            )
+        }
+        
         return res.send({
             message : `เข้าสู่ร้าน : ${lotto.shopname}`,
             amount: `มีสินค้าพร้อมขายในร้าน : ${on_sell.length}`,

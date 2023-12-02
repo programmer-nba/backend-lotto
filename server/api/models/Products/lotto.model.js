@@ -22,6 +22,7 @@ const lottoSchema = new Schema(
         pcs: Number, // จำนวนหวย (ใบ)
         unit: String, // หน่วย
         amount: Number, // จำนวนใบ
+        text: String,
         decoded: [
             {
                 year: String,

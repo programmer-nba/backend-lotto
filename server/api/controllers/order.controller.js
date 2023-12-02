@@ -316,7 +316,7 @@ exports.createOrder = async (req, res) => {
         const buyer_text = 'กรุณารอร้านค้ายืนยัน'
 
         const amount = lottos.map((item)=>{
-            return item.amount
+            return item.pcs
         })
 
         const sum_amount = amount.reduce((a, b)=> a + b, 0)
@@ -346,7 +346,7 @@ exports.createOrder = async (req, res) => {
             price: {
                 each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
                 all_lottos: all_lottos, // ราคาหวยรวมทุกใบ = 80*amount
-                service: service, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+                service: service, // ค่าบริการจัดหาฉลาก = total - all_lottos
                 transfer: transfer_cost, // ค่าส่ง
                 total: total_prices // ราคารวมทั้งหมด
             },
