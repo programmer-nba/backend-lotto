@@ -43,6 +43,8 @@ exports.addLottos = async (req, res)=>{
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
             price, // ราคาขายหวย/ใบ
+            wholesale_price,
+            retail_price,
             retail, // boolean
             wholesale, // boolean
             amount // จำนวนชุด, ใบ

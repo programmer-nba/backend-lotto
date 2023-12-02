@@ -23,7 +23,7 @@ route.post('/products/addlotto', verifyToken, dateCheck, lottos.addLottos)
 route.delete('/products/delete/:id', verifyToken, lottos.deleteMyLotto)
 route.delete('/products/deleteall', verifyToken, lottos.deleteMyLottos)
 
-route.get('/target-shop/:id', lottos.getTargetShop)
+route.get('/target-shop/:id', verifyToken, lottos.getTargetShop)
 
 
 
