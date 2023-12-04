@@ -39,8 +39,6 @@ app.use('/lotto/market', marketRoute)
 app.use('/lotto/order', orderRoute)
 app.use('/lotto/test', testRoute)
 
-const server = http.createServer(app)
-
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
 const port = process.env.SERVER_PORT || 5555
@@ -52,17 +50,8 @@ mongoose.connect(database_url)
     .then(()=>{
         app.listen(port, ()=>{
             try{
-
                 console.log(`> server start! on port ${port} \u2714`)
                 console.log(`----------------------------`)
-
-                const io = socketio(server /* {
-                    cors: {
-                        origin: 'http://localhost:3000'
-                    }
-                } */)
-                socketController(io)
-
             }
             catch(err){
                 console.log(`server strting error : ${err.message}`)
@@ -72,4 +61,12 @@ mongoose.connect(database_url)
     .catch((err)=>{
         console.log(`ERROR: database not connected ${err.message}`)
     })
+    
+const server = http.createServer(app)
+const io = socketio(server /* {
+    cors: {
+        origin: 'http://localhost:3000'
+    }
+} */)
+socketController(io)
 
