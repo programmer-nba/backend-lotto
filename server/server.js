@@ -3,9 +3,9 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-/* const socketio = require('socket.io')
-const http = require('http') */
-/* const socketController = require('./api/controllers/socket.controller.js') */
+const socketio = require('socket.io')
+//const http = require('http')
+const socketController = require('./api/controllers/socket.controller.js')
 
 // import routes
 const userRoute = require('./api/routes/user.routes.js')
@@ -48,10 +48,18 @@ mongoose.connect(database_url)
         console.log('> database connected \u2714')
     })
     .then(()=>{
-        app.listen(port, ()=>{
+        const server = app.listen(port, ()=>{
             try{
                 console.log(`> server start! on port ${port} \u2714`)
                 console.log(`----------------------------`)
+
+                const io = socketio(server, {
+                    cors: {
+                        origin: '*',
+                        credentials: true
+                    }
+                })
+                socketController(io)
             }
             catch(err){
                 console.log(`server strting error : ${err.message}`)
@@ -61,12 +69,4 @@ mongoose.connect(database_url)
     .catch((err)=>{
         console.log(`ERROR: database not connected ${err.message}`)
     })
-
-/* const server = http.createServer(app)
-const io = socketio(server /* {
-    cors: {
-        origin: 'http://localhost:3000'
-    }
-} */
-/* socketController(io) */ 
 
