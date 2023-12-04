@@ -13,7 +13,7 @@ exports.getMyLottos = async (req, res) => {
                     {buyer_id: userId},
                 ]
             }
-        ).populate('seller_id', 'shop_img', 'shop_cover')
+        ).populate('seller_id', 'shop_img, shop_cover')
 
         if(!myLottos || myLottos.length===0){
             return res.send('ไม่มีหวยในคลังของฉัน')
