@@ -3,9 +3,9 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const socketio = require('socket.io')
+//const socketio = require('socket.io')
 //const http = require('http')
-const socketController = require('./api/controllers/socket.controller.js')
+//const socketController = require('./api/controllers/socket.controller.js')
 
 // import routes
 const userRoute = require('./api/routes/user.routes.js')
@@ -53,13 +53,13 @@ mongoose.connect(database_url)
                 console.log(`> server start! on port ${port} \u2714`)
                 console.log(`----------------------------`)
 
-                const io = socketio(server, {
+                /* const io = socketio(server, {
                     cors: {
-                        origin: '*',
+                        origin: 'http://localhost:3000',
                         credentials: true
                     }
                 })
-                socketController(io)
+                socketController(io) */
             }
             catch(err){
                 console.log(`server strting error : ${err.message}`)
