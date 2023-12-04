@@ -2,6 +2,7 @@ const route = require('express').Router()
 
 // controllers
 const orders = require('../controllers/order.controller.js')
+const chats = require('../controllers/chat.controller.js')
 
 // middlewares
 const {upload, uploadPictures} = require('../middleware/drive.js')
@@ -27,5 +28,9 @@ route.put('/receipt-order/:id', verifyToken, orders.receipt)
 route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)
 route.get('/:id', verifyToken, orders.getOrder)
 route.get('/receipt/:id', verifyToken, orders.orderReceipt)
+
+route.post('/chat/:id', verifyToken, chats.createChat)
+route.get('/chat/:id', verifyToken, chats.getMessages)
+route.put('/chat/:id', verifyToken, chats.sendMessage)
 
 module.exports = route
