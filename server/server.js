@@ -5,7 +5,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 /* const socketio = require('socket.io')
 const http = require('http') */
-const socketController = require('./api/controllers/socket.controller.js')
+/* const socketController = require('./api/controllers/socket.controller.js') */
 
 // import routes
 const userRoute = require('./api/routes/user.routes.js')
