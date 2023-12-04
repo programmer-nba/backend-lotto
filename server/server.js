@@ -56,7 +56,7 @@ mongoose.connect(database_url)
                 console.log(`> server start! on port ${port} \u2714`)
                 console.log(`----------------------------`)
 
-                const io = socketio(server, /* {
+                const io = socketio(server /* {
                     cors: {
                         origin: 'http://localhost:3000'
                     }
