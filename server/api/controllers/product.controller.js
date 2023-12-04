@@ -76,21 +76,8 @@ exports.addLottos = async (req, res)=>{
             (type==='หวยก้อน') ? amount*100 :
             amount
 
-        /* const decoded_list = code.map((item)=>{
-            const decoded_list = item.split('-') // 0 1 2 3 4
-            const decoded = {
-                year: decoded_list[0],
-                period: decoded_list[1],
-                set: decoded_list[2],
-                six_number: decoded_list[3],
-                book: decoded_list[4],
-            }
-            return decoded
-        }) */
-
         for(i of code) {
-
-            
+    
             const decoded_list = i.split('-') // 0 1 2 3 4
             const decoded = {
                 year: decoded_list[0],
@@ -100,7 +87,6 @@ exports.addLottos = async (req, res)=>{
                 book: decoded_list[4],
             }
                 
-    
             const newLotto = 
                 {
                     seller_id: userId,
