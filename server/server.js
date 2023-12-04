@@ -48,7 +48,7 @@ mongoose.connect(database_url)
         console.log('> database connected \u2714')
     })
     .then(()=>{
-        const server = app.listen(port, ()=>{
+        app.listen(port, ()=>{
             try{
                 console.log(`> server start! on port ${port} \u2714`)
                 console.log(`----------------------------`)
