@@ -250,15 +250,14 @@ exports.editCurrentLotto = async (req, res) => {
             (retail===true && wholesale===true) ? "all" :
             "none"
 
-        const newLotto = 
-            {
+        const lotto = await Lotto.findByIdAndUpdate(id, {
+            $set : {
                 cost: cost,
                 price: price,
                 profit: price-cost,
-                market: market,
+                market: market
             }
-
-        const lotto = await Lotto.findByIdAndUpdate(id, newLotto, {new:true})
+        }, {new:true})
 
         if(lotto){
             return res.send({
