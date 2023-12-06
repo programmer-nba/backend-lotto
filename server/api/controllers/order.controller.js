@@ -205,7 +205,10 @@ exports.getMyPurchase = async (req, res) => {
         }
 
         if(!myPurchases || myPurchases.length===0){
-            return res.send('orders no found')
+            return res.send({
+                message: 'ไม่มีออร์เดอร์',
+                myOrders: [],
+            })
         }
 
         const myNewPurchases = myPurchases.filter(item=>item.status==='ใหม่')
