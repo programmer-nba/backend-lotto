@@ -47,10 +47,25 @@ const timeOut = async (order_id, seconds) => {
     setTimeout(async () => {
         const order = await Order.findById(order_id)
         if(order.status==='ยืนยัน'){
-            await Order.findByIdAndUpdate(order_id, {status:'หมดเวลา', detail:{
-                seller: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด',
-                buyer: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด'
-            }})
+            await Order.findByIdAndUpdate(order_id, 
+                {
+                    $set: {
+                        status:'หมดเวลา', 
+                        detail:{
+                            seller: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด',
+                            buyer: 'ลูกค้าไม่ได้ชำระเงินภายในเวลาที่กำหนด'
+                        }
+                    },
+                    $push: {
+                        statusHis: {
+                            name: 'หมดเวลา',
+                            status: 'หมดเวลา',
+                            timeAt: new Date()
+                        }
+                    }
+                    
+                }
+            )
             console.log(`order time-out`)
         } else {
             console.log(`order confirm > order is on process...`)
