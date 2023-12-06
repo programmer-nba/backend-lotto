@@ -148,7 +148,10 @@ exports.getMyOrders = async (req, res) => {
         }
                 
         if(!myOrders || myOrders.length===0){
-            return res.send('ไม่พบออร์เดอร์ของฉัน')
+            return res.send({
+                message: 'ไม่มีออร์เดอร์ในตอนนี้',
+                myOrders: [],
+            })
         } 
 
         const myNewOrders = myOrders.filter(item=>item.status==='ใหม่')
