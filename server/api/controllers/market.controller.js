@@ -5,6 +5,7 @@ exports.getWholesale = async (req, res) => {
     try{
         const userRole = req.user.role
         const openMarket = req.config.market
+        const lottoDay = req.config.period
 
         if(openMarket!=='open'){
             return res.send({
@@ -24,12 +25,14 @@ exports.getWholesale = async (req, res) => {
         if(market.length === 0){
             return res.send({
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
-                market
+                market,
+                lottoDay: lottoDay
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
-                data: market
+                data: market,
+                lottoDay: lottoDay
             })
         } 
     }
@@ -99,6 +102,8 @@ exports.changeMarket = async (req, res) => {
 exports.getRetail = async (req, res) => {
     try{
         const userRole = req.user.role
+        const openMarket = req.config.market
+        const lottoDay = req.config.period
 
         // check role
         if(userRole === "seller"){
@@ -112,12 +117,14 @@ exports.getRetail = async (req, res) => {
         if(market.length === 0){
             return res.send({
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
-                market
+                market,
+                lottoDay
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายปลีกทั้งหมด ${market.length} ชุด`,
-                market: market
+                market: market,
+                lottoDay
             })
         } 
     }
