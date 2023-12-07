@@ -42,8 +42,9 @@ exports.addLottos = async (req, res)=>{
             code, // เลข barcode
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
+            price,
             wholesale_price,
-            retail_price = wholesale_price,
+            retail_price,
             retail, // boolean
             wholesale, // boolean
             amount // จำนวนชุด, ใบ
@@ -60,6 +61,7 @@ exports.addLottos = async (req, res)=>{
         // avoid wholesale from reatil role
         if(sellerRole==='ขายปลีก'){
             wholesale = false
+            retail_price = price
         } else {
             wholesale = wholesale
         }
@@ -77,8 +79,8 @@ exports.addLottos = async (req, res)=>{
 
         //let charge = retail_price - wholesale_price
 
-        let price = 
-         (market === "retail") ? retail_price:
+        let prices = 
+         (market === "retail") ? retail_price || price :
          (market === "wholesale") ? wholesale_price : retail_price
 
         let newLottos = []
@@ -105,15 +107,15 @@ exports.addLottos = async (req, res)=>{
                     unit: unit, // หน่วย
                     amount: amount, // จำนวนหวย (ชุด)
                     cost: cost, // ต้นทุน
-                    price: price, // ราคาขาย > ตลาดขายส่ง
+                    price: prices, // ราคาขาย > ตลาดขายส่ง
                     prices: {
                         wholesale: {
-                            total: wholesale_price, // ราคารวมทั้งหมด
-                            service: wholesale_price - (80*amount)
+                            total: wholesale_price || null, // ราคารวมทั้งหมด
+                            service: wholesale_price - (80*pcs) || null
                         },
                         retail: {
                             total: retail_price,
-                            service: retail_price - (80*amount)
+                            service: retail_price - (80*pcs)
                         },
                     },
                     profit: price-cost, // กำไร
