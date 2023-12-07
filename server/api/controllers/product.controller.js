@@ -1,5 +1,4 @@
 // import database
-const { firebaseml_v1beta2 } = require('googleapis')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
