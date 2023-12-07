@@ -20,7 +20,14 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover')
+        const wholesaleLottos = await Lotto.find({market:{$in:["wholesale"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover')
+        let allLottos = await Lotto.find({market:{$in:["all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover')
+
+        allLottos.forEach(item=>{
+            item.price = item.prices.wholesale.total || item.price
+        })
+
+        const market = [...wholesaleLottos, ...allLottos]
 
         if(market.length === 0){
             return res.send({
@@ -32,6 +39,62 @@ exports.getWholesale = async (req, res) => {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
                 data: market,
+                lottoDay: lottoDay
+            })
+        } 
+    }
+    catch(error){
+        console.log(error.message)
+        res.status(500).send({
+            message: "ERROR : please check console"
+        })
+    }
+}
+
+exports.getWholesalesome = async (req, res) => {
+    try{
+        const userRole = req.user.role
+        const openMarket = req.config.market
+        const lottoDay = req.config.period
+        const {length} = req.params
+
+        if(openMarket!=='open'){
+            return res.send({
+                message: "ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ... เวลา ..."
+            })
+        }
+
+        // check role
+        if(userRole === "user"){
+            return res.send({
+                message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
+            })
+        }
+        
+        //const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover').limit(length)
+        //const someMarket = market.slice(0,length)
+        const random = await Lotto.aggregate([
+            {
+                $match:{
+                    market:{$in:["wholesale", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}
+                }
+            },
+            {
+                $sample:{
+                    size:parseInt(length)
+                }
+            }
+        ])
+        if(random.length === 0){
+            return res.send({
+                message: `มีฉลากทั้งหมด ${random.length} ชุด`,
+                random,
+                lottoDay: lottoDay
+            })
+        } else {
+            return res.status(200).send({
+                message: `มีสินค้าในตลาดขายส่งทั้งหมด ${random.length} ชุด`,
+                data: random,
                 lottoDay: lottoDay
             })
         } 

@@ -34,6 +34,16 @@ const lottoSchema = new Schema(
         ],
         cost: Number, // ราคาทุน
         price: Number, // ราคาขาย
+        prices: {
+            wholesale: {
+                total: Number,
+                service: Number
+            },
+            retail: {
+                total: Number,
+                service: Number
+            },
+        },
         profit: Number, // กำไร
         totlal_profit: Number, // กำไรรวมทั้งชุด
         sold: {

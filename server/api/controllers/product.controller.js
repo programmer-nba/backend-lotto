@@ -42,9 +42,8 @@ exports.addLottos = async (req, res)=>{
             code, // เลข barcode
             type, // ประเภทหวย
             cost, // ต้นทุนหวย/ใบ
-            price, // ราคาขายหวย/ใบ
             wholesale_price,
-            retail_price,
+            retail_price = wholesale_price,
             retail, // boolean
             wholesale, // boolean
             amount // จำนวนชุด, ใบ
@@ -75,6 +74,14 @@ exports.addLottos = async (req, res)=>{
             (type==='หวยเล่ม') ? 100 :
             (type==='หวยก้อน') ? amount*100 :
             amount
+
+        //let charge = retail_price - wholesale_price
+
+        let price = 
+         (market === "retail") ? retail_price:
+         (market === "wholesale") ? wholesale_price : retail_price
+
+        let newLottos = []
 
         for(i of code) {
     
@@ -124,11 +131,14 @@ exports.addLottos = async (req, res)=>{
                 })
             }
 
+            newLottos.push(lotto)
+
         }
         
         return res.send({
             message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${code.length} ${unit} ลงขายในตลาด ${market}`,
             success: true,
+            lotto: newLottos
         })
 
     }
@@ -232,7 +242,8 @@ exports.editCurrentLotto = async (req, res) => {
 
         let {
             cost, // ต้นทุนหวย/ใบ
-            price, // ราคาขายหวย/ใบ
+            wholesale_price, // ราคาขายหวย/ใบ
+            retail_price, // ราคาขายหวย/ใบ
             retail, // boolean
             wholesale, // boolean
             id
@@ -240,8 +251,10 @@ exports.editCurrentLotto = async (req, res) => {
 
         if(sellerRole==='ขายปลีก'){
             wholesale = false
+            wholesale_price = null
         } else {
             wholesale = wholesale
+            wholesale_price = wholesale_price
         }
 
         const market = 
@@ -250,10 +263,20 @@ exports.editCurrentLotto = async (req, res) => {
             (retail===true && wholesale===true) ? "all" :
             "none"
 
+        let price = 
+        (market === "retail") ? retail_price:
+        (market === "wholesale") ? wholesale_price : retail_price
+
         const lotto = await Lotto.findByIdAndUpdate(id, {
             $set : {
                 cost: cost,
                 price: price,
+                prices: {
+                    wholesale: {
+                        total: wholesale_price,
+                        
+                    }
+                },
                 profit: price-cost,
                 market: market
             }

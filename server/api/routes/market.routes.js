@@ -9,6 +9,8 @@ const dateCheck = require('../middleware/dateCheck.js')
 
 // Market routes
 route.get('/wholesale', verifyToken, dateCheck, markets.getWholesale) // OK
+route.get('/wholesale/:length', verifyToken, dateCheck, markets.getWholesalesome) // OK
+
 route.get('/retail', verifyToken, dateCheck, markets.getRetail) // OK
 route.put('/:id', verifyToken, markets.changeMarket) // OK
 
