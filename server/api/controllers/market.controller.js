@@ -20,7 +20,7 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false}).populate('seller_id', '_id name shop_name shop_img')
+        const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false}).populate('seller_id', '_id name shop_name shop_img shop_cover')
 
         if(market.length === 0){
             return res.send({
@@ -112,7 +112,7 @@ exports.getRetail = async (req, res) => {
             })
         }
         
-        const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false, sold: false}).populate('seller_id', '_id name shop_img')
+        const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false, sold: false}).populate('seller_id', '_id name shop_img shop_cover')
 
         if(market.length === 0){
             return res.send({
