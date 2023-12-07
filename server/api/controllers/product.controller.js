@@ -1,4 +1,5 @@
 // import database
+const { firebaseml_v1beta2 } = require('googleapis')
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 
@@ -294,15 +295,15 @@ exports.getTargetShop = async (req, res) => {
         let on_sell = null
         if(role==='ขายปลีก'){
             on_sell = shop_lottos.filter(item=>
-                item.on_order===false && ['wholesale', 'all'].includes(item.market)
+                item.on_order===false && ['wholesale', 'all'].includes(item.market) && item.sold!==true && item.cut_stock!==true
             )
         } else if (role==='user') {
             on_sell = shop_lottos.filter(item=>
-                item.on_order===false && ['retail', 'all'].includes(item.market)
+                item.on_order===false && ['retail', 'all'].includes(item.market) && item.sold!==true && item.cut_stock!==true
             )
         } else {
             on_sell = shop_lottos.filter(item=>
-                item.on_order===false 
+                item.on_order===false && item.sold!==true && item.cut_stock!==true
             )
         }
         
@@ -316,5 +317,82 @@ exports.getTargetShop = async (req, res) => {
     catch(err){
         res.send('ERROR can not get target lottos')
         console.log(err)
+    }
+}
+
+exports.cutStocks = async (req, res) => {
+    const sellerId = req.user.id
+    const {lottos_code} = req.body 
+    try {
+        const lottos = await Lotto.find(
+            {
+                code: {
+                    $elemMatch: {
+                        $in: lottos_code
+                    }
+                },
+                cut_stock: false || null || undefined,
+                seller_id: sellerId
+            }
+        )
+
+        if(!lottos || lottos.length===0) {
+            return res.send({
+                message: 'ไม่พบหวย',
+                lottos: []
+            })
+        }
+
+        const cutStock_lottos = lottos.map( async (lotto) => {
+            const cutStock_lotto = await Lotto.findByIdAndUpdate(lotto._id,
+                {
+                    $set: {
+                        cut_stock: true
+                    }
+                },
+                {new: true}
+            )
+            if(!cutStock_lotto) {
+                return 'ไม่พบ'
+            }
+            return cutStock_lotto
+        })
+
+        const stockCutted = await Promise.all(cutStock_lottos)
+
+        return res.send(stockCutted)
+    }
+    catch (err) {
+        console.log('ERROR can not cut stock', err.message)
+        res.send(err.message)
+    }
+}
+
+exports.getCuttedStokLottos = async (req, res) => {
+    const sellerId = req.user.id
+    try {
+        const cutted_lottos = await Lotto.find(
+            {
+                seller_id: sellerId,
+                cut_stock: true
+            }
+        )
+        if(!cutted_lottos || cutted_lottos.length===0) {
+            return res.send(
+                {
+                    message: 'ไม่พบหวย',
+                    lottos: []
+                }
+            )
+        }
+
+        return res.send({
+            message: `หวยที่ตัดสต๊อกแล้ว ${cutted_lottos.length} ชุด`,
+            lottos: cutted_lottos
+        })
+    }
+    catch (err) {
+        res.send('ERROR!')
+        console.log(err.message)
     }
 }

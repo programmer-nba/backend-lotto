@@ -41,6 +41,10 @@ const lottoSchema = new Schema(
             default: false
         },
         on_order: Boolean, 
+        cut_stock: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps: true
