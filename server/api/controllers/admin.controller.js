@@ -190,6 +190,35 @@ exports.editSellerStatus = async (req, res)=>{
     }
 }
 
+// get an seller status
+exports.getSeller = async (req, res)=>{
+
+    const {id} = req.params
+    const userRole = req.user.role
+
+    try{
+        
+        if(userRole!=='admin'){
+            return res.send('ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้')
+        } 
+
+        const seller = await Seller.findById(id)
+        if(!seller) {
+            return res.send('seller id not found')
+        }
+
+        return res.send({
+            seller: seller,
+            success: true
+        })
+        
+    }
+    catch(err){
+        res.send('ERROR : please check console')
+        console.log({ERROR:err.message})
+    }
+}
+
 // delete all sellers from database
 exports.deleteAllSellers = async (req, res)=>{
     try{

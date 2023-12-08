@@ -271,15 +271,16 @@ exports.editCurrentLotto = async (req, res) => {
 
         let oldlotto = await Lotto.findById(id)
         const pcs = oldlotto.pcs
+        console.log(pcs)
 
         const lotto = await Lotto.findByIdAndUpdate(id, {
             $set : {
                 cost: cost,
-                price: price,
+                price: prices,
                 'prices.wholesale.total': wholesale_price,
                 'prices.wholesale.service': (!wholesale_price) ? null : wholesale_price-(80*pcs),
                 'prices.retail.total': retail_price,
-                'prices.retail.service': retail_price-(80*pcs),
+                'prices.retail.service': (!retail_price) ? null : retail_price-(80*pcs),
                 profit: prices-cost,
                 market: market
             }

@@ -14,6 +14,7 @@ route.delete('/delete/:id', verifyToken, admins.deleteAdmin)
 route.get('/all', verifyToken, admins.getAllAdmin)
 
 route.get('/sellers', verifyToken, admins.getAllSellers)
+route.get('/seller/:id', verifyToken, admins.getSeller)
 route.delete('/sellers', verifyToken, admins.deleteAllSellers)
 route.put('/sellers/edit/:id', verifyToken, admins.editSellerStatus)
 route.delete('/sellers/delete/:id', verifyToken, admins.deleteSeller)
