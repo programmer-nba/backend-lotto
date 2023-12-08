@@ -62,7 +62,7 @@ exports.addLottos = async (req, res)=>{
         if(sellerRole==='ขายปลีก'){
             wholesale = false
             retail_price = price
-            price
+            
         } else {
             wholesale = wholesale
         }
@@ -77,8 +77,6 @@ exports.addLottos = async (req, res)=>{
             (type==='หวยเล่ม') ? 100 :
             (type==='หวยก้อน') ? amount*100 :
             amount
-
-        //let charge = retail_price - wholesale_price
 
         let prices = 
          (market === "retail") ? retail_price || price :
@@ -115,8 +113,8 @@ exports.addLottos = async (req, res)=>{
                             service: wholesale_price - (80*pcs) || null
                         },
                         retail: {
-                            total: retail_price,
-                            service: retail_price - (80*pcs)
+                            total: retail_price || null,
+                            service: retail_price - (80*pcs) || null
                         },
                     },
                     profit: prices-cost, // กำไร
@@ -245,6 +243,7 @@ exports.editCurrentLotto = async (req, res) => {
 
         let {
             cost, // ต้นทุนหวย/ใบ
+            price,
             wholesale_price, // ราคาขายหวย/ใบ
             retail_price, // ราคาขายหวย/ใบ
             retail, // boolean
@@ -254,10 +253,10 @@ exports.editCurrentLotto = async (req, res) => {
 
         if(sellerRole==='ขายปลีก'){
             wholesale = false
+            retail_price = price
             wholesale_price = null
         } else {
             wholesale = wholesale
-            wholesale_price = wholesale_price
         }
 
         const market = 
@@ -266,24 +265,27 @@ exports.editCurrentLotto = async (req, res) => {
             (retail===true && wholesale===true) ? "all" :
             "none"
 
-        let price = 
+        let prices = 
         (market === "retail") ? retail_price:
         (market === "wholesale") ? wholesale_price : retail_price
+
+        let oldlotto = await Lotto.findById(id)
+        const pcs = oldlotto.pcs
 
         const lotto = await Lotto.findByIdAndUpdate(id, {
             $set : {
                 cost: cost,
                 price: price,
-                prices: {
-                    wholesale: {
-                        total: wholesale_price,
-                        
-                    }
-                },
-                profit: price-cost,
+                'prices.wholesale.total': wholesale_price,
+                'prices.wholesale.service': (!wholesale_price) ? null : wholesale_price-(80*pcs),
+                'prices.retail.total': retail_price,
+                'prices.retail.service': retail_price-(80*pcs),
+                profit: prices-cost,
                 market: market
             }
         }, {new:true})
+
+        
 
         if(lotto){
             return res.send({
