@@ -359,7 +359,7 @@ exports.cutStocks = async (req, res) => {
                         $in: lottos_code
                     }
                 },
-                cut_stock: false || null || undefined,
+                cut_stock: false,
                 seller_id: sellerId
             }
         )
