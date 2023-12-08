@@ -11,7 +11,8 @@ exports.getMyLottos = async (req, res) => {
                 $or: [
                     {seller_id: userId},
                     //{buyer_id: userId},
-                ]
+                ],
+                cut_stock: false
             }
         ).populate('seller_id', 'shop_img, shop_cover')
 
