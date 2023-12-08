@@ -93,7 +93,7 @@ exports.sellerRegister = async (req, res)=>{
         console.log(userExisting)
         console.log(sellerExisting)
         if(sellerExisting || userExisting){
-            return res.send({message:'กรุณาลองใหม่อีกครั้ง'})
+            return res.send({message:'หมายเลขโทรศัพท์นี้มีผู้ใช้งานแล้ว กรุณาลองใหม่อีกครั้ง'})
         } 
         else {
             const newSeller = new Seller(
