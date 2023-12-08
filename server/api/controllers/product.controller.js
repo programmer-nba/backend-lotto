@@ -32,7 +32,7 @@ exports.getMyLottos = async (req, res) => {
 
 // create new lotto set
 exports.addLottos = async (req, res)=>{
-    console.log(req.config)
+    
     try{
         const userId = req.user.id
         const sellerRole = req.user.seller_role
@@ -62,6 +62,7 @@ exports.addLottos = async (req, res)=>{
         if(sellerRole==='ขายปลีก'){
             wholesale = false
             retail_price = price
+            price
         } else {
             wholesale = wholesale
         }
@@ -118,7 +119,7 @@ exports.addLottos = async (req, res)=>{
                             service: retail_price - (80*pcs)
                         },
                     },
-                    profit: price-cost, // กำไร
+                    profit: prices-cost, // กำไร
                     market: market, // ตลาดที่หวยชุดนี้ลงขาย
                     pcs: pcs, // จำนวนหวย (ใบ)
                     on_order: false, // 
