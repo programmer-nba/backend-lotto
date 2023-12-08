@@ -20,8 +20,8 @@ exports.getWholesale = async (req, res) => {
             })
         }
         
-        const wholesaleLottos = await Lotto.find({market:{$in:["wholesale"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover')
-        let allLottos = await Lotto.find({market:{$in:["all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover')
+        const wholesaleLottos = await Lotto.find({market:{$in:["wholesale"]}, on_order: false, sold: false, cut_stock: false}).populate('seller_id', '_id name shop_name shop_img shop_cover')
+        let allLottos = await Lotto.find({market:{$in:["all"]}, on_order: false, sold: false, cut_stock: false}).populate('seller_id', '_id name shop_name shop_img shop_cover')
 
         allLottos.forEach(item=>{
             item.price = item.prices.wholesale.total || item.price
