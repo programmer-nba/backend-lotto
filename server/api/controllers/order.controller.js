@@ -319,7 +319,7 @@ exports.createOrder = async (req, res) => {
 
         const wholesale_lottos_price = Promise.all(
             lottos.map((lotto)=>{
-                const price = lotto.prices.retail.total
+                const price = lotto.prices.wholesale.total
                 return Promise.resolve(price)
             })
         )
