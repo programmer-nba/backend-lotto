@@ -308,14 +308,23 @@ exports.createOrder = async (req, res) => {
             return res.send('lotto id not found')
         }
 
-        const lottos_price = Promise.all(
+        const retail_lottos_price = Promise.all(
             lottos.map((lotto)=>{
-                const price = lotto.price
+                const price = lotto.prices.retail.total
                 return Promise.resolve(price)
             })
         )
-        const resolved_prices = await lottos_price
-        const total_prices = resolved_prices.reduce((a, b) => a + b, 0)
+        const resolved_retail_prices = await retail_lottos_price
+        const total_retail_prices = resolved_retail_prices.reduce((a, b) => a + b, 0)
+
+        const wholesale_lottos_price = Promise.all(
+            lottos.map((lotto)=>{
+                const price = lotto.prices.retail.total
+                return Promise.resolve(price)
+            })
+        )
+        const resolved_wholesale_prices = await wholesale_lottos_price
+        const total_wholesale_prices = resolved_wholesale_prices.reduce((a, b) => a + b, 0)
 
         const seller_id = lotto.seller_id 
 
@@ -349,7 +358,8 @@ exports.createOrder = async (req, res) => {
             : (transfer==='ฝากตรวจ') ? 0 
             : 50
 
-        const service = total_prices - all_lottos // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+        const retail_service = total_retail_prices - all_lottos // ค่าบริการจัดหาฉลาก 
+        const wholesale_service = total_wholesale_prices - all_lottos // ค่าบริการจัดหาฉลาก
 
         const new_order = {
             lotto_id: lottos,
@@ -367,9 +377,11 @@ exports.createOrder = async (req, res) => {
             price: {
                 each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
                 all_lottos: all_lottos, // ราคาหวยรวมทุกใบ = 80*amount
-                service: service, // ค่าบริการจัดหาฉลาก = total - all_lottos
+                retail_service: retail_service, // ค่าบริการจัดหาฉลาก = total - all_lottos
+                wholesale_service: wholesale_service,
                 transfer: transfer_cost, // ค่าส่ง
-                total: total_prices // ราคารวมทั้งหมด
+                total_retail: total_retail_prices, // ราคารวมทั้งหมด
+                total_wholesale: total_wholesale_prices // ราคารวมทั้งหมด
             },
 
             statusHis: {

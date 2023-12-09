@@ -46,9 +46,11 @@ const orderSchema = new Schema(
                 default: 80
             }, 
             all_lottos: Number, // ราคาหวยรวมทุกใบ = 80*amount
-            service: Number, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+            retail_service: Number, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
+            wholesale_service: Number, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
             transfer: Number, // ค่าส่ง
-            total: Number // ราคารวมทั้งหมด
+            total_retail: Number, // ราคารวมทั้งหมด
+            total_wholesale: Number // ราคารวมทั้งหมด
         },
 
         paid_slip: String, // สลิปโอนเงิน
