@@ -97,6 +97,44 @@ exports.getAllsome = async (req, res) => {
     }
 }
 
+exports.getAll = async (req, res) => {
+    try {
+        const adminRole = req.user.role
+        if(adminRole!=='admin'){
+            return res.send('คุณไม่ใช่ admin')
+        }
+
+        const lottos = await Lotto.find()
+        if(!lottos || lottos.length===0){
+            return res.send({
+                message: 'ไม่พบสลากในระบบ',
+                lottos: lottos || []
+            })
+        }
+
+        const retail_lottos = lottos.filter(lotto=>lotto.market==='retail')
+        const wholesale_lottos = lottos.filter(lotto=>lotto.market==='wholesale')
+        const all_lottos = lottos.filter(lotto=>lotto.market==='all')
+        const none_lottos = lottos.filter(lotto=>lotto.market==='none')
+
+        return res.send({
+            message: `มีสลากในระบบทั้งหมด ${lottos.length} ชุด`,
+            length: {
+                total: lottos.length,
+                wholesale: wholesale_lottos.length,
+                retail: retail_lottos.length,
+                all: all_lottos.length,
+                none: none_lottos.length
+            },
+            lottos: lottos
+        })
+    }
+    catch (err) {
+        res.send('ERROR cannot get all lottos')
+        console.log(err.message)
+    }
+}
+
 exports.changeMarket = async (req, res) => {
     try{
         let {wholesale, retail} = req.body
