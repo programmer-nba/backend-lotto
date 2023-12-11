@@ -99,7 +99,7 @@ exports.getAllOrders = async (req, res) => {
            return res.send('you are not allowed!') 
         }
         
-        const orders = await Order.find().populate('seller_id', 'name shop_name role seller_role').populate('buyer_id', 'name shop_name role seller_role')
+        const orders = await Order.find().populate('seller', 'name shop_name role seller_role').populate('buyer', 'name shop_name role seller_role')
         if(!orders || orders.length===0){
             return res.send(`มีออร์เดอร์ในระบบ ${orders.length} ออร์เดอร์`)
         }
