@@ -51,9 +51,8 @@ exports.getWholesale = async (req, res) => {
     }
 }
 
-exports.getWholesalesome = async (req, res) => {
+exports.getAllsome = async (req, res) => {
     try{
-        const userRole = req.user.role
         const openMarket = req.config.market
         const lottoDay = req.config.period
         const {length} = req.params
@@ -63,20 +62,11 @@ exports.getWholesalesome = async (req, res) => {
                 message: "ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ... เวลา ..."
             })
         }
-
-        // check role
-        if(userRole === "user"){
-            return res.send({
-                message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
-            })
-        }
         
-        //const market = await Lotto.find({market:{$in:["wholesale", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_name shop_img shop_cover').limit(length)
-        //const someMarket = market.slice(0,length)
         const random = await Lotto.aggregate([
             {
                 $match:{
-                    market:{$in:["wholesale", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}
+                    on_order: false, sold: false, cut_stock: false
                 }
             },
             {
@@ -88,13 +78,13 @@ exports.getWholesalesome = async (req, res) => {
         if(random.length === 0){
             return res.send({
                 message: `มีฉลากทั้งหมด ${random.length} ชุด`,
-                random,
+                lottos:random,
                 lottoDay: lottoDay
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายส่งทั้งหมด ${random.length} ชุด`,
-                data: random,
+                lottos: random,
                 lottoDay: lottoDay
             })
         } 
