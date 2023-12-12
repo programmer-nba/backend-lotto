@@ -402,7 +402,10 @@ exports.updateConfig = async (req, res) => {
 exports.getConfigDate = async (req, res) => {
     try {
         const period = req.config.period
-        res.send(period)
+        res.send({
+            period:period,
+            config: req.config
+        })
     }
     catch(err) {
         res.send('ERROR : can not get config date')
