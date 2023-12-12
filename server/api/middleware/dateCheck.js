@@ -43,16 +43,21 @@ module.exports = dateCheck = async (req, res, next) => {
         
         const setday = dateofperiod.day
 
-        const result = (today.toString()===setday) ? 'close' : 'open'
+        const result = (today===setday-1 || today===setday) ? 'close' : 'open'
         console.log(`today is : ${today} ${currMounth} ${year}`)
         console.log(`setday is : ${setday} ${mount_year}`)
 
         req.config = {
             period: `${setday} ${mount_year}`,
-            market: 'open' //result
+            market: result, //result
+            openIn: parseInt(setday)+1,
+            openInText: `${parseInt(setday)+1} ${mount_year}`,
+            toDay: `${today} ${currMounth} ${year}`
         }
 
         console.log(`market is : ${req.config.market}`)
+        console.log(`close on : ${setday-1} ${mount_year}`)
+        console.log(`next open on : ${parseInt(setday)+1} ${mount_year}`)
         next()
     }
     catch(error){

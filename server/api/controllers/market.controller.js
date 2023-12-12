@@ -6,10 +6,16 @@ exports.getWholesale = async (req, res) => {
         const userRole = req.user.role
         const openMarket = req.config.market
         const lottoDay = req.config.period
+        const openIn = req.config.openIn
+        const openInText = req.config.openInText
+        const toDay = req.config.toDay
+        const closeIn = req.config.openIn-2
 
         if(openMarket!=='open'){
             return res.send({
-                message: "ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ... เวลา ..."
+                toDay: toDay,
+                message: `ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ${openInText}`,
+                openIn: openIn
             })
         }
 
@@ -33,13 +39,19 @@ exports.getWholesale = async (req, res) => {
             return res.send({
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
                 market,
-                lottoDay: lottoDay
+                marketStatus: openMarket,
+                lottoDay: lottoDay,
+                marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
+                closeIn: closeIn
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
                 data: market,
-                lottoDay: lottoDay
+                lottoDay: lottoDay,
+                marketStatus: openMarket,
+                marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
+                closeIn: closeIn
             })
         } 
     }
