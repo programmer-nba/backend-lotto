@@ -52,7 +52,11 @@ module.exports = dateCheck = async (req, res, next) => {
             market: result, //result
             openIn: parseInt(setday)+1,
             openInText: `${parseInt(setday)+1} ${mount_year}`,
-            toDay: `${today} ${currMounth} ${year}`
+            toDay: `${today} ${currMounth} ${year}`,
+            curMY: `${currMounth} ${year}`,
+            nextMY: `${mount_year}`,
+            closeIn: `${setday-1}`,
+            closeInText: `${setday-1} ${mount_year}`
         }
 
         console.log(`market is : ${req.config.market}`)
