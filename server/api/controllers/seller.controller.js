@@ -13,42 +13,42 @@ exports.editMyProfile = async (req, res)=> {
         return res.send('user not found')
     }
 
-    const shop_img = (dataIds.length>0 && dataIds.some(id => id.includes('shop_img/'))) 
+    const shop_img = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('shop_img/'))) 
         ? dataIds.filter(id => id.includes('shop_img'))[0].replace('shop_img/', '')
         : null
         const shop_img_link = (shop_img) 
             ? `https://drive.google.com/file/d/${shop_img}/view` 
             : prev_info.shop_img
 
-    const shop_cover = (dataIds.length>0 && dataIds.some(id => id.includes('shop_cover/'))) 
+    const shop_cover = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('shop_cover/'))) 
         ? dataIds.filter(id => id.includes('shop_cover'))[0].replace('shop_cover/', '')
         : null
         const shop_cover_link = (shop_cover && dataIds.some(id => id.includes('shop_cover/'))) 
             ? `https://drive.google.com/file/d/${shop_cover}/view` 
             : prev_info.shop_cover
 
-    const shop_bank = (dataIds.length>0 && dataIds.some(id => id.includes('shop_bank/')))
+    const shop_bank = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('shop_bank/')))
         ? dataIds.filter(id => id.includes('shop_bank'))[0].replace('shop_bank/', '')
         : null
         const shop_bank_link = (shop_bank) 
             ? `https://drive.google.com/file/d/${shop_bank}/view` 
             : prev_info.shop_bank
 
-    const personal_img = (dataIds.length>0 && dataIds.some(id => id.includes('personal_img/'))) 
+    const personal_img = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('personal_img/'))) 
         ? dataIds.filter(id => id.includes('personal_img'))[0].replace('personal_img/', '')
         : null
         const personal_img_link = (personal_img) 
             ? `https://drive.google.com/file/d/${personal_img}/view` 
             : prev_info.personal_img
 
-    const personWithCard = (dataIds.length>0 && dataIds.some(id => id.includes('personWithCard/'))) 
+    const personWithCard = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('personWithCard/'))) 
         ? dataIds.filter(id => id.includes('personWithCard'))[0].replace('personWithCard/', '')
         : null
         const personWithCard_link = (personWithCard) 
             ? `https://drive.google.com/file/d/${personWithCard}/view` 
             : prev_info.personWithCard
     
-    const personWithShop = (dataIds.length>0 && dataIds.some(id => id.includes('personWithShop/'))) 
+    const personWithShop = (dataIds && dataIds.length>0 && dataIds.some(id => id.includes('personWithShop/'))) 
         ? dataIds.filter(id => id.includes('personWithShop'))[0].replace('personWithShop/', '')
         : null
         const personWithShop_link = (personWithShop) 
@@ -57,7 +57,7 @@ exports.editMyProfile = async (req, res)=> {
 
     try{
 
-        const { address, shop_name, shop_number } = req.body
+        const { address, shop_name, shop_number, phone_number } = req.body
         
         const new_province = (address.province!=='') ? address.province : prev_info.address.province
         const new_district = (address.district!=='') ? address.district : prev_info.address.district
@@ -75,11 +75,13 @@ exports.editMyProfile = async (req, res)=> {
 
         const new_shop_name = (shop_name!=='') ? shop_name : prev_info.shop_name
         const new_shop_number = (shop_number!=='') ? shop_number : prev_info.shop_number
+        const new_phone_number = (phone_number!=='') ? phone_number : prev_info.phone_number
 
         const seller = await Seller.findByIdAndUpdate(userId, {
             address: newAddress,
             shop_name: new_shop_name,
             shop_phone: new_shop_number,
+            phone_number: new_phone_number,
 
             // img
             personal_img : personal_img_link,

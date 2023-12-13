@@ -11,7 +11,7 @@ const verifyToken = require('../middleware/verifyToken.js')
 const dateCheck = require('../middleware/dateCheck.js')
 
 // Routes of seller role
-route.put('/edit', verifyToken, upload.any(), uploadPictures, sellers.editMyProfile)
+route.put('/edit', verifyToken, upload.any(), sellers.editMyProfile)
 route.get('/report', verifyToken, dateCheck, sellers.shopData)
 
 route.get('/products/getone', verifyToken, lottos.getCurrentLotto)

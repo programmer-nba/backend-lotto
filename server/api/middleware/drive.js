@@ -45,9 +45,9 @@ const uploadPictures = async (req, res, next) => {
   console.log(`files:${req.files}`)
 
   try{
-    /* if(!files){
+    if(!files){
       return res.send('no any files ?')
-    } */
+    }
     // upload each file to drive
     for(let f=0 ; f<files.length ; f++){
       const data = await uploadtoDrive(files[f], name)
