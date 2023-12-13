@@ -35,6 +35,6 @@ route.get('/config/picture/:id', verifyToken, pictures.getAdminPicture)
 route.put('/config/picture/:id', verifyToken, upload.any(), uploadPictures, pictures.updateAdminPicture)
 route.delete('/config/picture/:id', verifyToken, pictures.deleteAdminPicture)
 
-route.get('/config/date', admins.getConfigDate)
+route.get('/config/date', dateCheck, admins.getConfigDate)
 
 module.exports = route
