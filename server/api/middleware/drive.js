@@ -45,23 +45,25 @@ const uploadPictures = async (req, res, next) => {
   console.log(`files:${req.files}`)
 
   try{
-    if(!files){
+    /* if(!files){
       return res.send('no any files ?')
-    }
+    } */
     // upload each file to drive
-    for(let f=0 ; f<files.length ; f++){
-      const data = await uploadtoDrive(files[f], name)
-      if(!data){
-        console.log(`upload failed`)
-        return res.send('upload failed')
+    if(files){
+      for(let f=0 ; f<files.length ; f++){
+        const data = await uploadtoDrive(files[f], name)
+        if(!data){
+          console.log(`upload failed`)
+          return res.send('upload failed')
+        }
+        const prefix = `${files[f].fieldname}/`
+        console.log(`dataId = ${data.id}`)
+        dataIds.push(prefix+data.id)
+        console.log(`dataIds = ${dataIds.length}`)
+        console.log(`----------------------------`)
       }
-      const prefix = `${files[f].fieldname}/`
-      console.log(`dataId = ${data.id}`)
-      dataIds.push(prefix+data.id)
-      console.log(`dataIds = ${dataIds.length}`)
-      console.log(`----------------------------`)
     }
-
+  
     req.dataIds = dataIds
     next()
   }
