@@ -4,6 +4,7 @@ const Day = require('../models/Config/Day_model.js')
 module.exports = dateCheck = async (req, res, next) => {
     try{
         const dateofperiod = await Day.findOne()
+        console.log(dateofperiod.day)
         if(!dateofperiod){
             res.send('ERROR! can not check date from server!')
         }
@@ -11,15 +12,21 @@ module.exports = dateCheck = async (req, res, next) => {
         const newdate = new Date()
         const today = newdate.getDate()
         let nextt = null
-
-        if (today>=1 && today<16) {
-            dateofperiod.day = 16
-            await dateofperiod.save()
-            nextt = 0
-        } else if (today>16) {
-            dateofperiod.day = 1
-            await dateofperiod.save()
-            nextt = 1
+        let setday = null
+        if(parseInt(dateofperiod.day)===1 || parseInt(dateofperiod.day)===16){
+            if (today>=1 && today<16) {
+                dateofperiod.day = 16
+                await dateofperiod.save()
+                nextt = 0
+                setday = parseInt(dateofperiod.day)
+            } else if (today>16) {
+                dateofperiod.day = 1
+                await dateofperiod.save()
+                nextt = 1
+                setday = parseInt(dateofperiod.day)
+            }
+        } else if (parseInt(dateofperiod.day)!==1 || parseInt(dateofperiod.day)!==16) {
+            setday = parseInt(dateofperiod.day)
         }
         
         // will run on admin site----------------------------
@@ -40,8 +47,6 @@ module.exports = dateCheck = async (req, res, next) => {
         const mount_year = `${targetMonth} ${year}`
 
         //----------------------------------------------
-        
-        const setday = dateofperiod.day
 
         const result = (today===setday-1 || today===setday) ? 'close' : 'open'
         console.log(`today is : ${today} ${currMounth} ${year}`)

@@ -385,7 +385,7 @@ exports.updateConfig = async (req, res) => {
             return res.send('day-config not found')
         }
 
-        dayconfig.day = day
+        dayconfig.day = parseInt(day)
         dayconfig.open_markets.wholesale = wholesale
         dayconfig.open_markets.retail = retail
 
@@ -401,7 +401,7 @@ exports.updateConfig = async (req, res) => {
 
 exports.getConfigDate = async (req, res) => {
     try {
-        const period = req.config.period
+        const period = await Day.findOne()
         res.send({
             period:period,
             config: req.config
