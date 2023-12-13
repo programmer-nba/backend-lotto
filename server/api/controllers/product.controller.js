@@ -86,6 +86,19 @@ exports.addLottos = async (req, res)=>{
         let newLottos = []
 
         for(i of code) {
+            console.log(i)
+
+            const existCode = await Lotto.find({
+                code: {
+                    $in: [i]
+                }
+            })
+            if(existCode.length>0){
+                return res.send({
+                    message: `มีสลากรหัสนี้ในระบบแล้ว ${i}`,
+                    code: `${i}`
+                })
+            }
     
             const decoded_list = i.split('-') // 0 1 2 3 4
             const decoded = {
