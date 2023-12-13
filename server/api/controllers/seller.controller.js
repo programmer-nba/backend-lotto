@@ -80,7 +80,7 @@ exports.editMyProfile = async (req, res)=> {
         const seller = await Seller.findByIdAndUpdate(userId, {
             address: newAddress,
             shop_name: new_shop_name,
-            shop_phone: new_shop_number,
+            shop_number: new_shop_number,
             phone_number: new_phone_number,
 
             // img
