@@ -1,6 +1,7 @@
 // import database
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
+const Order = require('../models/Orders/Order.model.js')
 
 // get my all lotteries data
 exports.getMyLottos = async (req, res) => {
@@ -12,7 +13,7 @@ exports.getMyLottos = async (req, res) => {
                     {seller_id: userId},
                     //{buyer_id: userId},
                 ],
-                cut_stock: false
+                
             }
         ).populate('seller_id', 'shop_img, shop_cover')
 
@@ -364,7 +365,7 @@ exports.getTargetShop = async (req, res) => {
 
 exports.cutStocks = async (req, res) => {
     const sellerId = req.user.id
-    const {lottos_code} = req.body 
+    const {lottos_code, text='-', price=0} = req.body 
     try {
         const lottos = await Lotto.find(
             {
@@ -386,10 +387,27 @@ exports.cutStocks = async (req, res) => {
         }
 
         const cutStock_lottos = lottos.map( async (lotto) => {
+            console.log(lotto._id)
+            const prev_info = await Order.find({
+                lotto_id:{$in:lotto._id}
+                })
+                .populate('buyer', 'role')
+                console.log(prev_info)
+            let sold_price = 
+                (prev_info.status==='ชำระแล้ว' || prev_info.status==='สำเร็จ' && prev_info.buyer.role==='seller') ? prev_info.price.total_wholesale
+                :
+                (prev_info.status==='ชำระแล้ว' || prev_info.status==='สำเร็จ' && prev_info.buyer===null) ? prev_info.price.total_retail
+                : 
+                price
             const cutStock_lotto = await Lotto.findByIdAndUpdate(lotto._id,
                 {
                     $set: {
-                        cut_stock: true
+                        cut_stock: true,
+                        sold: true,
+                        sold_data: {
+                            descript: text,
+                            price: sold_price
+                        }
                     }
                 },
                 {new: true}
