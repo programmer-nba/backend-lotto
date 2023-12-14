@@ -59,11 +59,11 @@ exports.editMyProfile = async (req, res)=> {
 
         const { address, shop_name, shop_number, phone_number } = req.body
         
-        const new_province = (address.province!=='') ? address.province : prev_info.address.province
-        const new_district = (address.district!=='') ? address.district : prev_info.address.district
-        const new_subdistrict = (address.subdistrict!=='') ? address.subdistrict : prev_info.address.subdistrict
-        const new_postcode = (address.postcode!=='') ? address.postcode : prev_info.address.postcode
-        const new_address = (address.address!=='') ? address.address : prev_info.address.address
+        const new_province = (address&&address.province!=='') ? address.province : prev_info.address.province
+        const new_district = (address&&address.district!=='') ? address.district : prev_info.address.district
+        const new_subdistrict = (address&&address.subdistrict!=='') ? address.subdistrict : prev_info.address.subdistrict
+        const new_postcode = (address&&address.postcode!=='') ? address.postcode : prev_info.address.postcode
+        const new_address = (address&&address.address!=='') ? address.address : prev_info.address.address
 
         const newAddress = {
             province: new_province,
