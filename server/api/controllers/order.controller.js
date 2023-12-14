@@ -491,6 +491,9 @@ exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
         const userName = req.user.name
+        const {discount_text, discount_amount} = req.body
+
+        const prev_info = await Order.findById(id)
 
         const accept_order = await Order.findOneAndUpdate(
             {_id:id, status:'ใหม่'}, 
@@ -501,6 +504,14 @@ exports.acceptOrder = async (req, res) => {
                         seller: `รอลูกค้าชำระเงิน`,
                         buyer: `กรุณาชำระเงิน`,
                     },
+                    discount: {
+                        text: discount_text || 'ไม่มีส่วนลด',
+                        amount: discount_amount || 0
+                    },
+                    price: {
+                        total_retail: prev_info.price.total_retail-discount_amount,   
+                        total_wholesale: prev_info.price.total_wholesale-discount_amount     
+                    }
                 },
                 $push:{
                     statusHis:{

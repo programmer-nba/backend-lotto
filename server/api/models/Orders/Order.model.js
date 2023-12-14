@@ -55,6 +55,11 @@ const orderSchema = new Schema(
 
         paid_slip: String, // สลิปโอนเงิน
         receipt: String, // ใบเสร็จรับเงิน
+
+        discount: {
+            text: String,
+            amount: Number
+        }
     },
     {
         timestamps: true
