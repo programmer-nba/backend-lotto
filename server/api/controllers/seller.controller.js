@@ -103,7 +103,7 @@ exports.editMyProfile = async (req, res)=> {
         })
     }
     catch(err){
-        res.send('ERROR : please check console')
+        res.send(err.message)
         console.log({ERROR:err.message})
     }
 }
