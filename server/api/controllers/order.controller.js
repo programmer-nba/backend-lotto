@@ -527,7 +527,7 @@ exports.acceptOrder = async (req, res) => {
             return res.send('order not found or already accepted')
         }
 
-        timeOut(id, 900)
+        timeOut(id, 15000)
         
         return res.send({
             message: `ร้านค้ารับออร์เดอร์แล้ว...กำลังจัดเตรียมฉลาก`,
@@ -536,7 +536,7 @@ exports.acceptOrder = async (req, res) => {
 
     }
     catch(err){
-        res.send(`ERROR! can not accept order : ${err.message}`)
+        res.send(`ERROR! can not accept order: ${err.message}`)
         console.log(err.message)
     }
 }
