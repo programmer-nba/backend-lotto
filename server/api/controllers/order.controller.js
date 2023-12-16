@@ -509,8 +509,8 @@ exports.acceptOrder = async (req, res) => {
                         amount: discount_amount || 0
                     },
                     price: {
-                        total_retail: prev_info.price.total_retail-discount_amount,   
-                        total_wholesale: prev_info.price.total_wholesale-discount_amount     
+                        total_retail: prev_info.price.total_retail, //-discount_amount
+                        total_wholesale: prev_info.price.total_wholesale //-discount_amount 
                     }
                 },
                 $push:{
