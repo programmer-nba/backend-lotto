@@ -536,7 +536,7 @@ exports.acceptOrder = async (req, res) => {
 
     }
     catch(err){
-        res.send('ERROR! can not accept order')
+        res.send(`ERROR! can not accept order : ${err.message}`)
         console.log(err.message)
     }
 }
