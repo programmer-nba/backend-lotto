@@ -44,6 +44,10 @@ const lottoSchema = new Schema(
                 service: Number
             },
         },
+        discount: {
+            type: Number,
+            default: 0
+        },
         profit: Number, // กำไร
         totlal_profit: Number, // กำไรรวมทั้งชุด
         sold: {

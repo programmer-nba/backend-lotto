@@ -34,10 +34,6 @@ const orderSchema = new Schema(
             msg: String
         }, // ข้อความ
 
-        /* lottos_price: Number, // ราคาสินค้ารวมในออร์เดอร์
-        transfer_cost: Number, // ค่าจัดส่ง
-        total_price: Number, // ราคามรวมทั้งออร์เดอร์ */
-
         paid: Boolean,
         bill_no: String,
         price: {
