@@ -491,7 +491,7 @@ exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
         const userName = req.user.name
-        const {discount_text, discount_amount} = req.body
+        const {discount_text='-', discount_amount=0} = req.body
 
         const prev_info = await Order.findById(id)
 

@@ -26,7 +26,14 @@ route.delete('/products/deleteall', verifyToken, lottos.deleteMyLottos)
 route.get('/target-shop/:id', verifyToken, lottos.getTargetShop)
 
 route.post('/products/cut-stocks', verifyToken, lottos.cutStocks)
+route.post('/products/cut-stocks-front', verifyToken, lottos.cutStocksFront)
 route.get('/products/cut-stocks', verifyToken, lottos.getCuttedStokLottos)
+
+route.post('/products/discount/:id', lottos.addDiscount)
+route.put('/products/discount/:id', lottos.editDiscount)
+route.delete('/products/discount/:id', lottos.deleteDiscount)
+route.get('/products/discounts', lottos.getDiscounts)
+route.get('/products/discount/:id', lottos.getDiscount)
 
 
 

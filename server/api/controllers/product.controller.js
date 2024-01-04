@@ -2,6 +2,7 @@
 const Lotto = require('../models/Products/lotto.model.js')
 const Seller = require('../models/UsersModel/SellersModel.js')
 const Order = require('../models/Orders/Order.model.js')
+const Discount = require('../models/Products/discount.model.js')
 
 // get my all lotteries data
 exports.getMyLottos = async (req, res) => {
@@ -365,7 +366,7 @@ exports.getTargetShop = async (req, res) => {
 
 exports.cutStocks = async (req, res) => {
     const sellerId = req.user.id
-    const {lottos_code, text='-', price=0} = req.body 
+    const {lottos_code, text='-'} = req.body 
     try {
         const lottos = await Lotto.find(
             {
@@ -387,24 +388,22 @@ exports.cutStocks = async (req, res) => {
         }
 
         const cutStock_lottos = lottos.map( async (lotto) => {
-            console.log(lotto._id)
             const prev_info = await Order.find({
                 lotto_id:{$in:lotto._id}
                 })
                 .populate('buyer', 'role')
                 console.log(prev_info)
             let sold_price = 
-                (prev_info.status==='ชำระแล้ว' || prev_info.status==='สำเร็จ' && prev_info.buyer.role==='seller') ? prev_info.price.total_wholesale
-                :
-                (prev_info.status==='ชำระแล้ว' || prev_info.status==='สำเร็จ' && prev_info.buyer===null) ? prev_info.price.total_retail
-                : 
-                price
+                (prev_info.buyer.role==='seller') ? prev_info.price.total_wholesale
+                : prev_info.price.total_retail
+                
             const cutStock_lotto = await Lotto.findByIdAndUpdate(lotto._id,
                 {
                     $set: {
                         cut_stock: true,
                         sold: true,
                         sold_data: {
+                            channel: 'ออนไลน์',
                             descript: text,
                             price: sold_price
                         }
@@ -415,6 +414,69 @@ exports.cutStocks = async (req, res) => {
             if(!cutStock_lotto) {
                 return 'ไม่พบ'
             }
+
+            return cutStock_lotto
+        })
+
+        const stockCutted = await Promise.all(cutStock_lottos)
+
+        return res.send(stockCutted)
+    }
+    catch (err) {
+        console.log('ERROR can not cut stock', err.message)
+        res.send(err.message)
+    }
+}
+
+exports.cutStocksFront = async (req, res) => {
+    const sellerId = req.user.id
+    const {lottos_code, text='-', price} = req.body 
+    try {
+        const lottos = await Lotto.find(
+            {
+                code: {
+                    $elemMatch: {
+                        $in: lottos_code
+                    }
+                },
+                cut_stock: false,
+                seller_id: sellerId
+            }
+        )
+
+        if(!lottos || lottos.length===0) {
+            return res.send({
+                message: 'ไม่พบหวย',
+                lottos: []
+            })
+        }
+
+        const cutStock_lottos = lottos.map( async (lotto) => {
+            const prev_info = await Order.find({
+                lotto_id:{$in:lotto._id}
+                })
+                .populate('buyer', 'role')
+                console.log(prev_info)
+            let sold_price = price
+                
+            const cutStock_lotto = await Lotto.findByIdAndUpdate(lotto._id,
+                {
+                    $set: {
+                        cut_stock: true,
+                        sold: true,
+                        sold_data: {
+                            channel: 'หน้าร้าน',
+                            descript: text,
+                            price: sold_price
+                        }
+                    }
+                },
+                {new: true}
+            )
+            if(!cutStock_lotto) {
+                return 'ไม่พบ'
+            }
+
             return cutStock_lotto
         })
 
@@ -446,9 +508,39 @@ exports.getCuttedStokLottos = async (req, res) => {
             )
         }
 
+        const lottos = cutted_lottos.map(async item => {
+            try {
+                let discount = 0
+                const discountData = await Discount.findOne({ lotto: item._id })
+                if(discountData){
+                    discount = discountData.amount
+                } else {
+                    discount = 0
+                }
+                const lottoData = item.toObject({ virtuals: true })
+    
+                const lotto = {...lottoData, discount:discount}
+    
+                return lotto
+            }
+            catch(err){
+                return res.send({
+                    message: 'can not promise all'
+                })
+            }
+        })
+        console.log(lottos)
+        const ok_lottos = await Promise.all(lottos)
+        if(!ok_lottos){
+            return res.send({
+                message: 'can not promise all'
+            })
+        }
+        
+
         return res.send({
-            message: `หวยที่ตัดสต๊อกแล้ว ${cutted_lottos.length} ชุด`,
-            lottos: cutted_lottos
+            message: `หวยที่ตัดสต๊อกแล้ว ${lottos.length} ชุด`,
+            lottos: ok_lottos
         })
     }
     catch (err) {
@@ -456,3 +548,164 @@ exports.getCuttedStokLottos = async (req, res) => {
         console.log(err.message)
     }
 }
+
+
+//----------------------//
+//       Discount       //
+//-------↓ ↓ ↓ ↓ -------//
+
+// create new discount (POST)
+exports.addDiscount = async ( req, res ) => {
+    const { id } = req.params
+    const { amount, code } = req.body
+    try {
+        const order = await Order.findOne({
+            lotto_id: {
+                $in: [id]
+            }
+        })
+        const new_discount = new Discount({
+            code: code,
+            lotto: id,
+            amount: (code==='order' && order) ? amount/order.lotto_id.length : amount
+        })
+        const saved_discount = await new_discount.save()
+        if(!saved_discount) {
+            return res.send({
+                message: 'can not save discount!',
+                discount: saved_discount
+            })
+        }
+
+        return res.send({
+            message: 'create discount SUCCESS!',
+            success: true,
+            discount: saved_discount
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            message: 'add Discount error!',
+            err: err.message
+        })
+        console.log(err)
+    }
+}
+
+// edit discount (PUT)
+exports.editDiscount = async ( req, res ) => {
+    const { id } = req.params
+    const { amount } = req.body
+    try {
+
+        const edited_discount = await Discount.findByIdAndUpdate(id,
+            {
+                amount: amount
+            },
+            {
+                new: true
+            }
+        )
+        if(!edited_discount) {
+            return res.send({
+                message: 'can not edit discount!',
+                discount: edited_discount
+            })
+        }
+
+        return res.send({
+            message: 'edit discount SUCCESS!',
+            success: true,
+            discount: edited_discount
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            message: 'edit Discount error!',
+            err: err.message
+        })
+        console.log(err)
+    }
+}
+
+// delete discount (DELETE)
+exports.deleteDiscount = async ( req, res ) => {
+    const { id } = req.params
+    try {
+
+        const deleted_discount = await Discount.findByIdAndDelete(id)
+        if(!deleted_discount) {
+            return res.send({
+                message: 'can not delete discount!',
+                discount: deleted_discount
+            })
+        }
+
+        return res.send({
+            message: 'delete discount SUCCESS!',
+            success: true
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            message: 'delete Discount error!',
+            err: err.message
+        })
+        console.log(err)
+    }
+}
+
+// get all discounts (GET)
+exports.getDiscounts = async ( req, res ) => {
+    try {
+
+        const discounts = await Discount.find()
+        if(!discounts || discounts.length===0) {
+            return res.send({
+                message: 'no any discount !',
+                discount: discounts || []
+            })
+        }
+
+        return res.send({
+            message: `Have discounts ${discounts.length}`,
+            success: true,
+            discounts: discounts
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            message: 'get all Discounts error!',
+            err: err.message
+        })
+        console.log(err)
+    }
+}
+
+// get a discount (GET)
+exports.getDiscount = async ( req, res ) => {
+    const { id } = req.params
+    try {
+
+        const discount = await Discount.findById(id)
+        if(!discount) {
+            return res.send({
+                message: 'this discount not found !',
+                discount: discount
+            })
+        }
+
+        return res.send({
+            discount: discount,
+            success: true
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            message: 'get Discount error!',
+            err: err.message
+        })
+        console.log(err)
+    }
+}
+
