@@ -376,6 +376,8 @@ exports.cutStocks = async (req, res) => {
                     }
                 },
                 cut_stock: false,
+                on_order: true,
+                sold_:true,
                 seller_id: sellerId
             }
         )
