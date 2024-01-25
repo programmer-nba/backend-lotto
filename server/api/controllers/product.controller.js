@@ -377,7 +377,7 @@ exports.cutStocks = async (req, res) => {
                 },
                 cut_stock: false,
                 on_order: true,
-                sold_:true,
+                sold:true,
                 seller_id: sellerId
             }
         )
@@ -396,8 +396,9 @@ exports.cutStocks = async (req, res) => {
                 .populate('buyer', 'role')
                 console.log(prev_info)
             let sold_price = 
-                (prev_info.buyer.role==='seller') ? prev_info.price.total_wholesale
-                : prev_info.price.total_retail
+                (prev_info.buyer && prev_info.buyer?.role==='seller') ? prev_info.price?.total_wholesale
+                : (!prev_info.buyer && prev_info.seller?.role==='seller') ? prev_info.price?.total_wholesale
+                : prev_info.price?.total_retail
                 
             const cutStock_lotto = await Lotto.findByIdAndUpdate(lotto._id,
                 {

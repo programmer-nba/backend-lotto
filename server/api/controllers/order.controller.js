@@ -565,7 +565,6 @@ exports.acceptOrder = async (req, res) => {
     try {
         const {id} = req.params
         const userName = req.user.name
-        const {discount_text='-', discount_amount=0} = req.body
 
         const prev_info = await Order.findById(id)
 
@@ -574,18 +573,6 @@ exports.acceptOrder = async (req, res) => {
             {
                 $set:{
                     status:'ยืนยัน', 
-                    detail:{
-                        seller: `รอลูกค้าชำระเงิน`,
-                        buyer: `กรุณาชำระเงิน`,
-                    },
-                    discount: {
-                        text: discount_text || 'ไม่มีส่วนลด',
-                        amount: discount_amount || 0
-                    },
-                    price: {
-                        total_retail: prev_info.price.total_retail, //-discount_amount
-                        total_wholesale: prev_info.price.total_wholesale //-discount_amount 
-                    }
                 },
                 $push:{
                     statusHis:{
@@ -634,10 +621,6 @@ exports.payment = async (req, res) => {
             $set:{
                 paid_slip:slip_img_link,
                 status: 'ตรวจสอบยอด',
-                detail:{
-                    seller: 'รอตรวจสอบยอด',
-                    buyer: 'รอตรวจสอบยอด'
-                }
             },
             $push:{
                 statusHis:{
@@ -674,10 +657,6 @@ exports.receipt = async (req, res) => {
             {
                 $set:{
                     status:'ชำระแล้ว', 
-                    detail:{
-                        seller: 'รอลูกค้ารับฉลาก',
-                        buyer: 'กรุณารับฉลากที่ร้านค้า'
-                    },
                     bill_no:bill_no
                 },
                 $push:{
@@ -723,7 +702,6 @@ exports.doneOrder = async (req, res) => {
             $set:{
                 status:'สำเร็จ', 
                 detail:{
-                    seller: seller_text,
                     buyer: buyer_text
                 }
             },
@@ -810,7 +788,12 @@ exports.orderReceipt = async (req, res) => {
                 taxId: order.buyer.personal_id, // เลขประจำตัวผู้เสียภาษีของผู้ซื้อ
             },
             lotto: lotto_list, // รายละเอียดฉลากที่ซื้อแต่ละรายการ
-            order: order,
+            order: {
+                amount: order.lotto_id.length, // จำนวนรายการชุดฉลากที่ซื้อ
+                bill_no: order.bill_no, // เลขที่ใบเสร็จ
+                order_no: order.order_no, // หมายเลขออร์เดอร์
+                price: order.price // ราคารวมสุทธิ
+            },
             date: order.createdAt // วันที่สั่งออร์เดอร์
         }
 
