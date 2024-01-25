@@ -23,6 +23,7 @@ route.put('/accept-order/:id', verifyToken, orders.acceptOrder)
 route.get('/get-myorders', verifyToken, orders.getMyOrders)
 /* route.put('/ready-order/:id', verifyToken, orders.readyOrder) */
 route.put('/receipt-order/:id', verifyToken, orders.receipt)
+route.put('/discount/:id', verifyToken, orders.addDiscount)
 
 // ทุกคน
 route.put('/cancle-order/:id', verifyToken, orders.cancleOrder)

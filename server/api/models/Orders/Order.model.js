@@ -28,9 +28,10 @@ const orderSchema = new Schema(
         transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง
        
         detail: {
-            seller: String,
+            //seller: String,
             buyer: String,
-            msg: String
+            msg: String,
+            market: String,
         }, // ข้อความ
 
         paid: Boolean,
@@ -45,16 +46,20 @@ const orderSchema = new Schema(
             wholesale_service: Number, // ค่าบริการจัดหาฉลาก = total - transfer - all_lottos
             transfer: Number, // ค่าส่ง
             total_retail: Number, // ราคารวมทั้งหมด
-            total_wholesale: Number // ราคารวมทั้งหมด
+            total_wholesale: Number, // ราคารวมทั้งหมด
+            discount: {
+                text: String,
+                amount: Number
+            }
+        },
+
+        price_request: {
+            amount: Number,
+            msg: String
         },
 
         paid_slip: String, // สลิปโอนเงิน
         receipt: String, // ใบเสร็จรับเงิน
-
-        discount: {
-            text: String,
-            amount: Number
-        }
     },
     {
         timestamps: true

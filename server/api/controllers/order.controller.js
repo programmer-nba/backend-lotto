@@ -276,7 +276,6 @@ exports.getOrder = async (req, res) => {
             order = await Order.findById(id).populate('buyer').populate('seller')
         }
         
-
         return res.send({
             message: 'get order success',
             order
@@ -293,7 +292,7 @@ exports.getOrder = async (req, res) => {
 // "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
-        const {lotto_id, transfer} = req.body
+        const { lotto_id, transfer, msg, market, price_request, buyer_front } = req.body
         const buyer_id = req.user.id
         const buyer_name = req.user.name
     
@@ -342,8 +341,8 @@ exports.createOrder = async (req, res) => {
 
         const order_no = await genOrderNo(lotto_id[0])
 
-        const seller_text = 'คุณมีออร์เดอร์ใหม่'
-        const buyer_text = 'กรุณารอร้านค้ายืนยัน'
+        //const seller_text = 'คุณมีออร์เดอร์ใหม่'
+        //const buyer_text = 'กรุณารอร้านค้ายืนยัน'
 
         const amount = lottos.map((item)=>{
             return item.pcs
@@ -363,12 +362,14 @@ exports.createOrder = async (req, res) => {
 
         const new_order = {
             lotto_id: lottos,
-            buyer: buyer_id,
+            buyer: buyer_id || seller_id,
             seller: seller_id,
             status: 'ใหม่',
             detail: {
-                seller: seller_text,
-                buyer: buyer_text
+                //seller: seller_text,
+                buyer: buyer_front,
+                msg: msg,
+                market: market
             },
 
             order_no: order_no,
@@ -381,8 +382,17 @@ exports.createOrder = async (req, res) => {
                 wholesale_service: wholesale_service,
                 transfer: transfer_cost, // ค่าส่ง
                 total_retail: total_retail_prices, // ราคารวมทั้งหมด
-                total_wholesale: total_wholesale_prices // ราคารวมทั้งหมด
+                total_wholesale: total_wholesale_prices, // ราคารวมทั้งหมด
+                discount: {
+                    text: 'ไม่มีส่วนลด',
+                    amount: 0
+                }
             },
+
+            price_request: (price_request) ? {
+                amount: price_request?.amount || null,
+                msg: price_request?.msg || null
+            } : null,
 
             statusHis: {
                 name: buyer_name,
@@ -419,6 +429,70 @@ exports.createOrder = async (req, res) => {
     catch(err){
         res.send(`Error creating order: ${err.message}`)
         console.log(err.message)
+    }
+}
+
+exports.addDiscount = async (req,res) => {
+    const { id } = req.params
+    const { discount_text, discount_amount } = req.body
+    const userName = req.user.name
+    try {
+        const order = await Order.findByIdAndUpdate(id,
+            {
+                $set: {
+                    'price.discount.text': discount_text,
+                    'price.discount.amount': discount_amount
+                },
+                $push: {
+                    statusHis: {
+                        name: userName,
+                        status: 'เพิ่มส่วนลด',
+                        timeAt: new Date() 
+                    },
+                }
+            },
+            {
+                new :true
+            }
+        )
+        if(!order){
+            return res.send({
+                message: 'ไม่พบ id order นี้',
+                order : order
+            })
+        }
+
+        return res.send({
+            message: 'ลดราคาสำเร็จ',
+            order: order
+        })
+    }
+    catch(err){
+        console.log(err)
+        return res.send({
+            message: err.message
+        })
+    }
+}
+
+exports.addDiscountByItem = async (req, res) => {
+    const { id } = req.params
+    const { lotto_list } = req.body
+    try {
+        let order = await Order.findById( id )
+        if(!order){
+            return res.send({
+                message: 'ไม่พบออร์เดอร์นี้',
+                order: order
+            })
+        }
+        
+    }
+    catch (err) {
+        console.log(err)
+        return res.send({
+            message: err.message
+        })
     }
 }
 
