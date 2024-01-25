@@ -486,7 +486,7 @@ exports.addDiscountByItem = async (req, res) => {
                 order: order
             })
         }
-        
+
     }
     catch (err) {
         console.log(err)
@@ -752,7 +752,7 @@ exports.doneOrder = async (req, res) => {
 
 // Bill
 exports.orderReceipt = async (req, res) => {
-    const {id} = req.params
+    const { id } = req.params
 
     try {
 
@@ -810,12 +810,7 @@ exports.orderReceipt = async (req, res) => {
                 taxId: order.buyer.personal_id, // เลขประจำตัวผู้เสียภาษีของผู้ซื้อ
             },
             lotto: lotto_list, // รายละเอียดฉลากที่ซื้อแต่ละรายการ
-            order: {
-                amount: order.lotto_id.length, // จำนวนรายการชุดฉลากที่ซื้อ
-                bill_no: order.bill_no, // เลขที่ใบเสร็จ
-                order_no: order.order_no, // หมายเลขออร์เดอร์
-                price: order.price // ราคารวมสุทธิ
-            },
+            order: order,
             date: order.createdAt // วันที่สั่งออร์เดอร์
         }
 
