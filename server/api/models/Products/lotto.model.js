@@ -37,11 +37,13 @@ const lottoSchema = new Schema(
         prices: {
             wholesale: {
                 total: Number,
-                service: Number
+                service: Number,
+                profit: Number
             },
             retail: {
                 total: Number,
-                service: Number
+                service: Number,
+                profit: Number
             },
         },
         profit: Number, // กำไร

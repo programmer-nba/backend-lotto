@@ -51,7 +51,6 @@ exports.addLottos = async (req, res)=>{
             retail, // boolean
             wholesale, // boolean
             amount, // จำนวนชุด, ใบ
-            row
         } = req.body
 
         const seller = await Seller.findById(userId)
@@ -80,7 +79,7 @@ exports.addLottos = async (req, res)=>{
         const pcs =
             (type==='หวยเล่ม') ? 100 :
             (type==='หวยก้อน') ? amount*100 :
-            (type==='หวยแถว') ? amount*row :
+            (type==='หวยแถว') ? amount*code.length :
             amount
 
         let prices = 
@@ -173,18 +172,20 @@ exports.addLottos = async (req, res)=>{
                     prices: {
                         wholesale: {
                             total: wholesale_price || null, // ราคารวมทั้งหมด
-                            service: wholesale_price - (80*pcs) || null
+                            service: wholesale_price - (80*pcs) || null,
+                            profit: wholesale_price-cost
                         },
                         retail: {
                             total: retail_price || null,
-                            service: retail_price - (80*pcs) || null
+                            service: retail_price - (80*pcs) || null,
+                            profit: wholesale_price-cost
                         },
                     },
                     profit: prices-cost, // กำไร
                     market: market, // ตลาดที่หวยชุดนี้ลงขาย
                     pcs: pcs, // จำนวนหวย (ใบ)
                     on_order: false, // 
-                    text: `${type} ชุด ${amount} ใบ  ${row} ชุด`
+                    text: `${type} ชุด ${amount} ใบ ${code.length} ชุด`
                 }
 
             const lotto = await Lotto.create(newLotto)
@@ -194,6 +195,8 @@ exports.addLottos = async (req, res)=>{
                     success: false
                 })
             }
+
+            newLottos.push(lotto)
         }
         
         return res.send({
