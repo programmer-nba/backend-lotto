@@ -89,7 +89,7 @@ exports.addLottos = async (req, res)=>{
         let newLottos = []
 
         if(type!=='หวยแถว'){
-            for(i of code) {
+            /* for(i of code) {
     
                 const decoded_list = i.split('-') // 0 1 2 3 4
                 const decoded = {
@@ -139,8 +139,47 @@ exports.addLottos = async (req, res)=>{
     
                 newLottos.push(lotto)
     
-            }
-    
+            } */
+            const newLottos = code.map((i) => {
+                const decoded_list = i.split('-');
+                const decoded = {
+                    year: decoded_list[0],
+                    period: decoded_list[1],
+                    set: decoded_list[2],
+                    six_number: decoded_list[3],
+                    book: decoded_list[4],
+                };
+            
+                return {
+                    seller_id: userId,
+                    shopname: shopname,
+                    date: date,
+                    type: type,
+                    code: i,
+                    decoded: decoded,
+                    unit: unit,
+                    amount: amount,
+                    cost: cost,
+                    price: prices,
+                    prices: {
+                        wholesale: {
+                            total: wholesale_price || null,
+                            service: wholesale_price - 80 * pcs || null,
+                        },
+                        retail: {
+                            total: retail_price || null,
+                            service: retail_price - 80 * pcs || null,
+                        },
+                    },
+                    profit: prices - cost,
+                    market: market,
+                    pcs: pcs,
+                    on_order: false,
+                    text: `${type} ${amount} ${unit}`,
+                };
+            });
+            
+            newLottos = await Lotto.insertMany(newLottos);
         }
         
         if(type==='หวยแถว') {
