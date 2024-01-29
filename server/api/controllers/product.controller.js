@@ -194,7 +194,6 @@ exports.addLottos = async (req, res)=>{
         }
         
         if(type==='หวยแถว') {
-            
             const decodeds = code.map((item)=>{
                 const decoded = item.split('-') // 0 1 2 3 4
                 const decoded_list = {

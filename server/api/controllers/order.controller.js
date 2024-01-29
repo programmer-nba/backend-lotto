@@ -341,9 +341,6 @@ exports.createOrder = async (req, res) => {
 
         const order_no = await genOrderNo(lotto_id[0])
 
-        //const seller_text = 'คุณมีออร์เดอร์ใหม่'
-        //const buyer_text = 'กรุณารอร้านค้ายืนยัน'
-
         const amount = lottos.map((item)=>{
             return item.pcs
         })
@@ -366,7 +363,6 @@ exports.createOrder = async (req, res) => {
             seller: seller_id,
             status: 'ใหม่',
             detail: {
-                //seller: seller_text,
                 buyer: buyer_front,
                 msg: msg,
                 market: market
@@ -407,11 +403,18 @@ exports.createOrder = async (req, res) => {
             return res.send('order not created')
         }
         
-        for(i in lotto_id){
+        /* for(i in lotto_id){
             await Lotto.findByIdAndUpdate(lotto_id[i], {on_order: true})
             .then(()=>console.log('updated lotto status'))
             .catch(()=>res.send('lotto not found'))
-        }
+        } */
+
+        await Lotto.updateMany(
+            { _id: { $in: lotto_id } },
+            { $set: { on_order: true } }
+        )
+        .then(()=>console.log('updated lotto status'))
+        .catch(()=>res.send('lotto not found'))
 
         return res.send({
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
@@ -423,6 +426,7 @@ exports.createOrder = async (req, res) => {
             seller_id: seller_id,
             order_start: order.createdAt,
             lottos_price: order.price,
+            request: order.price_request
         })
         
     }
@@ -691,19 +695,13 @@ exports.receipt = async (req, res) => {
 // "ขายปลีก" รับของเรียบร้อย 
 exports.doneOrder = async (req, res) => {
     try{
-        const {id} = req.params
+        const { id } = req.params
         const userName = req.user.name
-
-        const seller_text = 'ออร์เดอร์สำเร็จ ลูกค้าได้รับฉลากแล้ว'
-        const buyer_text = 'ออร์เดอร์สำเร็จ คุณได้รับฉลากแล้ว'
 
         const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระแล้ว'}, 
         {
             $set:{
-                status:'สำเร็จ', 
-                detail:{
-                    buyer: buyer_text
-                }
+                status:'สำเร็จ'
             },
             $push:{
                 statusHis:{
