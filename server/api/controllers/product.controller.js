@@ -55,6 +55,15 @@ exports.addLottos = async (req, res)=>{
 
         const seller = await Seller.findById(userId)
         const shopname = seller.shop_name
+
+        /* check and delete duplicate lotto */
+        const condition = { 
+            code: { $elemMatch: { $in: code } },
+            type: type,
+            seller_id: userId
+        };
+        const deleted = await Lotto.deleteMany(condition);
+        console.log(deleted.deletedCount)
     
         const unit = 
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
@@ -86,7 +95,7 @@ exports.addLottos = async (req, res)=>{
          (market === "retail") ? retail_price || price :
          (market === "wholesale") ? wholesale_price : retail_price
 
-        let newLottos = []
+        let newLottoss = []
 
         if(type!=='หวยแถว'){
             /* for(i of code) {
@@ -165,10 +174,12 @@ exports.addLottos = async (req, res)=>{
                         wholesale: {
                             total: wholesale_price || null,
                             service: wholesale_price - 80 * pcs || null,
+                            profit: wholesale_price-cost
                         },
                         retail: {
                             total: retail_price || null,
                             service: retail_price - 80 * pcs || null,
+                            profit: retail_price-cost
                         },
                     },
                     profit: prices - cost,
@@ -179,7 +190,7 @@ exports.addLottos = async (req, res)=>{
                 };
             });
             
-            newLottos = await Lotto.insertMany(newLottos);
+            newLottoss = await Lotto.insertMany(newLottos);
         }
         
         if(type==='หวยแถว') {
@@ -235,13 +246,13 @@ exports.addLottos = async (req, res)=>{
                 })
             }
 
-            newLottos.push(lotto)
+            newLottoss.push(lotto)
         }
         
         return res.send({
             message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${code.length} ${unit} ลงขายในตลาด ${market}`,
             success: true,
-            lotto: newLottos
+            lotto: newLottoss
         })
 
     }
