@@ -7,6 +7,7 @@ const chats = require('../controllers/chat.controller.js')
 // middlewares
 const {upload, uploadPictures} = require('../middleware/drive.js')
 const verifyToken = require('../middleware/verifyToken.js')
+const uploadBuffer = require('../middleware/imgBuffer.js')
 
 // admin
 route.delete('/delete-all', verifyToken, orders.deleteAllOrders)
@@ -32,6 +33,6 @@ route.get('/receipt/:id', verifyToken, orders.orderReceipt)
 
 route.post('/chat/:id', verifyToken, chats.createChat)
 route.get('/chat/:id', verifyToken, chats.getMessages)
-route.put('/chat/:id', verifyToken, chats.sendMessage)
+route.put('/chat/:id', verifyToken, uploadBuffer.single('img'), chats.sendMessage)
 
 module.exports = route

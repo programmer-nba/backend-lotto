@@ -86,9 +86,8 @@ exports.createChat = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
     const {id} = req.params // chat_id
-    console.log(id)
+    const img = req.files
     const {message, sender, date, time} = req.body
-    console.log(req.body)
     try {
         const newMessage = await Chat.findByIdAndUpdate(id, {
             $push: {
@@ -96,7 +95,8 @@ exports.sendMessage = async (req, res) => {
                     sender: sender,
                     message: message,
                     date: date,
-                    time: time
+                    time: time,
+                    img: img
                 }
             }
         }, {new:true})

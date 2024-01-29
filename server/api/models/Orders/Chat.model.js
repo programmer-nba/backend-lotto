@@ -10,7 +10,8 @@ const chatSchema = new Schema(
                 sender: String,
                 message: String,
                 date: String,
-                time: String
+                time: String,
+                img: String
             }
         ],
         members : [
