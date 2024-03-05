@@ -128,7 +128,7 @@ exports.getMyOrders = async (req, res) => {
                     { buyer:myId },
                     { seller:myId }
                 ]
-            })
+            }).populate('buyer').populate('seller')
         }
 
         if (sellerRole==='ขายส่ง') {
@@ -137,7 +137,7 @@ exports.getMyOrders = async (req, res) => {
                     { buyer:myId },
                     { seller:myId }
                 ]
-            })
+            }).populate('buyer').populate('seller')
         }
 
         if(!myOrders || myOrders.length===0){
