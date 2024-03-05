@@ -35,7 +35,6 @@ exports.getMyLottos = async (req, res) => {
 
 // create new lotto set
 exports.addLottos = async (req, res)=>{
-    
     try{
         const userId = req.user.id
         const sellerRole = req.user.seller_role

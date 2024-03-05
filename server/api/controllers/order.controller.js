@@ -122,31 +122,24 @@ exports.getMyOrders = async (req, res) => {
         const sellerRole = req.user.seller_role
 
         let myOrders = null
-        if(sellerRole==='ขายปลีก'){
-            myOrders = await Order.find({seller:myId}).populate('seller').lean()
-            
-            for (const item of myOrders) {
-                const userAsBuyer = await User.findById(item.buyer.toString()).lean()
-                item.buyer = userAsBuyer
-            }
-
-        } 
-
-        myOrders = await Order.find({seller:myId}).populate('seller').lean()
-    
-        for (const item of myOrders) {
-            const userAsBuyer = await User.findById(item.buyer.toString()).lean()
-            if(userAsBuyer) {
-                item.buyer = userAsBuyer
-            } else {
-                const retailAsBuyer = await Seller.findById(item.buyer.toString()).lean()
-                if(retailAsBuyer) {
-                    item.buyer = retailAsBuyer
-                }
-            }
-            
+        if (sellerRole==='ขายปลีก') {
+            myOrders = await Order.find({
+                $or : [
+                    { buyer:myId },
+                    { seller:myId }
+                ]
+            })
         }
-                
+
+        if (sellerRole==='ขายส่ง') {
+            myOrders = await Order.find({
+                $or : [
+                    { buyer:myId },
+                    { seller:myId }
+                ]
+            })
+        }
+
         if(!myOrders || myOrders.length===0){
             return res.send({
                 message: 'ไม่มีออร์เดอร์ในตอนนี้',
@@ -164,7 +157,7 @@ exports.getMyOrders = async (req, res) => {
         
     }
     catch(error){
-        res.send('ERROR con not get my orders')
+        return res.send('ERROR con not get my orders')
         console.log(error.message)
     }
 }
