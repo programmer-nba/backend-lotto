@@ -108,6 +108,34 @@ exports.editMyProfile = async (req, res)=> {
     }
 }
 
+exports.shopDetail = async (req, res) => {
+    const { id } = req.params
+    try {
+        const shop = await Seller.findById(id)
+        if(!shop) {
+            return res.status(404).json({
+                message: 'not found shop',
+                success: false,
+                data: null
+            })
+        }
+
+        return res.status(200).json({
+            message: 'founded',
+            success: true,
+            data: shop
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: err.message,
+            success: false,
+            data: null
+        })
+    }
+}
+
 // shop data & report
 exports.shopData = async (req, res) => {
     const userRole = req.user.role

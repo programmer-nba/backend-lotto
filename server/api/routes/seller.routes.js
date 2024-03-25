@@ -13,6 +13,7 @@ const dateCheck = require('../middleware/dateCheck.js')
 // Routes of seller role
 route.put('/edit', verifyToken, upload.any(), uploadPictures, sellers.editMyProfile)
 route.get('/report', verifyToken, dateCheck, sellers.shopData)
+route.get('/detail/:id', verifyToken, dateCheck, sellers.shopDetail)
 
 route.get('/products/getone', verifyToken, lottos.getCurrentLotto)
 route.put('/products/edit', verifyToken, lottos.editCurrentLotto)
