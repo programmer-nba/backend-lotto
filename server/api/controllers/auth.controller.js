@@ -75,7 +75,11 @@ exports.sellerRegister = async (req, res)=>{
     const {
         password, seller_role, line_id, email,
         name, phone_number, personal_id,
-        shop_name, shop_location, address, shop_number
+        shop_name, shop_location, address, shop_number,
+        bank_number,
+        bank_type,
+        prompt_pay,
+        bank_owner
     } = req.body
 
     try{
@@ -108,6 +112,11 @@ exports.sellerRegister = async (req, res)=>{
                     role : `seller`,
                     seller_role: seller_role,
                     status: `กำลังตรวจสอบ`,
+
+                    bank_number: bank_number,
+                    bank_type: bank_type,
+                    prompt_pay: prompt_pay,
+                    bank_owner: bank_owner,
 
                     // for update
                     email,

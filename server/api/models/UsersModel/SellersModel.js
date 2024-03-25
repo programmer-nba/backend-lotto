@@ -45,6 +45,11 @@ const SellerSchema = new Schema(
             
         },
 
+        bank_number: String,
+        bank_type: String,
+        prompt_pay: String,
+        bank_owner: String,
+
         // shop profile
         shop_name: {
             type: String,

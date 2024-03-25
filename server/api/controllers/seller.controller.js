@@ -56,8 +56,12 @@ exports.editMyProfile = async (req, res)=> {
             : prev_info.personWithShop
 
     try{
-
-        const { address, shop_name, shop_number, phone_number } = req.body
+        const { address, shop_name, shop_number, phone_number,
+            bank_number,
+            bank_type,
+            prompt_pay,
+            bank_owner
+        } = req.body
         
         const new_province = (address&&address.province!=='') ? address.province : prev_info.address.province
         const new_district = (address&&address.district!=='') ? address.district : prev_info.address.district
@@ -82,6 +86,11 @@ exports.editMyProfile = async (req, res)=> {
             shop_name: new_shop_name,
             shop_number: new_shop_number,
             phone_number: new_phone_number,
+
+            bank_number: bank_number,
+            bank_type: bank_type,
+            prompt_pay: prompt_pay,
+            bank_owner: bank_owner,
 
             // img
             personal_img : personal_img_link,
