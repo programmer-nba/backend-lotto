@@ -419,7 +419,8 @@ exports.createOrder = async (req, res) => {
             seller_id: seller_id,
             order_start: order.createdAt,
             lottos_price: order.price,
-            request: order.price_request
+            request: order.price_request,
+            order_no: order.order_no
         })
         
     }

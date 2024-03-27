@@ -25,8 +25,8 @@ const orderSchema = new Schema(
             },
         ],
 
-        transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง
-       
+        transferBy: mongoose.Schema.Types.Mixed, // รับเอง, จัดส่ง, ฝากตรวจ
+
         detail: {
             //seller: String,
             buyer: String,
