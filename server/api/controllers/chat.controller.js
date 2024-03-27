@@ -6,7 +6,6 @@ const User = require('../models/UsersModel/UsersModel.js')
 exports.createChat = async (req, res) => {
     const {id} = req.params
     try {
-
         const chatExist = await Chat.findOne({orderId:id})
         if(chatExist) {
             return res.status(200).send({
@@ -52,14 +51,14 @@ exports.createChat = async (req, res) => {
                     role: order.seller.role,
                     srole: order.seller.seller_role,
                     img: order.seller.shop_img,
-                    phone: order.seller.shop_number
+                    //phone: order.seller.shop_number
                 },
                 {
                     id: order.buyer._id || user._id,
                     name: buyer_name,
                     role: buyer_role,
                     srole: buyer_srole,
-                    phone: order.transferBy.phone || buyer_phone
+                    //phone: order.transferBy.phone || buyer_phone
                 }
             ],
             createAt: Date.now()
