@@ -287,7 +287,7 @@ exports.createOrder = async (req, res) => {
     try{
         const { lotto_id, transfer, msg, market, price_request, buyer_front } = req.body
         const buyer_id = req.user.id
-        const buyer_name = req.user.name
+        const buyer_name = transfer === '' ? buyer_front : req.user.name
     
         const lotto_list = lotto_id.map(async (id) => {
             const lotto = await Lotto.findById(id)
