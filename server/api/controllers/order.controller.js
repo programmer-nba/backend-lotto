@@ -413,6 +413,7 @@ exports.createOrder = async (req, res) => {
             message: `สร้างออร์เดอร์สำเร็จ มีสินค้าทั้งหมด ${order.lotto_id.length} ชิ้น`,
             order_id: order._id,
             order_transfer: order.transferBy,
+            data: order,
             buyer_id: order.buyer,
             buyer_name: buyer_name,
             seller_name: lotto.shopname,
