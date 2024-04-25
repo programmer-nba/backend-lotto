@@ -655,6 +655,7 @@ exports.receipt = async (req, res) => {
             {_id:id, status:'ตรวจสอบยอด'}, 
             {
                 $set:{
+                    paid: true,
                     status:'ชำระแล้ว', 
                     bill_no:bill_no
                 },
@@ -693,10 +694,14 @@ exports.doneOrder = async (req, res) => {
         const { id } = req.params
         const userName = req.user.name
 
+        const bill_no = await genBill(id)
+
         const order = await Order.findByIdAndUpdate({_id:id, status:'ชำระแล้ว'}, 
         {
             $set:{
-                status:'สำเร็จ'
+                paid: true,
+                status:'สำเร็จ',
+                bill_no: bill_no
             },
             $push:{
                 statusHis:{
