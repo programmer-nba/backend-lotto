@@ -15,7 +15,10 @@ const lottoSchema = new Schema(
         buyer_name: String,
         reward: Number,
         market: String,
-        
+        group: String,
+        group_price_retail: Number,
+        group_price_wholesale: Number,
+        group_cost: Number,
         type: String, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยกล่อง...)
         date: String,
         code: [{type: String}], // barcode หวย

@@ -91,12 +91,12 @@ exports.addLottos = async (req, res)=>{
             amount
 
         let prices = 
-         (market === "retail") ? retail_price || price :
-         (market === "wholesale") ? wholesale_price : retail_price
+            (market === "retail") ? retail_price || price :
+            (market === "wholesale") ? wholesale_price : retail_price
 
         let newLottoss = []
 
-        if(type!=='หวยแถว'){
+        const group = generateUniqueID()
             /* for(i of code) {
     
                 const decoded_list = i.split('-') // 0 1 2 3 4
@@ -148,104 +148,52 @@ exports.addLottos = async (req, res)=>{
                 newLottos.push(lotto)
     
             } */
-            const newLottos = code.map((i) => {
-                const decoded_list = i.split('-');
-                const decoded = {
-                    year: decoded_list[0],
-                    period: decoded_list[1],
-                    set: decoded_list[2],
-                    six_number: decoded_list[3],
-                    book: decoded_list[4],
-                };
-            
-                return {
-                    seller_id: userId,
-                    shopname: shopname,
-                    date: date,
-                    type: type,
-                    code: i,
-                    decoded: decoded,
-                    unit: unit,
-                    amount: amount,
-                    cost: cost,
-                    price: prices,
-                    prices: {
-                        wholesale: {
-                            total: wholesale_price || null,
-                            service: wholesale_price - 80 * pcs || null,
-                            profit: wholesale_price-cost
-                        },
-                        retail: {
-                            total: retail_price || null,
-                            service: retail_price - 80 * pcs || null,
-                            profit: retail_price-cost
-                        },
-                    },
-                    profit: prices - cost,
-                    market: market,
-                    pcs: pcs,
-                    on_order: false,
-                    text: `${type} ${amount} ${unit}`,
-                };
-            });
-            
-            newLottoss = await Lotto.insertMany(newLottos);
-        }
+        const newLottos = code.map((i) => {
+            const decoded_list = i.split('-');
+            const decoded = {
+                year: decoded_list[0],
+                period: decoded_list[1],
+                set: decoded_list[2],
+                six_number: decoded_list[3],
+                book: decoded_list[4],
+            };
         
-        if(type==='หวยแถว') {
-            const decodeds = code.map((item)=>{
-                const decoded = item.split('-') // 0 1 2 3 4
-                const decoded_list = {
-                    year: decoded[0],
-                    period: decoded[1],
-                    set: decoded[2],
-                    six_number: decoded[3],
-                    book: decoded[4],
-                }
-                return decoded_list
-            })
-            
-            const newLotto = 
-                {
-                    seller_id: userId,
-                    shopname: shopname,
-                    date: date,
-                    type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                    code: code, // เลข barcode
-                    decoded : decodeds,
-                    unit: unit, // หน่วย
-                    amount: amount, // จำนวนหวย (ชุด)
-                    cost: cost, // ต้นทุน
-                    //price: prices, // ราคาขาย > ตลาดขายส่ง
-                    prices: {
-                        wholesale: {
-                            total: wholesale_price || null, // ราคารวมทั้งหมด
-                            service: wholesale_price - (80*pcs) || null,
-                            profit: wholesale_price-cost
-                        },
-                        retail: {
-                            total: retail_price || null,
-                            service: retail_price - (80*pcs) || null,
-                            profit: wholesale_price-cost
-                        },
+            return {
+                seller_id: userId,
+                shopname: shopname,
+                date: date,
+                type: type,
+                group: group,
+                group_price_retail: type === 'หวยแถว' ? retail_price : 0,
+                group_price_wholesale: type === 'หวยแถว' ? wholesale_price : 0,
+                group_cost: type === 'หวยแถว' ? cost : 0,
+                code: i,
+                decoded: decoded,
+                unit: unit,
+                amount: amount,
+                cost: type === 'หวยแถว' ? cost/code.length : cost,
+                price: prices,
+                prices: {
+                    wholesale: {
+                        total: wholesale_price || null,
+                        service: wholesale_price - 80 * pcs || null,
+                        profit: wholesale_price-cost
                     },
-                    profit: prices-cost, // กำไร
-                    market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                    pcs: pcs, // จำนวนหวย (ใบ)
-                    on_order: false, // 
-                    text: `${type} ชุด ${amount} ใบ ${code.length} ชุด`
-                }
-
-            const lotto = await Lotto.create(newLotto)
-            if(!lotto){
-                return res.send({
-                    message: 'ไม่สามารถเพิ่มฉลากได้',
-                    success: false
-                })
-            }
-
-            newLottoss.push(lotto)
-        }
+                    retail: {
+                        total: retail_price || null,
+                        service: retail_price - 80 * pcs || null,
+                        profit: retail_price-cost
+                    },
+                },
+                profit: prices - cost,
+                market: market,
+                pcs: pcs,
+                on_order: false,
+                text: `${type} ${amount} ${unit}`,
+            };
+        });
+        
+        newLottoss = await Lotto.insertMany(newLottos);
         
         return res.send({
             message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${code.length} ${unit} ลงขายในตลาด ${market}`,
@@ -645,6 +593,19 @@ exports.getCuttedStokLottos = async (req, res) => {
         res.send('ERROR!')
         console.log(err.message)
     }
+}
+
+function generateUniqueID() {
+    // Get current timestamp
+    const timestamp = new Date().getTime();
+
+    // Generate a random component (in this case, a random number)
+    const random = Math.random() * 1000000;
+
+    // Combine timestamp and random component
+    const uniqueID = `${timestamp}-${random}`;
+
+    return uniqueID;
 }
 
 
