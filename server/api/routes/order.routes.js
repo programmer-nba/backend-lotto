@@ -34,5 +34,6 @@ route.get('/receipt/:id', verifyToken, orders.orderReceipt)
 route.post('/chat/:id', verifyToken, chats.createChat)
 route.get('/chat/:id', verifyToken, chats.getMessages)
 route.put('/chat/:id', verifyToken, uploadBuffer.single('img'), chats.sendMessage)
+route.delete('/chat/:id', verifyToken, chats.deleteMessage)
 
 module.exports = route
