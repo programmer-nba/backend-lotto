@@ -85,12 +85,10 @@ exports.getChat = async (req, res) => {
     const { seller_id, buyer_id } = req.params;
     try {
     const chat = await Chat.findOne({
-        members: {
-            $all: [
-                { id: seller_id },
-                { id: buyer_id }
-            ]
-        }
+        $and: [
+            { 'members.id': seller_id },
+            { 'members.id': buyer_id }
+        ]
     });
 
     if (!chat) {
