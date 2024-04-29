@@ -87,8 +87,8 @@ exports.getChat = async (req, res) => {
     const chat = await Chat.findOne({
         members: {
             $all: [
-                { _id: seller_id },
-                { _id: buyer_id }
+                { id: seller_id },
+                { id: buyer_id }
             ]
         }
     });
