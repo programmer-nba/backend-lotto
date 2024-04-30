@@ -115,7 +115,7 @@ exports.getChats = async (req, res) => {
     const { id } = req.params;
     try {
     const chat = await Chat.find({
-        'members.$._id': id
+        'members.id': id
     });
 
     if (!chat) {
