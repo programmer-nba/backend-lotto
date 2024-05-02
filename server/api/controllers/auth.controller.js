@@ -134,7 +134,7 @@ exports.sellerRegister = async (req, res)=>{
     
             await newSeller.save()
 
-            res.send({
+            return res.send({
                 message: 'ลงทะเบียนเสร็จสิ้น ! กรุณารอแอดมินยืนยันข้อมูลเพื่อเข้าสู่ระบบ',
                 success: true,
                 id: newSeller._id,
@@ -148,7 +148,7 @@ exports.sellerRegister = async (req, res)=>{
         }
     }
     catch(err){
-        res.send('ERROR: please check console')
+        return res.send('ERROR: please check console')
         console.log({ERROR:err.message})
     }
 }
@@ -192,7 +192,7 @@ exports.userRegister = async (req, res)=>{
         }
     }
     catch(err){
-        res.send('ERROR: please check console')
+        return res.send('ERROR: please check console')
         console.log({ERROR:err.message})
     }
 }

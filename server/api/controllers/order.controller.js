@@ -285,7 +285,7 @@ exports.getOrder = async (req, res) => {
 // "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
-        const { lotto_id, transfer, msg, market, price_request, buyer_front } = req.body
+        const { lotto_id, transfer, msg, market, price_request, buyer_front, transfer_price } = req.body
         const buyer_id = req.user.id
         const buyer_name = transfer === '' ? buyer_front : req.user.name
     
@@ -345,7 +345,7 @@ exports.createOrder = async (req, res) => {
         const transfer_cost = 
             (transfer==='รับเอง') ? 0 
             : (transfer==='ฝากตรวจ') ? 0 
-            : 50
+            : transfer_price || 0
 
         const retail_service = total_retail_prices - all_lottos // ค่าบริการจัดหาฉลาก 
         const wholesale_service = total_wholesale_prices - all_lottos // ค่าบริการจัดหาฉลาก
