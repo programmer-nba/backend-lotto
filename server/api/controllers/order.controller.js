@@ -652,7 +652,7 @@ exports.receipt = async (req, res) => {
         const userName = req.user.name
         const bill_no = await genBill(id)
         const order = await Order.findByIdAndUpdate(
-            {_id:id, status:'ตรวจสอบยอด'}, 
+            id,
             {
                 $set:{
                     paid: true,
