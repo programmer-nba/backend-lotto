@@ -58,7 +58,6 @@ exports.addLottos = async (req, res)=>{
         /* check and delete duplicate lotto */
         const condition = { 
             code: { $elemMatch: { $in: code } },
-            type: type,
             seller_id: userId
         };
         const deleted = await Lotto.deleteMany(condition);
