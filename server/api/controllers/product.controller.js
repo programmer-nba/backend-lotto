@@ -165,7 +165,7 @@ exports.addLottos = async (req, res)=>{
                 group: group,
                 group_price_retail: type === 'หวยแถว' ? retail_price : 0,
                 group_price_wholesale: type === 'หวยแถว' ? wholesale_price : 0,
-                group_cost: type === 'หวยแถว' ? cost : 0,
+                group_cost: cost,
                 code: i,
                 decoded: decoded,
                 unit: unit,
@@ -174,17 +174,17 @@ exports.addLottos = async (req, res)=>{
                 price: prices,
                 prices: {
                     wholesale: {
-                        total: wholesale_price || null,
-                        service: wholesale_price - 80 * pcs || null,
-                        profit: wholesale_price-cost
+                        total: type === 'หวยแถว' ? wholesale_price/code.length : wholesale_price,
+                        service: type === 'หวยแถว' ? (wholesale_price - 80 * pcs)/code.length : wholesale_price - 80 * pcs,
+                        profit: type === 'หวยแถว' ? (wholesale_price/code.length)-(cost/code.length) : wholesale_price - cost
                     },
                     retail: {
-                        total: retail_price || null,
-                        service: retail_price - 80 * pcs || null,
-                        profit: retail_price-cost
+                        total: type === 'หวยแถว' ? retail_price/code.length : retail_price,
+                        service: type === 'หวยแถว' ? (retail_price - 80 * pcs)/code.length : retail_price - 80 * pcs,
+                        profit: type === 'หวยแถว' ? (retail_price/code.length)-(cost/code.length) : retail_price - cost
                     },
                 },
-                profit: prices - cost,
+                profit: type === 'หวยแถว' ? prices -( cost/code.length) : prices - cost,
                 market: market,
                 pcs: pcs,
                 on_order: false,
