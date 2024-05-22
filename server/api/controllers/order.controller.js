@@ -657,7 +657,8 @@ exports.receipt = async (req, res) => {
                 $set:{
                     paid: true,
                     status:'ชำระแล้ว', 
-                    bill_no:bill_no
+                    bill_no:bill_no,
+                    'detail.msg' : 'ชำระแล้ว'
                 },
                 $push:{
                     statusHis:{
