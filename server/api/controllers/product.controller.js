@@ -96,57 +96,7 @@ exports.addLottos = async (req, res)=>{
         let newLottoss = []
 
         const group = generateUniqueID()
-            /* for(i of code) {
-    
-                const decoded_list = i.split('-') // 0 1 2 3 4
-                const decoded = {
-                    year: decoded_list[0],
-                    period: decoded_list[1],
-                    set: decoded_list[2],
-                    six_number: decoded_list[3],
-                    book: decoded_list[4],
-                }
-                    
-                const newLotto = 
-                    {
-                        seller_id: userId,
-                        shopname: shopname,
-                        date: date,
-                        type: type, // ประเภทฉลาก (หวยเดี่ยว, หวยชุด, หวยก้อน, หวยกล่อง...)
-                        code: i, // เลข barcode
-                        decoded : decoded,
-                        unit: unit, // หน่วย
-                        amount: amount, // จำนวนหวย (ชุด)
-                        cost: cost, // ต้นทุน
-                        price: prices, // ราคาขาย > ตลาดขายส่ง
-                        prices: {
-                            wholesale: {
-                                total: wholesale_price || null, // ราคารวมทั้งหมด
-                                service: wholesale_price - (80*pcs) || null
-                            },
-                            retail: {
-                                total: retail_price || null,
-                                service: retail_price - (80*pcs) || null
-                            },
-                        },
-                        profit: prices-cost, // กำไร
-                        market: market, // ตลาดที่หวยชุดนี้ลงขาย
-                        pcs: pcs, // จำนวนหวย (ใบ)
-                        on_order: false, // 
-                        text: `${type} ${amount} ${unit}`
-                    }
-    
-                const lotto = await Lotto.create(newLotto)
-                if(!lotto){
-                    return res.send({
-                        message: 'ไม่สามารถเพิ่มฉลากได้',
-                        success: false
-                    })
-                }
-    
-                newLottos.push(lotto)
-    
-            } */
+            
         const newLottos = code.map((i) => {
             const decoded_list = i.split('-');
             const decoded = {
@@ -408,7 +358,7 @@ exports.getTargetShop = async (req, res) => {
 
 exports.cutStocks = async (req, res) => {
     const sellerId = req.user.id
-    const {lottos_code, text='-'} = req.body 
+    const {lottos_code, text} = req.body 
     try {
         const lottos = await Lotto.find(
             {
@@ -419,7 +369,6 @@ exports.cutStocks = async (req, res) => {
                 },
                 cut_stock: false,
                 on_order: true,
-                sold:true,
                 seller_id: sellerId
             }
         )
@@ -436,7 +385,6 @@ exports.cutStocks = async (req, res) => {
                 lotto_id:{$in:lotto._id}
                 })
                 .populate('buyer', 'role')
-                console.log(prev_info)
             let sold_price = 
                 (prev_info.buyer && prev_info.buyer?.role==='seller') ? prev_info.price?.total_wholesale
                 : (!prev_info.buyer && prev_info.seller?.role==='seller') ? prev_info.price?.total_wholesale
@@ -606,8 +554,6 @@ function generateUniqueID() {
 
     return uniqueID;
 }
-
-
 //----------------------//
 //       Discount       //
 //-------↓ ↓ ↓ ↓ -------//
