@@ -3,7 +3,7 @@ const Lotto = require('../models/Products/lotto.model.js')
 
 exports.getWholesale = async (req, res) => {
     try{
-        const userRole = req.user.role
+        //const userRole = req.user.role
         const openMarket = req.config.market
         const lottoDay = req.config.period
         const openIn = req.config.openIn
@@ -20,11 +20,11 @@ exports.getWholesale = async (req, res) => {
         }
 
         // check role
-        if(userRole === "user"){
+        /* if(userRole === "user"){
             return res.send({
                 message: "ขออภัย คุณไม่สามารถเข้าดูรายการนี้ได้"
             })
-        }
+        } */
         
         const wholesaleLottos = await Lotto.find({market:{$in:["wholesale"]}, on_order: false, sold: false, cut_stock: false}).populate('seller_id', '_id name shop_name shop_img shop_cover')
         let allLottos = await Lotto.find({market:{$in:["all"]}, on_order: false, sold: false, cut_stock: false}).populate('seller_id', '_id name shop_name shop_img shop_cover')
