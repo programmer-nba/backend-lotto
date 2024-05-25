@@ -103,16 +103,14 @@ exports.login = async (req, res)=>{
 // get all sellers
 exports.getAllSellers = async (req, res)=>{
 
-    const userRole = req.user.role
+    //const userRole = req.user.role
 
     try{
 
-        if(userRole === 'admin'){
+        
             const sellers = await Seller.find()
             res.send(sellers)
-        } else {
-            res.send({message: 'ขออภัย คุณไม่ได้รับอณุญาติให้เข้าถึงข้อมูลนี้'})
-        }
+        
     }
     catch(err){
         res.send('ERROR : please check console')

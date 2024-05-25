@@ -95,7 +95,7 @@ exports.getAllsome = async (req, res) => {
             })
         } else {
             return res.status(200).send({
-                message: `มีสินค้าในตลาดขายส่งทั้งหมด ${random.length} ชุด`,
+                message: `มีสินค้าในตลาดทั้งหมด ${random.length} ชุด`,
                 lottos: random,
                 lottoDay: lottoDay
             })
