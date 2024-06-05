@@ -285,7 +285,7 @@ exports.getOrder = async (req, res) => {
 // "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
-        const { lotto_id, transfer, msg, market, price_request, buyer_front, transfer_price } = req.body
+        const { lotto_id, transfer, msg, market, price_request, buyer_front, transfer_price, transfer_type } = req.body
         const buyer_id = req.user.id
         const buyer_name = transfer === '' ? buyer_front : req.user.name
     
@@ -342,10 +342,6 @@ exports.createOrder = async (req, res) => {
 
         const each_lotto = 80
         const all_lottos = 80*sum_amount // ราคาหวยรวมทุกใบ = 80*amount
-        const transfer_cost = 
-            (transfer==='รับเอง') ? 0 
-            : (transfer==='ฝากตรวจ') ? 0 
-            : transfer_price || 0
 
         const retail_service = total_retail_prices - all_lottos // ค่าบริการจัดหาฉลาก 
         const wholesale_service = total_wholesale_prices - all_lottos // ค่าบริการจัดหาฉลาก
@@ -363,13 +359,13 @@ exports.createOrder = async (req, res) => {
 
             order_no: order_no,
             transferBy: transferBy,
-
+            transferType: transfer_type,
             price: {
                 each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
                 all_lottos: all_lottos, // ราคาหวยรวมทุกใบ = 80*amount
                 retail_service: retail_service, // ค่าบริการจัดหาฉลาก = total - all_lottos
                 wholesale_service: wholesale_service,
-                transfer: transfer_cost, // ค่าส่ง
+                transfer: transfer_price, // ค่าส่ง
                 total_retail: total_retail_prices, // ราคารวมทั้งหมด
                 total_wholesale: total_wholesale_prices, // ราคารวมทั้งหมด
                 discount: {
