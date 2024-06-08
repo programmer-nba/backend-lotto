@@ -36,6 +36,7 @@ const SellerSchema = new Schema(
             type: String,
             
         },
+        line_img: String,
         address: {
             type: mongoose.Schema.Types.Mixed,
         },

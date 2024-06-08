@@ -70,6 +70,60 @@ exports.login = async (req, res)=>{
     }
 }
 
+// Login user & seller control
+exports.loginLine = async (req, res)=>{
+    try {
+        const { line_id } = req.body;
+        if(!line_id) {
+            return res.status(400).json({ message: 'ไม่พบผู้ใช้งานนี้ในระบบ กรุณาลงทะเบียนผู้ใช้ใหม่' });
+        }
+        let user = await User.findOne({ line_id: line_id });
+        if (!user) {
+            user = await Seller.findOne({ line_id: line_id });
+            if (!user) {
+                return res.status(404).json({ message: 'ไม่พบผู้ใช้งานนี้ในระบบ กรุณาลงทะเบียนผู้ใช้ใหม่' });
+            }
+        } else {
+            return res.status(404).json({ message: 'not found user' });
+        }
+        
+        const token = jwt.sign({ id: user._id, role: user.role, seller_role: user.seller_role, name: user.name || "none", status: user.status || "none" }, 'your-secret-key', { expiresIn: '24h' });
+
+        const date = new Date()
+        const userRole = user.role
+        const savedLoginDate = (userRole === 'user') ? await User.findByIdAndUpdate(user._id, {
+            $addToSet: {
+                last_logedInHis: { date: date, IP: req.ip }
+            }
+            },) 
+        : await Seller.findByIdAndUpdate(user._id, 
+            {
+                $addToSet: {
+                last_logedInHis: { date: date, IP: req.ip }
+                },
+                $set: {
+                    last_logedIn: new Date()
+                }
+            },
+            )
+
+        return res.status(200).json({
+            token,
+            id: user._id,
+            role: user.role,
+            name: user.name,
+            seller_role: user.seller_role,
+            status: user.status,
+            success: true,
+            last_login: savedLoginDate.last_logedIn,
+        });
+        
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
+        console.log({ ERROR: err.message });
+    }
+}
+
 // seller register
 exports.sellerRegister = async (req, res)=>{
     const {

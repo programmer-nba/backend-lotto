@@ -13,6 +13,8 @@ route.post('/register/user', auths.userRegister)
 
 route.post('/login', auths.login)
 
+route.post('/login-line', auths.loginLine)
+
 route.post('/upload', upload.any(), uploadPictures, pictures.uploadSellerPicture)
 
 module.exports = route

@@ -29,6 +29,7 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '10mb' }))
+app.set('view engine', 'ejs')
 
 // use routes
 app.use('/lotto/admin', adminRoute)
@@ -41,6 +42,11 @@ app.use('/lotto/market', marketRoute)
 app.use('/lotto/setting', settingRoute)
 app.use('/lotto/order', orderRoute)
 app.use('/lotto/test', testRoute)
+
+app.get('/lotto/line-callback', (req, res) => {
+    console.log(req.query)
+    res.render('index', { title: 'My EJS Page', message: 'Hello, EJS!', lineId: req.query});
+})
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL

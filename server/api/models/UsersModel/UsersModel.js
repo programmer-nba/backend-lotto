@@ -24,6 +24,7 @@ const UserSchema = new Schema(
         line_id : {
             type: String,
         },
+        line_img: String,
         last_logedIn: Date,
         last_logedInHis: [{
             date: Date,
