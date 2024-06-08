@@ -256,7 +256,10 @@ exports.editCurrentLotto = async (req, res) => {
             retail_price, // ราคาขายหวย/ใบ
             retail, // boolean
             wholesale, // boolean
-            id
+            id,
+            group_price_retail,
+            group_price_wholesale,
+            group_cost
         } = req.body
 
         if(sellerRole==='ขายปลีก'){
@@ -279,7 +282,6 @@ exports.editCurrentLotto = async (req, res) => {
 
         let oldlotto = await Lotto.findById(id)
         const pcs = oldlotto.pcs
-        console.log(pcs)
 
         const lotto = await Lotto.findByIdAndUpdate(id, {
             $set : {
@@ -290,7 +292,10 @@ exports.editCurrentLotto = async (req, res) => {
                 'prices.retail.total': retail_price,
                 'prices.retail.service': (!retail_price) ? null : retail_price-(80*pcs),
                 profit: prices-cost,
-                market: market
+                market: market,
+                group_price_retail: group_price_retail,
+                group_price_wholesale: group_price_wholesale,
+                group_cost: group_cost
             }
         }, {new:true})
 
