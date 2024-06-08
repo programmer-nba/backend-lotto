@@ -56,6 +56,11 @@ mongoose.connect(database_url)
             cors: {
                 origin: [
                     'http://localhost:3000',
+                    'http://localhost:3003',
+                    'http://localhost:15555',
+                    'http://localhost:15556',
+                    'http://183.88.209.149:15555',
+                    'http://183.88.209.149:15556',
                     'http://lotto-maket.nbadigitalsuccessmore.com',
                     'http://lotto-admin.nbadigitalsuccessmore.com'
                 ],
