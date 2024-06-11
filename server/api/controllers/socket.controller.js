@@ -30,6 +30,18 @@ const socketController = (io) => {
             // Broadcast the message to other clients in the same room
             io.to(room).emit('newMessage', message);
         });
+
+        socket.on('joinNotify', (userId) => {
+            socket.join(userId);
+            console.log(`User ${socket.id} joined Notify ${userId}`);
+        });
+
+        // Handle 'sendMessage' event to a specific room
+        socket.on('order', ({ room, orderMessage }) => {
+            console.log(`Received order update in room ${room}:`, orderMessage);
+            // Notify the seller in the specific room
+            io.to(room).emit('newOrder', orderMessage);
+        });
     });
 };
 
