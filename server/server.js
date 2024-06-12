@@ -3,6 +3,7 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const ngrok = require('@ngrok/ngrok')
 
 const socketio = require('socket.io')
 const http = require('http')
@@ -42,11 +43,8 @@ app.use('/lotto/market', marketRoute)
 app.use('/lotto/setting', settingRoute)
 app.use('/lotto/order', orderRoute)
 app.use('/lotto/test', testRoute)
-
-app.get('/lotto/line-callback', (req, res) => {
-    console.log(req.query)
-    res.render('index', { title: 'My EJS Page', message: 'Hello, EJS!', lineId: req.query});
-})
+app.use('/lotto', require('./api/routes/line.routes'))
+app.use('/lotto', require('./api/routes/notify.routes'))
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
@@ -80,6 +78,16 @@ mongoose.connect(database_url)
             console.log(`> server start! on port ${port} \u2714`);
             console.log(`----------------------------`);
         });
+
+        (async function () {
+            const listener = await ngrok.forward({
+                addr: port || 5555,
+                authtoken_from_env: true,
+                //oauth_provider: "google",
+            });
+        
+            console.log(`Ingress established at: ${listener.url()}`);
+        })();
     })
     .catch((err)=>{
         console.log(`ERROR: database not connected ${err.message}`)

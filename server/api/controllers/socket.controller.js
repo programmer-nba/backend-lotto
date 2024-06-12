@@ -1,3 +1,5 @@
+const { newNotify } = require("./notify.controller")
+
 const socketController = (io) => {
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
@@ -37,10 +39,19 @@ const socketController = (io) => {
         });
 
         // Handle 'sendMessage' event to a specific room
-        socket.on('order', ({ room, orderMessage }) => {
+        socket.on('order', async ({ room, orderMessage }) => {
             console.log(`Received order update in room ${room}:`, orderMessage);
-            // Notify the seller in the specific room
-            io.to(room).emit('newOrder', orderMessage);
+            const data = {
+                to: room, // user _id
+                title: orderMessage.order_no,
+                detail: orderMessage.lotto_id.length,
+                from: orderMessage.buyer?.toString(), // sender name
+                icon: "#"
+            }
+            const notifyData = await newNotify(data)
+            if (notifyData) {
+                io.to(room).emit('newOrder', notifyData);
+            }
         });
     });
 };
