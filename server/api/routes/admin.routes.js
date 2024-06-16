@@ -26,7 +26,7 @@ route.get('/users', verifyToken, admins.getAllUsers)
 route.delete('/users', verifyToken, admins.deleteAllUsers)
 
 route.post('/config/date', verifyToken, admins.createConfigDate)
-route.put('/config/date', verifyToken, admins.updateConfig)
+route.put('/config/date/:id', verifyToken, admins.updateConfig)
 
 // pictures of main page
 route.post('/config/picture', verifyToken, upload.any(), uploadPictures, pictures.uploadAdminPicture)

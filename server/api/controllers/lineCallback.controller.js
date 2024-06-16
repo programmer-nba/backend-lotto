@@ -10,3 +10,25 @@ exports.lineLoginCallBack = (req, res) => {
         res.redirect(process.env.CALLBACK_URL + '/login');
     }
 };
+
+exports.lineRegisterCallBack = (req, res) => {
+    try {
+        const data = req.query;
+        const queryString = querystring.stringify(data);
+        res.redirect(process.env.CALLBACK_URL + '/register?' + queryString);
+    } catch (err) {
+        console.error(err);
+        res.redirect(process.env.CALLBACK_URL + '/register');
+    }
+};
+
+exports.lineUpdateProfileCallBack = (req, res) => {
+    try {
+        const data = req.query;
+        const queryString = querystring.stringify(data);
+        res.redirect(process.env.CALLBACK_URL + '/seller/profile?' + queryString);
+    } catch (err) {
+        console.error(err);
+        res.redirect(process.env.CALLBACK_URL + '/seller/profile');
+    }
+};

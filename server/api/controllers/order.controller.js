@@ -285,7 +285,7 @@ exports.getOrder = async (req, res) => {
 // "ขายปลีก + user" create new order
 exports.createOrder = async (req, res) => {
     try{
-        const { lotto_id, transfer, msg, market, price_request, buyer_front, transfer_price, transfer_type } = req.body
+        const { lotto_id, transfer, msg, market, price_request, buyer_front, transfer_receiver, transfer_receiver_tel, transfer_price, transfer_type, transfer_address } = req.body
         const buyer_id = req.user.id
         const buyer_name = transfer === '' ? buyer_front : req.user.name
     
@@ -360,6 +360,9 @@ exports.createOrder = async (req, res) => {
             order_no: order_no,
             transferBy: transferBy,
             transferType: transfer_type,
+            transferAddress: transfer_address,
+            transferReceiver: transfer_receiver,
+            transferReceiverTel: transfer_receiver_tel,
             price: {
                 each_lotto: each_lotto, // ราคาหวยแต่ละใบ 80.-
                 all_lottos: all_lottos, // ราคาหวยรวมทุกใบ = 80*amount

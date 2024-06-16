@@ -3,7 +3,6 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const ngrok = require('@ngrok/ngrok')
 
 const socketio = require('socket.io')
 const http = require('http')
@@ -60,7 +59,7 @@ mongoose.connect(database_url)
             cors: {
                 origin: [
                     'http://localhost:3000',
-                    'http://localhost:3003',
+                    'http://localhost:3001',
                     'http://localhost:15555',
                     'http://localhost:15556',
                     'http://183.88.209.149:15555',
@@ -78,16 +77,6 @@ mongoose.connect(database_url)
             console.log(`> server start! on port ${port} \u2714`);
             console.log(`----------------------------`);
         });
-
-        (async function () {
-            const listener = await ngrok.forward({
-                addr: port || 5555,
-                authtoken_from_env: true,
-                //oauth_provider: "google",
-            });
-        
-            console.log(`Ingress established at: ${listener.url()}`);
-        })();
     })
     .catch((err)=>{
         console.log(`ERROR: database not connected ${err.message}`)

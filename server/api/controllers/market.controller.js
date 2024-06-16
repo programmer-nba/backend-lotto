@@ -4,20 +4,20 @@ const Lotto = require('../models/Products/lotto.model.js')
 exports.getWholesale = async (req, res) => {
     try{
         //const userRole = req.user.role
-        const openMarket = req.config.market
+        /* const openMarket = req.config.market
         const lottoDay = req.config.period
         const openIn = req.config.openIn
         const openInText = req.config.openInText
         const toDay = req.config.toDay
-        const closeIn = req.config.openIn-2
+        const closeIn = req.config.openIn-2 */
 
-        if(openMarket!=='open'){
+        /* if(openMarket!=='open'){
             return res.send({
                 toDay: toDay,
                 message: `ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ${openInText}`,
                 openIn: openIn
             })
-        }
+        } */
 
         // check role
         /* if(userRole === "user"){
@@ -38,26 +38,28 @@ exports.getWholesale = async (req, res) => {
         if(market.length === 0){
             return res.send({
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
-                market,
-                marketStatus: openMarket,
-                lottoDay: lottoDay,
-                marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
-                closeIn: closeIn
+                data: market,
+                config: req.config,
+                //marketStatus: openMarket,
+                //lottoDay: lottoDay,
+                //marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
+                //closeIn: closeIn
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดขายส่งทั้งหมด ${market.length} ชุด`,
                 data: market,
-                lottoDay: lottoDay,
-                marketStatus: openMarket,
-                marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
-                closeIn: closeIn
+                config: req.config,
+                //lottoDay: lottoDay,
+                //marketStatus: openMarket,
+                //marketText: `วันนี้วันที่ ${toDay} , ตลาด ${openMarket}, ตลาดจะปิดในวันที่ ${closeIn}`,
+                //closeIn: closeIn
             })
         } 
     }
     catch(error){
         console.log(error.message)
-        res.status(500).send({
+        return res.status(500).send({
             message: "ERROR : please check console"
         })
     }
@@ -65,15 +67,15 @@ exports.getWholesale = async (req, res) => {
 
 exports.getAllsome = async (req, res) => {
     try{
-        const openMarket = req.config.market
-        const lottoDay = req.config.period
+        //const openMarket = req.config.market
+        //const lottoDay = req.config.period
         const {length} = req.params
 
-        if(openMarket!=='open'){
+        /* if(openMarket!=='open'){
             return res.send({
                 message: "ร้านค้าปิดชั่วคราว เปิดอีกครั้งในวันที่ ... เวลา ..."
             })
-        }
+        } */
         
         const random = await Lotto.aggregate([
             {
@@ -91,19 +93,21 @@ exports.getAllsome = async (req, res) => {
             return res.send({
                 message: `มีฉลากทั้งหมด ${random.length} ชุด`,
                 lottos:random,
-                lottoDay: lottoDay
+                config: req.config
+                //lottoDay: lottoDay
             })
         } else {
             return res.status(200).send({
                 message: `มีสินค้าในตลาดทั้งหมด ${random.length} ชุด`,
                 lottos: random,
-                lottoDay: lottoDay
+                config: req.config,
+                //lottoDay: lottoDay
             })
         } 
     }
     catch(error){
         console.log(error.message)
-        res.status(500).send({
+        return res.status(500).send({
             message: "ERROR : please check console"
         })
     }
@@ -142,8 +146,9 @@ exports.getAll = async (req, res) => {
         })
     }
     catch (err) {
-        res.send('ERROR cannot get all lottos')
         console.log(err.message)
+        return res.send('ERROR cannot get all lottos')
+        
     }
 }
 
@@ -184,19 +189,20 @@ exports.changeMarket = async (req, res) => {
         const product = await Lotto.findByIdAndUpdate(id, {market:newMarket})
 
         if(!product){
-            res.send({
+            return res.send({
                 message : "ไม่พบสินค้านี้ในระบบ"
             })
         }
 
-        return res.send({
+        return res.json({
             message : `อัพเดทสินค้าลงในตลาด ${newMarket} สมบูรณ์`,
+            status : true,
             success : true
         })
     }
     catch(error){
         console.log(error.message)
-        res.status(500).send({
+        return res.status(500).send({
             message: "ERROR : please check console"
         })
     }
@@ -205,8 +211,8 @@ exports.changeMarket = async (req, res) => {
 exports.getRetail = async (req, res) => {
     try{
         const userRole = req.user.role
-        const openMarket = req.config.market
-        const lottoDay = req.config.period
+        //const openMarket = req.config.market
+        //const lottoDay = req.config.period
 
         // check role
         if(userRole === "seller"){
@@ -218,22 +224,26 @@ exports.getRetail = async (req, res) => {
         const market = await Lotto.find({market:{$in:["retail", "all"]}, on_order: false, sold: false, cut_stock: {$in:[false, null, undefined]}}).populate('seller_id', '_id name shop_img shop_cover')
 
         if(market.length === 0){
-            return res.send({
+            return res.status(200).json({
                 message: `มีฉลากทั้งหมด ${market.length} ชุด`,
-                market,
-                lottoDay
+                data: market,
+                status: true,
+                config: req.config
+                //lottoDay
             })
         } else {
-            return res.status(200).send({
+            return res.status(200).json({
                 message: `มีสินค้าในตลาดขายปลีกทั้งหมด ${market.length} ชุด`,
-                market: market,
-                lottoDay
+                data: market,
+                status: true,
+                config: req.config
+                //lottoDay
             })
         } 
     }
     catch(error){
         console.log(error.message)
-        res.status(500).send({
+        return res.status(500).send({
             message: "ERROR : please check console"
         })
     }

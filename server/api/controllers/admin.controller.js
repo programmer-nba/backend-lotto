@@ -4,7 +4,6 @@ const Seller = require("../models/UsersModel/SellersModel.js")
 const User = require('../models/UsersModel/UsersModel.js')
 const Admin = require('../models/UsersModel/AdminModel.js')
 const Day = require('../models/Config/Day_model.js')
-
 const jwt = require('jsonwebtoken')
 
 // use .env
@@ -361,52 +360,108 @@ exports.deleteSeller = async (req, res) => {
 }
 
 exports.createConfigDate = async (req, res) => {
+    const { close, open, period } = req.body
     try{
-        const dayconfig = await Day.create({})
+        const dayconfig = await Day.create({
+            period: { 
+                day: period.day,
+                month: period.month,
+                year: period.year,
+                time: period.time,
+                date: period.date,
+                text: period.text
+            },
+            close: { 
+                day: close.day,
+                month: close.month,
+                year: close.year,
+                time: close.time,
+                date: close.date,
+                text: close.text,
+            },
+            open: { 
+                day: open.day,
+                month: open.month,
+                year: open.year,
+                time: open.time,
+                date: open.date,
+                text: open.text,
+            },
+        })
         if(!dayconfig){
-            return res.send('day not found')
+            return res.send('can not create config date')
         }
-        return res.send('create config date success!')
+        return res.json({
+            message: "create config date success!",
+            data: dayconfig,
+            status: true
+        })
     }
     catch(error){
-        res.send('ERROR!')
         console.log(error)
+        return res.send('ERROR!')
     }
 }
 
 exports.updateConfig = async (req, res) => {
     try{
-        const {day, wholesale, retail} = req.body
-
-        const dayconfig = await Day.findById('65606917cad49fe89593b9ba')
+        const { id } = req.params
+        const { period, close, open, open_wholesale, open_retail } = req.body
+        const dayconfig = await Day.findByIdAndUpdate(id, {
+            $set: {
+                open_wholesale: open_wholesale,
+                open_retail: open_retail,
+                period: period,
+                close: close,
+                open: open,
+            }
+        }, { new: true })
         if(!dayconfig){
             return res.send('day-config not found')
         }
 
-        dayconfig.day = parseInt(day)
-        dayconfig.open_markets.wholesale = wholesale
-        dayconfig.open_markets.retail = retail
-
-        await dayconfig.save()
-
-        return res.send({message:'update config date success!', dayconfig})
+        return res.json({
+            message:'update config date success!', 
+            data: dayconfig
+        })
     }
     catch(error){
-        res.send('ERROR!')
         console.log(error)
+        return res.send('ERROR!')
     }
 }
 
 exports.getConfigDate = async (req, res) => {
     try {
-        const period = await Day.findOne()
-        res.send({
-            period:period,
-            config: req.config
+        const dayconfig = await Day.findOne()
+        return res.status(200).send({
+            message: "success",
+            status: true,
+            data: dayconfig
         })
     }
     catch(err) {
-        res.send('ERROR : can not get config date')
         console.log(err)
+        return res.status(500).send('ERROR : can not get config date')
+    }
+}
+
+exports.deleteConfigDate = async (req, res) => {
+    const { id } = req.params
+    try {
+        const dayconfig = await Day.deleteOne({ _id: id })
+        if(dayconfig.deletedCount === 0) {
+            return res.status(404).json({
+                message: "can not delete config date"
+            })
+        }
+        return res.status(200).send({
+            message: "success",
+            status: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).send('ERROR : can not get config date')
     }
 }
