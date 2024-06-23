@@ -58,10 +58,17 @@ exports.addLottos = async (req, res)=>{
         /* check and delete duplicate lotto */
         const condition = { 
             code: { $elemMatch: { $in: code } },
-            seller_id: userId
+            //seller_id: userId
         };
-        const deleted = await Lotto.deleteMany(condition);
-        console.log(deleted.deletedCount)
+        //const deleted = await Lotto.deleteMany(condition);
+        //console.log(deleted.deletedCount)
+        let conflictCodes = null;
+        const duplicateItems = await Lotto.find(condition);
+        if (duplicateItems.length) {
+            const duplicatedCodes = duplicateItems.map(item => item.code[0]);
+            code = code.filter(item => !duplicatedCodes.includes(item));
+            conflictCodes = code.filter(item => duplicatedCodes.includes(item));
+        }
     
         const unit = 
             (type==='หวยเล่ม' || type==='หวยก้อน') ? 'เล่ม' :
@@ -110,7 +117,7 @@ exports.addLottos = async (req, res)=>{
             return {
                 seller_id: userId,
                 shopname: shopname,
-                date: date,
+                date: date.date,
                 type: type,
                 group: group,
                 group_price_retail: type === 'หวยแถว' ? retail_price : 0,
@@ -144,10 +151,12 @@ exports.addLottos = async (req, res)=>{
         
         newLottoss = await Lotto.insertMany(newLottos);
         
-        return res.send({
+        return res.status(200).json({
             message: `เพิ่มฉลากแล้ว : ${type} จำนวน ${code.length} ${unit} ลงขายในตลาด ${market}`,
             success: true,
-            lotto: newLottoss
+            lotto: newLottoss,
+            conflict: conflictCodes,
+            date: date.date
         })
 
     }

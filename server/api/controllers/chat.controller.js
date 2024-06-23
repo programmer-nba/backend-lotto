@@ -160,14 +160,13 @@ exports.sendMessage = async (req, res) => {
             })
         }
 
-        return res.send({
-            message: 'Message sent successfully.',
+        return res.status(201).json({
             message: newMessage
         })
 
     }
     catch (error) {
-        res.status(500).send({
+        return res.status(500).send({
             message: error.message || 'Some error occurred while creating the chat.'
         })
     }

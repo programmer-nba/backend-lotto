@@ -8,7 +8,8 @@ const notifySchema = new Schema(
         detail: { type: String, default: "" },
         from: { type: String, default: "" }, // sender name
         icon: { type: String, default: "" }, // sender image
-        status: { type: String, default: "unread", enum: ["read", "unread"] }
+        status: { type: String, default: "unread", enum: ["read", "unread"] },
+        notify_type: { type: String, default: "etc" }
     },
     {
         timestamps: true

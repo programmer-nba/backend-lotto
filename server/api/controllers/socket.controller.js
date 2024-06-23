@@ -27,10 +27,22 @@ const socketController = (io) => {
         });
 
         // Handle 'sendMessage' event to a specific room
-        socket.on('sendMessage', ({ room, message }) => {
+        socket.on('sendMessage', async ({ room, message }) => {
             console.log(`Received message from client in room ${room}:`, message);
             // Broadcast the message to other clients in the same room
-            io.to(room).emit('newMessage', message);
+            const data = {
+                to: room, // user _id
+                title: `มีข้อความใหม่จาก ${message.sender}`,
+                detail: message.message,
+                from: message.sender_id, // sender name
+                icon: "#",
+                notify_type: "message"
+            }
+            console.log(data)
+            const notifyData = await newNotify(data)
+            if (notifyData) {
+                io.to(room).emit('newMessage', message);
+            }
         });
 
         socket.on('joinNotify', (userId) => {
@@ -46,13 +58,15 @@ const socketController = (io) => {
                 title: orderMessage.order_no,
                 detail: orderMessage.lotto_id.length,
                 from: orderMessage.buyer?.toString(), // sender name
-                icon: "#"
+                icon: "#",
+                notify_type: "order"
             }
             const notifyData = await newNotify(data)
             if (notifyData) {
                 io.to(room).emit('newOrder', notifyData);
             }
         });
+
     });
 };
 

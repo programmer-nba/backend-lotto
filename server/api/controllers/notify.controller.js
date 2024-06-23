@@ -3,9 +3,10 @@ const Seller = require('../models/UsersModel/SellersModel')
 const User = require('../models/UsersModel/UsersModel')
 
 exports.newNotify = async (data) => {
-    const { to, from, detail, title, icon } = data
+    const { to, from, detail, title, icon, notify_type } = data
     try {
         const newNotify = await Notify.create({
+            notify_type: notify_type,
             to: to, // user _id
             title: title,
             detail: detail,
