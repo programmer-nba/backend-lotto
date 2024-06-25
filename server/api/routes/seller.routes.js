@@ -18,6 +18,8 @@ route.get('/detail/:id', verifyToken, dateCheck, sellers.shopDetail)
 route.get('/products/getone', verifyToken, lottos.getCurrentLotto)
 route.put('/products/edit', verifyToken, lottos.editCurrentLotto)
 
+route.put('/products/oncart', verifyToken, lottos.lottosOnCart)
+
 route.get('/products/mylottos', verifyToken, lottos.getMyLottos)
 route.post('/products/addlotto', verifyToken, dateCheck, lottos.addLottos)
 

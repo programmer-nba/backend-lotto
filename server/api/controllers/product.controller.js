@@ -329,6 +329,44 @@ exports.editCurrentLotto = async (req, res) => {
     }
 }
 
+exports.lottosOnCart = async (req, res) => {
+    try{
+        const { lottos_id, state } = req.body
+        if(!lottos_id || !state){
+            return res.send('need lottos and state in request!')
+        }
+        const on_order = state === 'on_order' ? true : false
+        const promissesLottos = lottos_id.map( async id => {
+            const existLotto = await Lotto.findById(id)
+            if (on_order && existLotto.on_order) {
+                return null
+            }
+            const lotto = await Lotto.findByIdAndUpdate(id, {
+                $set: {
+                    on_order: on_order
+                }
+            })
+            return lotto
+        })
+
+        const promissedLottos = await Promise.all(promissesLottos)
+        if (!promissedLottos) {
+            return res.status(404).send('lotto not found')
+        } else if (promissedLottos.some(l => l === null)) {
+            return res.status(400).send('lotto already on order')
+        }
+
+        return res.status(201).json({
+            message: `success update ${promissedLottos.length} items`,
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).send(err.message)
+    }
+}
+
 exports.getTargetShop = async (req, res) => {
     try{
         const {id} = req.params // id of lotto

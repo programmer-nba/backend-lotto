@@ -3,7 +3,7 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-
+const return_lottos = require('./api/configs/returnLottos.js')
 const socketio = require('socket.io')
 const http = require('http')
 const socketController = require('./api/controllers/socket.controller.js')
@@ -81,4 +81,8 @@ mongoose.connect(database_url)
     .catch((err)=>{
         console.log(`ERROR: database not connected ${err.message}`)
     })
+
+setInterval(() => {
+    return_lottos()
+}, 180000);
 
