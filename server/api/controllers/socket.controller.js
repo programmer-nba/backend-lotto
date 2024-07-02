@@ -50,7 +50,6 @@ const socketController = (io) => {
             console.log(`User ${socket.id} joined Notify ${userId}`);
         });
 
-        // Handle 'sendMessage' event to a specific room
         socket.on('order', async ({ room, orderMessage }) => {
             console.log(`Received order update in room ${room}:`, orderMessage);
             const data = {
@@ -60,6 +59,22 @@ const socketController = (io) => {
                 from: orderMessage.buyer?.toString(), // sender name
                 icon: "#",
                 notify_type: "order"
+            }
+            const notifyData = await newNotify(data)
+            if (notifyData) {
+                io.to(room).emit('newOrder', notifyData);
+            }
+        });
+
+        socket.on('doneOrder', async ({ room, orderMessage }) => {
+            console.log(`Received order update in room ${room}:`, orderMessage);
+            const data = {
+                to: room, // user _id
+                title: orderMessage.order_no,
+                detail: 'มีการอัพเดทสถานะออร์เดอร์',
+                from: orderMessage.seller?.toString(), // sender name
+                icon: "#",
+                notify_type: "doneOrder"
             }
             const notifyData = await newNotify(data)
             if (notifyData) {
