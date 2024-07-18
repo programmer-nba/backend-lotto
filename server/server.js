@@ -46,6 +46,7 @@ app.use('/lotto', require('./api/routes/line.routes'))
 app.use('/lotto', require('./api/routes/notify.routes'))
 
 app.use('/lotto/api/v1', require('./api/routes/user/client_router.js'))
+app.use('/lotto/api/v1', require('./api/routes/user/shop_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/auth/auth_router.js'))
 
 // connect app to database -> starting server
