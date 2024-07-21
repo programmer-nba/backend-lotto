@@ -17,6 +17,7 @@ const clientSchema = new Schema(
         approveRefs: { type: Array, default: [] },
         active: { type: Boolean, default: true },
         role: { type: String, default: 'user' },
+        code: { type: String, required: true },
     },
     {
         timestamps: true

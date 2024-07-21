@@ -12,7 +12,8 @@ const lottoWholesaleSchema = new Schema(
         number: { type: Array, require: true }, // เลข 6 หลัก
         shop: { type: Object, require: true }, // ร้านค้า
         status: { type: String, default: "selling" }, // สถานะ
-        price: { type: Number, require: true, default: 80 }
+        price: { type: Number, require: true, default: 80 },
+        conflict: { type: Boolean, default: false }
     },
     {
         timestamps: true,
@@ -31,7 +32,8 @@ const lottoRetailSchema = new Schema(
         number: { type: Array, require: true }, // เลข 6 หลัก
         shop: { type: Object, require: true }, // ร้านค้า
         status: { type: String, default: "selling" }, // สถานะ
-        price: { type: Number, require: true, default: 80 }
+        price: { type: Number, require: true, default: 80 },
+        conflict: { type: Boolean, default: false }
     },
     {
         timestamps: true,
