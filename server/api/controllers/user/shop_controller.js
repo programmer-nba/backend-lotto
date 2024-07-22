@@ -54,7 +54,8 @@ exports.createShop = async (req, res) => {
         await newShop.save()
         return res.status(200).json({ 
             message: 'success!',
-            status: true
+            status: true,
+            data: newShop
         })
     }
     catch(err) {

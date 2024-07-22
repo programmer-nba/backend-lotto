@@ -1,12 +1,13 @@
-const File = require('../../models/user/file_model')
-const path = require('path')
+const File = require('../../models/user/file_model');
+const path = require('path');
 
 exports.createFile = async (req, res) => {
-    const { owner, title, type, refer } = req.body
-    const { fileName, mimetype, path: filePath } = req.file
+    const { owner, title, type, refer } = req.body;
+    const { filename: fileName, mimetype, path: filePath } = req.file || {}; // Prevent destructuring error by defaulting to empty object
+
     try {
-        if (!owner || !title || !type || !refer || !fileName || !fileType || !filePath) {
-            return res.status(400).json({ error: 'Please add all fields' })
+        if (!owner || !title || !type || !refer || !fileName || !mimetype || !filePath) {
+            return res.status(400).json({ error: 'Please add all fields' });
         }
         const newFile = new File({
             owner: owner,
@@ -16,19 +17,18 @@ exports.createFile = async (req, res) => {
             fileName: fileName,
             fileType: mimetype,
             filePath: filePath,
-        })
+        });
 
-        await newFile.save()
+        await newFile.save();
         return res.status(200).json({
             message: 'success',
             status: true
-        })
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: err.message });
     }
-    catch(err) {
-        console.log(err)
-        return res.status(500).json({ message: err.message })
-    }
-}
+};
 
 exports.getFilePath = async (req, res) => {
     const { id } = req.params;
@@ -50,4 +50,4 @@ exports.getFilePath = async (req, res) => {
         console.log(err);
         return res.status(500).json({ message: err.message });
     }
-}
+};
