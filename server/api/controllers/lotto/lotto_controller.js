@@ -1,4 +1,5 @@
-const { LottoWholesale, LottoRetail } = require('../models/Lotto/lotto_model')
+const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
+const Shop = require("../../models/user/shop_model")
 const dayjs = require('dayjs')
 require("dayjs/locale/th")
 const buddhistEra = require("dayjs/plugin/buddhistEra");
@@ -11,6 +12,22 @@ const thisYear = dayjs(new Date()).format('BB')
 const decode = (code) => {
     const arr = code.split('-')
     return arr
+}
+
+const getShopName = async (id) => {
+    try {
+        if (!id) {
+            return ''
+        }
+        const shop = await Shop.findById(id)
+        if (!shop) {
+            return ''
+        }
+        return shop.name
+    }
+    catch(err) {
+        return ''
+    }
 }
 
 exports.createLottosWholesale = async (req, res) => {
@@ -28,6 +45,7 @@ exports.createLottosWholesale = async (req, res) => {
 
         const createdCodes = codes.map((code) => {
             const decoded = decode(code)
+            const year = decoded[0]
             const period = decoded[1]
             const set = decoded[2]
             const numbers = decoded[3]
@@ -47,7 +65,8 @@ exports.createLottosWholesale = async (req, res) => {
                 number: number, // เลข 6 หลัก
                 shop: shop, // ร้านค้า
                 conflict: conflict,
-                price: price
+                price: price,
+                year: year,
             }
 
             return newData
@@ -69,13 +88,13 @@ exports.createLottosWholesale = async (req, res) => {
 }
 
 exports.getLottosWholesale = async (req, res) => {
-    const { filter, search, sortBy, sortOrder, page, limit } = req.query;
+    const { filter, search, sortBy, sortOrder, page, limit, shop } = req.query;
     try {
         // Initialize query object
         let query = {
             status: 'selling',
             conflict: false,
-            period: thisYear
+            year: thisYear
         };
 
         // Apply filter
@@ -101,6 +120,12 @@ exports.getLottosWholesale = async (req, res) => {
             query.code = { $regex: search, $options: 'i' }; // Case-insensitive search
         }
 
+        if (shop) {
+            query.shop = shop; // Case-insensitive search
+        }
+
+        //console.log(query)
+
         // Set default pagination and sorting options
         const currentPage = parseInt(page) || 1;
         const resultsPerPage = parseInt(limit) || 10;
@@ -108,6 +133,7 @@ exports.getLottosWholesale = async (req, res) => {
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
 
         // Execute query with pagination and sorting
+        //const lottos = await LottoWholesale.find()
         const lottos = await LottoWholesale.find(query)
             .sort({ [sortField]: sortDirection })
             .skip((currentPage - 1) * resultsPerPage)
@@ -116,16 +142,54 @@ exports.getLottosWholesale = async (req, res) => {
         // Count total results for pagination
         const totalResults = await LottoWholesale.countDocuments(query);
 
+        const formatLottos = lottos.map(async(lotto) => {
+            const shopName = await getShopName(lotto.shop)
+            const result = {...lotto._doc}
+            result.shop ={
+                name: shopName,
+                _id: lotto.shop
+            }
+            return result
+        })
+
+        const promisedLottos = await Promise.all(formatLottos)
+
         return res.status(200).json({
             message: 'success!',
             status: true,
-            data: lottos,
+            data: promisedLottos,
             pagination: {
                 currentPage,
                 resultsPerPage,
                 totalResults,
                 totalPages: Math.ceil(totalResults / resultsPerPage)
             }
+        });
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
+exports.getLottoWholesale = async (req, res) => {
+    const { id } = req.params;
+    try {
+        let lotto = await LottoWholesale.findById(id).select('-__v')
+        if(!lotto) {
+            return res.status(404).json({ message: 'not found lotto' })
+        }
+
+        const shopName = await getShopName(lotto.shop)
+        lotto.shop = {
+            name: shopName,
+            _id: lotto.shop
+        }
+
+        return res.status(200).json({
+            message: 'success!',
+            status: true,
+            data: lotto,
         });
     }
     catch (err) {

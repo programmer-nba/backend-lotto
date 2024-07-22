@@ -49,6 +49,7 @@ app.use('/lotto/api/v1', require('./api/routes/user/client_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/user/shop_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/auth/auth_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/user/file_router.js'))
+app.use('/lotto/api/v1', require('./api/routes/lotto/lotto_router.js'))
 
 // connect app to database -> starting server
 const database_url = process.env.DATABASE_URL
