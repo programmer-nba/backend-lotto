@@ -48,7 +48,14 @@ exports.createClient = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12)
 
+        const userLength = await Client.countDocuments()
+        const padCode = (userLength + 1).toString().padStart(4, '0')
+        const userCodePrefix = 'LT-'
+
+        const code = `${userCodePrefix}${padCode}`
+
         const newClient = new Client({
+            code: code,
             username: username,
             password: hashedPassword,
             displayName: displayName,
