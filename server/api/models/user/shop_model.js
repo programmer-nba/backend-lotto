@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const shopSchema = new Schema(
     {
+        code: { type: String, require: true },
         owner: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         name: { type: String, require: true },
         address: { type: String, require: true },

@@ -31,6 +31,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '10mb' }))
 app.set('view engine', 'ejs')
 
+app.use(express.static('uploads'))
+
 // use routes
 app.use('/lotto/admin', adminRoute)
 app.use('/lotto/seller', sellerRoute)
