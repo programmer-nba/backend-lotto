@@ -20,6 +20,13 @@ const shopSchema = new Schema(
         bankHolder: { type: String, default: "" },
         bankProvider: { type: String, default: "" },
         bankBranch: { type: String, default: "" },
+
+        deliveryMethods: { type: Array, default: [
+            {
+                name: "รถตู้",
+                price: 50
+            }
+        ] },
     },
     {
         timestamps: true
