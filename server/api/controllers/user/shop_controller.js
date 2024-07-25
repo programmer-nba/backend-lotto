@@ -85,11 +85,11 @@ exports.updateShop = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: 'id not found' })
         }
-        if (!owner || !name || !address || address?.trim() === '') {
-            return res.status(400).json({ message: 'owner, name, and address is required or invalid' })
+        if (!name || !address || address?.trim() === '') {
+            return res.status(400).json({ message: 'name, and address is required or invalid' })
         }
         const duplicatedShop = await Shop.findOne({ name: name })
-        if (duplicatedShop) {
+        if (duplicatedShop && duplicatedShop.name !== name) {
             return res.status(400).json({ message: 'Shop name already exists' })
         }
 
