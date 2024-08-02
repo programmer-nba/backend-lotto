@@ -3,6 +3,7 @@ const { Schema } = mongoose
 
 const orderWholesaleSchema = new Schema(
     {
+        code: { type: String, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         userAddress: { type: String, require: true },
         vatPercent: { type: Number, require: true },
@@ -21,9 +22,19 @@ const orderWholesaleSchema = new Schema(
 )
 const OrderWholesale = mongoose.model('OrderWholesale', orderWholesaleSchema)
 
+const orderWholesaleCountSchema = new Schema(
+    {
+        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderWholesale" },
+    },
+    {
+        timestamps: true
+    }
+)
+const OrderWholesaleCount = mongoose.model('OrderWholesaleCount', orderWholesaleCountSchema)
+
 const orderWholesaleLogSchema = new Schema(
     {
-        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderNew" },
+        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderWholesale" },
         status: { type: String, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
@@ -36,6 +47,7 @@ const OrderWholesaleLog = mongoose.model('OrderWholesaleLog', orderWholesaleLogS
 
 const orderRetailSchema = new Schema(
     {
+        code: { type: String, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         userAddress: { type: String, require: true },
         vatPercent: { type: Number, require: true },
@@ -54,9 +66,19 @@ const orderRetailSchema = new Schema(
 )
 const OrderRetail = mongoose.model('OrderRetail', orderRetailSchema)
 
+const orderRetailCountSchema = new Schema(
+    {
+        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderRetail" },
+    },
+    {
+        timestamps: true
+    }
+)
+const OrderRetailCount = mongoose.model('OrderRetailCount', orderRetailCountSchema)
+
 const orderRetailLogSchema = new Schema(
     {
-        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderNew" },
+        order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderRetail" },
         status: { type: String, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
@@ -67,4 +89,4 @@ const orderRetailLogSchema = new Schema(
 )
 const OrderRetailLog = mongoose.model('OrderRetailLog', orderRetailLogSchema)
 
-module.exports = {OrderWholesale, OrderWholesaleLog, OrderRetail, OrderRetailLog}
+module.exports = {OrderWholesale, OrderWholesaleCount, OrderWholesaleLog, OrderRetail, OrderRetailCount, OrderRetailLog}

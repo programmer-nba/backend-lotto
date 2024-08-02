@@ -1,5 +1,6 @@
 const Client = require("../../models/user/client_model")
 const bcrypt = require("bcrypt")
+const UserAddress = require('../../models/user/userAddress_model')
 
 exports.createClient = async (req, res) => {
     const {
@@ -222,6 +223,96 @@ exports.deleteClient = async (req, res) => {
         })
     }
     catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: err.message })
+    }
+}
+
+exports.getClientAddresses = async(req, res) => {
+    const { owner } = req.params
+    try {
+        if (!owner) {
+            return res.status(400).json({ message: "Invalid owner" })
+        }
+
+        const addresses = await UserAddress.find({ owner: owner })
+
+        return res.status(200).json({
+            data: addresses,
+            status: true,
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: err.message })
+    }
+}
+
+exports.createClientAddress = async(req, res) => {
+    const {
+        title,
+        owner,
+        houseNo,
+        province,
+        district,
+        subDistrict,
+        zipcode,
+        phone,
+        name
+    } = req.body
+    try {
+        if (!owner) {
+            return res.status(400).json({ message: "Invalid owner" })
+        }
+
+        const address = new UserAddress({
+            title: title,
+            owner: owner,
+            houseNo: houseNo,
+            province: province,
+            district: district,
+            subDistrict: subDistrict,
+            zipcode: zipcode,
+            fullAddress: `${houseNo} ${subDistrict} ${district} ${province} ${zipcode}`,
+            phone: phone,
+            name: name
+        })
+
+        const savedAddress = await address.save()
+        if (!savedAddress) {
+            return res.status(500).json({ message: "Server error" })
+        }
+
+        return res.status(200).json({
+            data: savedAddress,
+            status: true,
+            message: "success"
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: err.message })
+    }
+}
+
+exports.deleteClientAddress = async(req, res) => {
+    const { id } = req.params
+    try {
+        if (!id) {
+            return res.status(400).json({ message: "Invalid id" })
+        }
+
+        const address = await UserAddress.findByIdAndDelete(id)
+        if (!address) {
+            return res.status(404).json({ message: "Address not found" })
+        }
+
+        return res.status(200).json({
+            message: "delete success!",
+            status: true,
+        })
+    }
+    catch(err) {
         console.log(err)
         return res.status(500).json({ message: err.message })
     }

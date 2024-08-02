@@ -1,10 +1,30 @@
-const { OrderWholesale, OrderWholesaleLog } = require('../../models/Orders/order_model')
+const {
+    OrderWholesale, 
+    OrderWholesaleCount, 
+    OrderWholesaleLog, 
+    OrderRetail, 
+    OrderRetailCount, 
+    OrderRetailLog
+} = require('../../models/Orders/order_model')
 const Shop = require('../../models/user/shop_model')
 const Client = require('../../models/user/client_model')
 const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
 const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 const { DiscountShop } = require('../../models/Orders/discount_model')
 const UserAddress = require('../../models/user/userAddress_model')
+
+const dayjs = require('dayjs')
+require("dayjs/locale/th")
+const buddhistEra = require("dayjs/plugin/buddhistEra");
+dayjs.extend(buddhistEra)
+dayjs.locale("th")
+
+const generateCode = (prefix, count) => {
+    const date = dayjs(new Date()).format("BBMM")
+    const padCount = count.toString().padStart(3, '0')
+
+    return `${prefix}${date}${padCount}`
+}
 
 exports.createOrderWholesale = async (req, res) => {
     const { user, userAddress, vatPercent, items, discount, shop } = req.body
@@ -15,17 +35,21 @@ exports.createOrderWholesale = async (req, res) => {
         let totalDiscount = 0
         let totalVat = 0
         let totalNet = 0
-        let code = ""
 
         if (!vatPercent) {
             vatPercent = 0
         }
 
-        const [lottoSet, lottoRow, discounted] = await Promise.all([
+        const [lottoSet, lottoRow, discounted, orderLength] = await Promise.all([
             LottoWholesale.find({ _id: {$in: items} }),
             RowLottoWholesale.find({ _id: {$in: items} }),
-            DiscountShop.findById(discount)
+            DiscountShop.findById(discount),
+            OrderWholesaleCount.find()
         ])
+
+        const prefix = 'LW'
+        const count = orderLength.length + 1
+        const code = generateCode(prefix, count)
 
         if (lottoSet.length) {
             const lottoSetTotalPriceList = lottoSet.map(lotto => lotto.price)
@@ -49,7 +73,8 @@ exports.createOrderWholesale = async (req, res) => {
 
         totalNet = totalPrice - totalDiscount + totalVat
 
-        const order = new OrderNew({
+        const order = new OrderWholesale({
+            code: code,
             user: user,
             userAddress: userAddress,
             vatPercent: vatPercent,
@@ -90,7 +115,7 @@ exports.getOrdersWholesale = async (req, res) => {
         if (user) { query.user = user }
         if (shop) { query.shop = shop }
         
-        const orders = await OrderNew.find(query)
+        const orders = await OrderWholesale.find(query)
 
         if (!orders.length) {
             return res.status(200).json({
@@ -129,7 +154,7 @@ exports.getOrdersWholesale = async (req, res) => {
 exports.getOrderWholesale = async (req, res) => {
     const { id } = req.params
     try {
-        const order = await OrderNew.findById(id)
+        const order = await OrderWholesale.findById(id)
 
         if (!order) {
             return res.status(404).json({
@@ -159,7 +184,7 @@ exports.getOrderWholesale = async (req, res) => {
 exports.deleteOrderWholesale = async (req, res) => {
     const { id } = req.params
     try {
-        const order = await OrderNew.findByIdAndDelete(id)
+        const order = await OrderWholesale.findByIdAndDelete(id)
         if (!order) {
             return res.status(404).json({
                 message: 'no order found',

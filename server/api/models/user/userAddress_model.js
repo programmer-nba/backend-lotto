@@ -12,8 +12,7 @@ const userAddressSchema = new Schema(
         zipcode: { type: String, require: true }, // เลขไปรษณีย์
         fullAddress: { type: String, require: true }, // ที่อยู่เต็ม
         phone: { type: String, require: true }, // เบอร์โทรผู้รับ
-        name: { type: String, require: true }, // ชื่อผู้รับ,
-        mainAddress: { type: Number, require: true, default: 1 } // ที่อยู่หลัก
+        name: { type: String, require: true }, // ชื่อผู้รับ
     },
     {
         timestamps: true
