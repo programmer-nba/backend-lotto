@@ -93,16 +93,67 @@ exports.createOrderWholesale = async (req, res) => {
                 message: 'can not save order!',
             })
         }
+
+        const savedLog = await createOrderWholesaleLog({
+            order: savedOrder._id, 
+            status: status, 
+            user: user, 
+            shop: shop
+        })
+
+        const savedCount = await createOrderWholesaleCount(savedOrder._id)
+        if (!savedCount) {
+            return res.status(500).json({
+                message: 'can not save count!',
+            })
+        }
+
         return res.status(200).json({
             message: 'create order SUCCESS!',
             status: true,
-            data: savedOrder
+            data: savedOrder,
+            log: savedLog ? 'saved' : 'error',
         })
     } catch (err) {
         console.log(err)
         return res.status(500).json({
             message: err.message
         })
+    }
+}
+
+const createOrderWholesaleLog = async({order, status, user, shop}) => {
+    try {
+        const log = new OrderWholesaleLog({
+            order: order,
+            status: status,
+            user: user,
+            shop: shop
+        })
+        const savedLog = await log.save()
+        if (!savedLog) {
+            return false
+        }
+        return true
+    }
+    catch(err) {
+        console.log(err)
+        return false
+    }
+}
+
+const createOrderWholesaleCount = async (order) => {
+    try {
+        const count = new OrderWholesaleCount({order: order})
+        const savedCount = await count.save()
+        if (!savedCount) {
+            return false
+        }
+        return true
+    }
+    catch(err) {
+        console.log(err)
+        return false
     }
 }
 
