@@ -295,6 +295,55 @@ exports.createClientAddress = async(req, res) => {
     }
 }
 
+exports.updateClientAddress = async(req, res) => {
+    const {
+        title,
+        houseNo,
+        province,
+        district,
+        subDistrict,
+        zipcode,
+        phone,
+        name
+    } = req.body
+    const { id } = req.params
+    try {
+        if (!id) {
+            return res.status(400).json({ message: "Invalid id" })
+        }
+
+        const oldAddress = await UserAddress.findById(id)
+
+        const address = await UserAddress.findByIdAndUpdate(id, {
+                $set: {
+                    title: title || oldAddress.title,
+                    houseNo: houseNo || oldAddress.houseNo,
+                    province: province,
+                    district: district,
+                    subDistrict: subDistrict,
+                    zipcode: zipcode,
+                    fullAddress: `${houseNo || oldAddress.houseNo} ${subDistrict} ${district} ${province} ${zipcode}`,
+                    phone: phone || oldAddress.phone,
+                    name: name || oldAddress.name
+                }
+            }, { new: true })
+
+        if (!address) {
+            return res.status(500).json({ message: "Server error" })
+        }
+
+        return res.status(201).json({
+            data: address,
+            status: true,
+            message: "success"
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: err.message })
+    }
+}
+
 exports.deleteClientAddress = async(req, res) => {
     const { id } = req.params
     try {

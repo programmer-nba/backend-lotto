@@ -7,4 +7,9 @@ router.get("/clients", Client.getClients)
 router.get("/clients/:id", Client.getClient)
 router.delete("/clients/:id", Client.deleteClient)
 
+router.post("/:owner/address", Client.createClientAddress)
+router.update("/:owner/address", Client.updateClientAddress)
+router.get("/:owner/address", Client.getClientAddresses)
+router.delete("/address/:id", Client.deleteClientAddress)
+
 module.exports = router

@@ -122,6 +122,194 @@ exports.createOrderWholesale = async (req, res) => {
     }
 }
 
+exports.updateOrderWholesale = async (req, res) => {
+    const { id, userAddress, vatPercent, items, discount } = req.body
+    try {
+        if (!id) {
+            return res.status(404).json({
+                message: 'no id found',
+            })
+        }
+        const oldOrder = await OrderWholesale.findById(id)
+        if (!oldOrder) {
+            return res.status(404).json({
+                message: 'no order found',
+            })
+        }
+
+        let totalPrice = oldOrder.totalPrice
+        let totalDiscount = oldOrder.totalDiscount
+        let totalVat = oldOrder.totalVat
+        let totalNet = oldOrder.totalNet
+
+        if (!vatPercent) {
+            vatPercent = oldOrder.vatPercent
+        }
+
+        if (!items || !items.length) {
+            items = oldOrder.items
+        }
+
+        const [lottoSet, lottoRow, discounted] = await Promise.all([
+            LottoWholesale.find({ _id: {$in: items} }),
+            RowLottoWholesale.find({ _id: {$in: items} }),
+            DiscountShop.findById(discount),
+        ])
+
+        if (lottoSet.length) {
+            const lottoSetTotalPriceList = lottoSet.map(lotto => lotto.price)
+            const lottoSetTotalPrice = lottoSetTotalPriceList.reduce((a, b) => a + b, 0)
+            totalPrice += lottoSetTotalPrice || 0
+        }
+
+        if (lottoRow.length) {
+            const lottoRowTotalPriceList = lottoSet.map(lotto => lotto.price)
+            const lottoRowTotalPrice = lottoRowTotalPriceList.reduce((a, b) => a + b, 0)
+            totalPrice += lottoRowTotalPrice || 0
+        }
+
+        if (discounted) {
+            totalDiscount = discounted.amount || 0
+            totalVat = ((totalPrice - totalDiscount) * vatPercent) * 0.01
+        } else {
+            totalDiscount = 0
+            totalVat = (totalPrice * vatPercent) * 0.01
+        }
+
+        totalNet = totalPrice - totalDiscount + totalVat
+
+        const order = await OrderWholesale.findByIdAndUpdate( id, {
+            userAddress: userAddress,
+            vatPercent: vatPercent,
+            totalPrice: totalPrice,
+            totalDiscount: totalDiscount,
+            totalVat: totalVat,
+            totalNet: totalNet,
+            items: items,
+            discount: discount || oldOrder.discount
+        }, { new: true } )
+        
+        if (!order) {
+            return res.status(500).json({
+                message: 'can not save order!',
+            })
+        }
+
+        const savedLog = await createOrderWholesaleLog({
+            order: order._id, 
+            status: order.status, 
+            user: order.user, 
+            shop: order.shop
+        })
+
+        return res.status(200).json({
+            message: 'update order SUCCESS!',
+            status: true,
+            data: order,
+            log: savedLog ? 'saved' : 'error',
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: err.message
+        })
+    }
+}
+
+exports.checkoutOrderWholesale = async (req, res) => {
+    const { vatPercent, items, discount } = req.body
+    try {
+
+        let totalPrice = 0
+        let totalDiscount = 0
+        let totalVat = 0
+        let totalNet = 0
+
+        if (!vatPercent) {
+            vatPercent = 0
+        }
+
+        const [lottoSet, lottoRow, discounted] = await Promise.all([
+            LottoWholesale.find({ _id: {$in: items} }),
+            RowLottoWholesale.find({ _id: {$in: items} }),
+            DiscountShop.findById(discount),
+        ])
+
+        if (lottoSet.length) {
+            const lottoSetTotalPriceList = lottoSet.map(lotto => lotto.price)
+            const lottoSetTotalPrice = lottoSetTotalPriceList.reduce((a, b) => a + b, 0)
+            totalPrice += lottoSetTotalPrice || 0
+        }
+
+        if (lottoRow.length) {
+            const lottoRowTotalPriceList = lottoSet.map(lotto => lotto.price)
+            const lottoRowTotalPrice = lottoRowTotalPriceList.reduce((a, b) => a + b, 0)
+            totalPrice += lottoRowTotalPrice || 0
+        }
+
+        if (discounted) {
+            totalDiscount = discounted.amount || 0
+            totalVat = ((totalPrice - totalDiscount) * vatPercent) * 0.01
+        } else {
+            totalDiscount = 0
+            totalVat = (totalPrice * vatPercent) * 0.01
+        }
+
+        totalNet = totalPrice - totalDiscount + totalVat
+
+        const order = {
+            vatPercent: vatPercent,
+            totalPrice: totalPrice,
+            totalDiscount: totalDiscount,
+            totalVat: totalVat,
+            totalNet: totalNet,
+            items: items,
+            discount: discount
+        }
+
+        return res.status(200).json({
+            message: 'SUCCESS!',
+            status: true,
+            data: order
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: err.message
+        })
+    }
+}
+
+exports.updateStatusOrderWholesale = async (req, res) => {
+    const { id, status } = req.body
+    try {
+        const order = await OrderWholesale.findByIdAndUpdate(id, {status: status})
+        if (!order) {
+            return res.status(404).json({
+                message: 'no order found',
+            })
+        }
+
+        const savedLog = await createOrderWholesaleLog({
+            order: order._id, 
+            status: status, 
+            user: order.user, 
+            shop: order.shop
+        })
+
+        return res.status(200).json({
+            message: 'update status success',
+            status: true,
+            log: savedLog ? 'saved' : 'error',
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: err.message
+        })
+    }
+}
+
 const createOrderWholesaleLog = async({order, status, user, shop}) => {
     try {
         const log = new OrderWholesaleLog({
