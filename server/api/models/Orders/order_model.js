@@ -5,7 +5,7 @@ const orderWholesaleSchema = new Schema(
     {
         code: { type: String, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
-        userAddress: { type: String, require: true },
+        userAddress: { type: String, require: true, default: "" },
         vatPercent: { type: Number, require: true },
         totalPrice: { type: Number, require: true },
         totalDiscount: { type: Number, require: true },
@@ -15,6 +15,9 @@ const orderWholesaleSchema = new Schema(
         discount: { type: String, default: "" },
         status: { type: String, require: true, default: "pending" },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
+        transferBy: { type: String, default: "" }, 
+        transferPrice: { type: Number, default: 0 }, 
+        deliveryMethod: { type: String, default: "" }
     },
     {
         timestamps: true

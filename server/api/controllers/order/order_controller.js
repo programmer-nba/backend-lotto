@@ -27,18 +27,15 @@ const generateCode = (prefix, count) => {
 }
 
 exports.createOrderWholesale = async (req, res) => {
-    const { user, userAddress, vatPercent, items, discount, shop } = req.body
+    const { user, userAddress, vatPercent, items, discount, shop, transferBy, transferPrice, deliveryMethod } = req.body
     try {
 
         let status = 'pending'
-        let totalPrice = 0
+        let totalPrice = parseFloat(transferPrice) || 0
         let totalDiscount = 0
         let totalVat = 0
         let totalNet = 0
-
-        if (!vatPercent) {
-            vatPercent = 0
-        }
+        let vat = vatPercent || 0
 
         const [lottoSet, lottoRow, discounted, orderLength] = await Promise.all([
             LottoWholesale.find({ _id: {$in: items} }),
@@ -68,7 +65,7 @@ exports.createOrderWholesale = async (req, res) => {
             totalVat = ((totalPrice - totalDiscount) * vatPercent) * 0.01
         } else {
             totalDiscount = 0
-            totalVat = (totalPrice * vatPercent) * 0.01
+            totalVat = (totalPrice * vat) * 0.01
         }
 
         totalNet = totalPrice - totalDiscount + totalVat
@@ -77,7 +74,7 @@ exports.createOrderWholesale = async (req, res) => {
             code: code,
             user: user,
             userAddress: userAddress,
-            vatPercent: vatPercent,
+            vatPercent: vat,
             totalPrice: totalPrice,
             totalDiscount: totalDiscount,
             totalVat: totalVat,
@@ -85,7 +82,10 @@ exports.createOrderWholesale = async (req, res) => {
             items: items,
             discount: discount,
             status: status,
-            shop: shop
+            shop: shop,
+            transferBy: transferBy,
+            transferPrice: transferPrice,
+            deliveryMethod: deliveryMethod
         })
         const savedOrder = await order.save()
         if (!savedOrder) {
@@ -123,11 +123,16 @@ exports.createOrderWholesale = async (req, res) => {
 }
 
 exports.updateOrderWholesale = async (req, res) => {
-    const { id, userAddress, vatPercent, items, discount } = req.body
+    const { id, userAddress, vatPercent, items, discount, transferBy, transferPrice, deliveryMethod } = req.body
     try {
         if (!id) {
-            return res.status(404).json({
+            return res.status(400).json({
                 message: 'no id found',
+            })
+        }
+        if (!items) {
+            return res.status(400).json({
+                message: 'no items found',
             })
         }
         const oldOrder = await OrderWholesale.findById(id)
@@ -137,22 +142,16 @@ exports.updateOrderWholesale = async (req, res) => {
             })
         }
 
-        let totalPrice = oldOrder.totalPrice
+        let totalPrice = parseFloat(transferPrice) || 0
         let totalDiscount = oldOrder.totalDiscount
         let totalVat = oldOrder.totalVat
         let totalNet = oldOrder.totalNet
-
-        if (!vatPercent) {
-            vatPercent = oldOrder.vatPercent
-        }
-
-        if (!items || !items.length) {
-            items = oldOrder.items
-        }
+        let vat = vatPercent || oldOrder.vatPercent
+        let currentItems = items && items?.length ? items : oldOrder.items
 
         const [lottoSet, lottoRow, discounted] = await Promise.all([
-            LottoWholesale.find({ _id: {$in: items} }),
-            RowLottoWholesale.find({ _id: {$in: items} }),
+            LottoWholesale.find({ _id: {$in: currentItems} }),
+            RowLottoWholesale.find({ _id: {$in: currentItems} }),
             DiscountShop.findById(discount),
         ])
 
@@ -170,23 +169,26 @@ exports.updateOrderWholesale = async (req, res) => {
 
         if (discounted) {
             totalDiscount = discounted.amount || 0
-            totalVat = ((totalPrice - totalDiscount) * vatPercent) * 0.01
+            totalVat = ((totalPrice - totalDiscount) * vat) * 0.01
         } else {
             totalDiscount = 0
-            totalVat = (totalPrice * vatPercent) * 0.01
+            totalVat = (totalPrice * vat) * 0.01
         }
 
         totalNet = totalPrice - totalDiscount + totalVat
 
         const order = await OrderWholesale.findByIdAndUpdate( id, {
             userAddress: userAddress,
-            vatPercent: vatPercent,
+            vatPercent: vat,
             totalPrice: totalPrice,
             totalDiscount: totalDiscount,
             totalVat: totalVat,
             totalNet: totalNet,
-            items: items,
-            discount: discount || oldOrder.discount
+            items: currentItems,
+            discount: discount || oldOrder.discount,
+            transferBy: transferBy || oldOrder.transferBy, 
+            transferPrice: transferPrice || oldOrder.transferPrice, 
+            deliveryMethod: deliveryMethod || oldOrder.deliveryMethod
         }, { new: true } )
         
         if (!order) {
@@ -354,7 +356,7 @@ exports.getOrdersWholesale = async (req, res) => {
         if (user) { query.user = user }
         if (shop) { query.shop = shop }
         
-        const orders = await OrderWholesale.find(query)
+        const orders = await OrderWholesale.find(query).select('-__v')
 
         if (!orders.length) {
             return res.status(200).json({
@@ -367,7 +369,7 @@ exports.getOrdersWholesale = async (req, res) => {
         let formattedOrders = []
 
         const promiseOrders = orders.map(async order => {
-            const clientAddress = await UserAddress.findById(order.userAddress)
+            const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findOne({ _id: order.userAddress}) : null
             const formattedOrder = {
                 ...order._doc,
                 _userAddress: clientAddress || {}
