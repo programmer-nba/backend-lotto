@@ -371,10 +371,12 @@ exports.getOrdersWholesale = async (req, res) => {
         const promiseOrders = orders.map(async order => {
             const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findOne({ _id: order.userAddress}) : null
             const shopOrder = await Shop.findById(order.shop)
+            const userOrder = await Client.findById(order.user)
             const formattedOrder = {
                 ...order._doc,
                 _userAddress: clientAddress || {},
-                shopName: shopOrder?.name || ""
+                shopName: shopOrder?.name || "",
+                userName: userOrder?.displayName || `${userOrder.firstName || ""} ${userOrder.lastName || ""}`
             }
             formattedOrders.push(formattedOrder)
         })
@@ -397,7 +399,7 @@ exports.getOrdersWholesale = async (req, res) => {
 exports.getOrderWholesale = async (req, res) => {
     const { id } = req.params
     try {
-        const order = await OrderWholesale.findById(id)
+        const order = await OrderWholesale.findById(id).select('-__v')
 
         if (!order) {
             return res.status(404).json({
@@ -405,10 +407,20 @@ exports.getOrderWholesale = async (req, res) => {
             })
         }
 
-        const clientAddress = await UserAddress.findById(order.userAddress)
+        const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findById(order.userAddress) : {}
+
+        const allItems = order.items.map(async(item) => {
+            const lotto = await LottoWholesale.findById(item).select('-__v -createdAt -updatedAt')
+            return lotto
+        })
+        const promiseItems = await Promise.all(allItems)
+       
         const formattedOrder = {
             ...order._doc,
-            _userAddress: clientAddress || {}
+            _items: promiseItems,
+            _userAddress: clientAddress,
+            _shop: await Shop.findById(order.shop).select('name code phone email address bankHolder bankAccount bankProvider bankBranch -_id'),
+            _user: await Client.findById(order.user).select('displayName code phone email address')
         }
         
         return res.status(200).json({
