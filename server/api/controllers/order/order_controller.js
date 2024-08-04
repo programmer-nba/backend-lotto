@@ -370,9 +370,11 @@ exports.getOrdersWholesale = async (req, res) => {
 
         const promiseOrders = orders.map(async order => {
             const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findOne({ _id: order.userAddress}) : null
+            const shopOrder = await Shop.findById(order.shop)
             const formattedOrder = {
                 ...order._doc,
-                _userAddress: clientAddress || {}
+                _userAddress: clientAddress || {},
+                shopName: shopOrder?.name || ""
             }
             formattedOrders.push(formattedOrder)
         })
