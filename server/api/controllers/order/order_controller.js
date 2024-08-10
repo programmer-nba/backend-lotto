@@ -332,6 +332,23 @@ const createOrderWholesaleLog = async({order, status, user, shop}) => {
     }
 }
 
+exports.getOrderWholesaleLogs = async(req, res) => {
+    const { order_id } = req.params
+    try {
+        
+        const logs = await OrderWholesaleLog.find({order: order_id}).select('-__v')
+        return res.status(200).json({
+            message: 'success',
+            status: true,
+            data: logs
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return false
+    }
+}
+
 const createOrderWholesaleCount = async (order) => {
     try {
         const count = new OrderWholesaleCount({order: order})
