@@ -52,6 +52,7 @@ app.use('/lotto/api/v1', require('./api/routes/user/shop_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/auth/auth_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/user/file_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/lotto/lotto_router.js'))
+app.use('/lotto/api/v1', require('./api/routes/lotto/rowlotto_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/order/order_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/order/cart_router.js'))
 
