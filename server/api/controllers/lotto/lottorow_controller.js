@@ -80,7 +80,8 @@ exports.createRowLottoWholesale = async (req, res) => {
 
         const rowLotto = new RowLottoWholesale({
             lottos: lottos,
-            period: period,
+            period: lottos[0].period,
+            year: lottos[0].year,
             type: "หวยแถว",
             market: "wholesale",
             qty: qty,
@@ -112,7 +113,7 @@ exports.getRowLottosWholesale = async (req, res) => {
         // Initialize query object
         let query = {
             status: 'selling',
-            year: thisYear
+            //year: thisYear
         };
 
         // Apply filter
