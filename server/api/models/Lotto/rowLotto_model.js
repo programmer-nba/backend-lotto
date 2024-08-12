@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const rowLottoWholesaleSchema = new Schema(
     {
-        codes: { type: Array, require: true }, // เลข qrcode ของรายการชุด
+        lottos: { type: Array, require: true }, // เลข qrcode ของรายการชุด
         period: { type: String, require: true }, // งวดที่
         type: { type: String, default: "หวยแถว" }, // ประเภทสลาก
         market: { type: String, require: true, default: "wholesale" }, // ตลาด
@@ -21,7 +21,7 @@ const RowLottoWholesale = mongoose.model('RowLottoWholesale', rowLottoWholesaleS
 
 const rowLottoRetailSchema = new Schema(
     {
-        codes: { type: Array, require: true }, // เลข qrcode ของรายการชุด
+        lottos: { type: Array, require: true }, // เลข qrcode ของรายการชุด
         period: { type: String, require: true }, // งวดที่
         type: { type: String, default: "หวยแถว" }, // ประเภทสลาก
         market: { type: String, require: true, default: "retail" }, // ตลาด

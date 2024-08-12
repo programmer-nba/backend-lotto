@@ -1,4 +1,5 @@
 const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
+const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 const Shop = require("../../models/user/shop_model")
 const dayjs = require('dayjs')
 require("dayjs/locale/th")
@@ -30,7 +31,7 @@ const getShopName = async (id) => {
     }
 }
 
-exports.createLottosWholesale = async (req, res) => {
+exports.createRowLottoWholesale = async (req, res) => {
     const { 
         codes,
         qty,
@@ -65,20 +66,38 @@ exports.createLottosWholesale = async (req, res) => {
                 number: number, // เลข 6 หลัก
                 shop: shop, // ร้านค้า
                 conflict: conflict,
-                price: price,
+                price: 0,
                 year: year,
+                type: 'หวยแถว'
             }
 
             return newData
         })
         
-        await LottoWholesale.insertMany(createdCodes)
+        const savedlottos = await LottoWholesale.insertMany(createdCodes)
+
+        const lottos = savedlottos.map(lotto => lotto._id)
+
+        const rowLotto = new RowLottoWholesale({
+            lottos: lottos,
+            period: period,
+            type: "หวยแถว",
+            market: "wholesale",
+            qty: qty,
+            length: lottos.length,
+            shop: shop, // ร้านค้า
+            status: "selling",
+            price: price
+        })
+
+        const savedRowLotto = await rowLotto.save()
 
         return res.status(200).json({
             message: "success",
             status: true,
             amount: createdCodes.length,
-            conflict: conflictCount
+            conflict: conflictCount,
+            data: savedRowLotto
         })
     }
     catch (err) {
@@ -87,14 +106,12 @@ exports.createLottosWholesale = async (req, res) => {
     }
 }
 
-exports.getLottosWholesale = async (req, res) => {
-    const { filter, search, sortBy, sortOrder, page, limit, shop } = req.query;
+exports.getRowLottosWholesale = async (req, res) => {
+    const { filter, sortBy, sortOrder, page, limit, shop } = req.query;
     try {
         // Initialize query object
         let query = {
-            type: 'หวยชุด',
             status: 'selling',
-            conflict: false,
             year: thisYear
         };
 
@@ -107,25 +124,15 @@ exports.getLottosWholesale = async (req, res) => {
                 case 'isSold':
                     query.status = 'sold';
                     break;
-                case 'isConflict':
-                    query.conflict = true;
-                    break;
                 default:
                     // If the filter is not recognized, return an error
                     return res.status(400).json({ message: 'Invalid filter parameter' });
             }
         }
 
-        // Apply search (example: search by name)
-        if (search) {
-            query.code = { $regex: search, $options: 'i' }; // Case-insensitive search
-        }
-
         if (shop) {
             query.shop = shop; // Case-insensitive search
         }
-
-        //console.log(query)
 
         // Set default pagination and sorting options
         const currentPage = parseInt(page) || 1;
@@ -135,15 +142,15 @@ exports.getLottosWholesale = async (req, res) => {
 
         // Execute query with pagination and sorting
         //const lottos = await LottoWholesale.find()
-        const lottos = await LottoWholesale.find(query)
+        const rowlottos = await RowLottoWholesale.find(query)
             .sort({ [sortField]: sortDirection })
             .skip((currentPage - 1) * resultsPerPage)
             .limit(resultsPerPage);
 
         // Count total results for pagination
-        const totalResults = await LottoWholesale.countDocuments(query);
+        const totalResults = await RowLottoWholesale.countDocuments(query);
 
-        const formatLottos = lottos.map(async(lotto) => {
+        const formatRowLottos = rowlottos.map(async(lotto) => {
             const shopName = await getShopName(lotto.shop)
             const result = {...lotto._doc}
             result.shop ={
@@ -153,7 +160,7 @@ exports.getLottosWholesale = async (req, res) => {
             return result
         })
 
-        const promisedLottos = await Promise.all(formatLottos)
+        const promisedLottos = await Promise.all(formatRowLottos)
 
         return res.status(200).json({
             message: 'success!',
@@ -173,10 +180,10 @@ exports.getLottosWholesale = async (req, res) => {
     }
 }
 
-exports.getLottoWholesale = async (req, res) => {
+exports.getRowLottoWholesale = async (req, res) => {
     const { id } = req.params;
     try {
-        let lotto = await LottoWholesale.findById(id).select('-__v')
+        let lotto = await RowLottoWholesale.findById(id).select('-__v')
         if(!lotto) {
             return res.status(404).json({ message: 'not found lotto' })
         }
