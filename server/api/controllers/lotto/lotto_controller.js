@@ -182,15 +182,18 @@ exports.getLottoWholesale = async (req, res) => {
         }
 
         const shopName = await getShopName(lotto.shop)
-        lotto.shop = {
+
+        let result = {...lotto._doc}
+        result.shop ={
             name: shopName,
             _id: lotto.shop
         }
+        //console.log(result)
 
         return res.status(200).json({
             message: 'success!',
             status: true,
-            data: lotto,
+            data: result,
         });
     }
     catch (err) {
