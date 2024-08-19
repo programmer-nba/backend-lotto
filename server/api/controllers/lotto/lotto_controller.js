@@ -1,4 +1,5 @@
 const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
+const { Cart, ExpireCartTime } = require('../../models/Orders/cart_model')
 const Shop = require("../../models/user/shop_model")
 const dayjs = require('dayjs')
 require("dayjs/locale/th")
@@ -12,6 +13,17 @@ const thisYear = dayjs(new Date()).format('BB')
 const decode = (code) => {
     const arr = code.split('-')
     return arr
+}
+
+const checkExpire = (date) => {
+    const expire = dayjs(date)
+    const now = dayjs()
+    const diff = expire.diff(now, 'minute')
+    //console.log('diff', diff)
+    if (diff < 0) {
+        return true
+    }
+    return false
 }
 
 const getShopName = async (id) => {
@@ -88,7 +100,7 @@ exports.createLottosWholesale = async (req, res) => {
 }
 
 exports.getLottosWholesale = async (req, res) => {
-    const { filter, search, sortBy, sortOrder, page, limit, shop } = req.query;
+    const { filter, search, sortBy, sortOrder, page, limit, shop, user_id } = req.query;
     try {
         // Initialize query object
         let query = {
@@ -155,10 +167,27 @@ exports.getLottosWholesale = async (req, res) => {
 
         const promisedLottos = await Promise.all(formatLottos)
 
+        const itemsIncart = await Cart.find()
+        //console.log(itemsIncart)
+        const activeItemsInCart = itemsIncart.filter(item => !checkExpire(item.expire))
+        //console.log(activeItemsInCart)
+        const itemIdsInCart = activeItemsInCart.map(item => item.item_id+"")
+        const itemsUserInCart = activeItemsInCart.filter(item => item.user_id+"" === user_id)?.map(item => item.item_id+"")
+        //console.log(user_id)
+        //console.log(activeItemsInCart)
+        //console.log(itemsUserInCart)
+        const lottosActive = promisedLottos.filter(lotto => !itemIdsInCart.includes(lotto._id + ""))
+        const lottosUserInCart = promisedLottos.filter(lotto => itemsUserInCart.includes(lotto._id + ""))
+        //console.log(lottosUserInCart)
+        const allLottos = [...lottosActive, ...lottosUserInCart]
+
         return res.status(200).json({
             message: 'success!',
             status: true,
-            data: promisedLottos,
+            data: allLottos,
+            selling: lottosActive.length,
+            ordering: itemIdsInCart.length,
+            userown: lottosUserInCart.length,
             pagination: {
                 currentPage,
                 resultsPerPage,
@@ -199,5 +228,28 @@ exports.getLottoWholesale = async (req, res) => {
     catch (err) {
         console.log(err)
         return res.status(500).json(err.message)
+    }
+}
+
+exports.checkExpiredItems = async () => {
+    try {
+        const itemsIncart = await Cart.find()
+        //console.log(itemsIncart)
+        const expiredItemsInCart = itemsIncart.filter(item => checkExpire(item.expire))
+        //console.log(expiredItemsInCart)
+        const itemIdsInCart = expiredItemsInCart.map(item => item.item_id)
+
+        const deletedItems = await Cart.deleteMany({ item_id: { $in: itemIdsInCart } })
+        if (deletedItems.deletedCount > 0) {
+            console.log(`Deleted ${deletedItems.deletedCount} expired items`)
+            return true
+        } else {
+            console.log(`Deleted ${deletedItems.deletedCount} expired items`)
+            return true
+        }
+    }
+    catch(err){
+        console.log(err)
+        return false
     }
 }

@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const return_lottos = require('./api/configs/returnLottos.js')
+const { checkExpiredItems } = require('./api/controllers/lotto/lotto_controller.js')
 const socketio = require('socket.io')
 const http = require('http')
 const socketController = require('./api/controllers/socket.controller.js')
@@ -94,6 +95,7 @@ mongoose.connect(database_url)
     })
 
 setInterval(() => {
-    return_lottos()
-}, 180000);
+    //return_lottos()
+    checkExpiredItems()
+}, 60000);
 
