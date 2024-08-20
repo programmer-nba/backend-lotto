@@ -87,7 +87,7 @@ exports.createRowLottoWholesale = async (req, res) => {
             qty: qty,
             length: lottos.length,
             shop: shop, // ร้านค้า
-            status: "selling",
+            status: 1,
             price: price
         })
 
@@ -107,12 +107,43 @@ exports.createRowLottoWholesale = async (req, res) => {
     }
 }
 
+exports.updateRowLottoWholesale = async (req, res) => {
+    const { 
+        shop,
+        price
+    } = req.body
+    const { id } = req.params
+    try {
+
+        let rowLotto = await RowLottoWholesale.findOne({ _id: id, shop: shop })
+        if (!rowLotto) {
+            return res.status(404).json({ message: 'not found row lotto' })
+        }
+
+        const updatedRowLotto = await rowLotto.findByIdAndUpdate(id, {
+            $set: {
+                price: price
+            }
+        }, { new: true })
+
+        return res.status(200).json({
+            message: "update success",
+            status: true,
+            data: updatedRowLotto
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
 exports.getRowLottosWholesale = async (req, res) => {
     const { filter, sortBy, sortOrder, page, limit, shop } = req.query;
     try {
         // Initialize query object
         let query = {
-            status: 'selling',
+            status: 1,
             //year: thisYear
         };
 
@@ -120,10 +151,10 @@ exports.getRowLottosWholesale = async (req, res) => {
         if (filter) {
             switch (filter) {
                 case 'isOrdering':
-                    query.status = 'ordering';
+                    query.status = 2;
                     break;
                 case 'isSold':
-                    query.status = 'sold';
+                    query.status = 3;
                     break;
                 default:
                     // If the filter is not recognized, return an error

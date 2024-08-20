@@ -48,16 +48,36 @@ exports.createOrderWholesale = async (req, res) => {
         const count = orderLength.length + 1
         const code = generateCode(prefix, count)
 
+        let updatedLottoWholesale = 0
         if (lottoSet.length) {
             const lottoSetTotalPriceList = lottoSet.map(lotto => lotto.price)
             const lottoSetTotalPrice = lottoSetTotalPriceList.reduce((a, b) => a + b, 0)
             totalPrice += lottoSetTotalPrice || 0
+
+            await Promise.all(lottoSet.map(lt => {
+                LottoWholesale.findByIdAndUpdate(lt._id, {
+                    $set: {
+                        status: 2
+                    }
+                })
+                updatedLottoWholesale ++
+            }))
         }
 
+        let updatedRowLottoWholesale = 0
         if (lottoRow.length) {
             const lottoRowTotalPriceList = lottoSet.map(lotto => lotto.price)
             const lottoRowTotalPrice = lottoRowTotalPriceList.reduce((a, b) => a + b, 0)
             totalPrice += lottoRowTotalPrice || 0
+
+            await Promise.all(lottoSet.map(rlt => {
+                RowLottoWholesale.findByIdAndUpdate(rlt._id, {
+                    $set: {
+                        status: 2
+                    }
+                })
+                updatedRowLottoWholesale ++
+            }))
         }
 
         if (discounted) {
@@ -113,6 +133,7 @@ exports.createOrderWholesale = async (req, res) => {
             status: true,
             data: savedOrder,
             log: savedLog ? 'saved' : 'error',
+            updated: `lotto: ${updatedLottoWholesale}, rowLotto: ${updatedRowLottoWholesale}`
         })
     } catch (err) {
         console.log(err)

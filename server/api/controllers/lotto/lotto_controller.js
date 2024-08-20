@@ -99,25 +99,54 @@ exports.createLottosWholesale = async (req, res) => {
     }
 }
 
+exports.updateLottoWholesale = async (req, res) => {
+    const {
+        shop,
+        price
+    } = req.body
+    const { id } = req.params
+    try {
+        let lotto = await LottoWholesale.findOne({ _id: id, shop: shop })
+        if (!lotto) {
+            return res.status(404).json({ message: 'not found lotto' })
+        }
+        
+        await LottoWholesale.findByIdAndUpdate(id, {
+            $set: {
+                price: price && price > 0 ? price : lotto.price
+            }
+        }, { new: true })
+
+        return res.status(200).json({
+            message: "update success",
+            status: true
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
 exports.getLottosWholesale = async (req, res) => {
     const { filter, search, sortBy, sortOrder, page, limit, shop, user_id } = req.query;
     try {
         // Initialize query object
         let query = {
             type: 'หวยชุด',
-            status: 'selling',
             conflict: false,
-            year: thisYear
+            year: thisYear,
+            //status: 1
         };
 
         // Apply filter
         if (filter) {
             switch (filter) {
-                case 'isOrdering':
-                    query.status = 'ordering';
+                case '2':
+                    query.status = 2;
                     break;
-                case 'isSold':
-                    query.status = 'sold';
+                case '3':
+                    query.status = 3;
                     break;
                 case 'isConflict':
                     query.conflict = true;
@@ -148,9 +177,9 @@ exports.getLottosWholesale = async (req, res) => {
         // Execute query with pagination and sorting
         //const lottos = await LottoWholesale.find()
         const lottos = await LottoWholesale.find(query)
-            .sort({ [sortField]: sortDirection })
-            .skip((currentPage - 1) * resultsPerPage)
-            .limit(resultsPerPage);
+          .sort({ [sortField]: sortDirection })
+          .skip((currentPage - 1) * resultsPerPage)
+          .limit(resultsPerPage);
 
         // Count total results for pagination
         const totalResults = await LottoWholesale.countDocuments(query);
