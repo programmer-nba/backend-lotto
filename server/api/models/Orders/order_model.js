@@ -13,7 +13,7 @@ const orderWholesaleSchema = new Schema(
         totalNet: { type: Number, require: true },
         items: { type: Array, require: true },
         discount: { type: String, default: "" },
-        status: { type: String, require: true, default: "pending" },
+        status: { type: Number, require: true, default: 1 },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
         transferBy: { type: String, default: "" }, 
         transferPrice: { type: Number, default: 0 }, 
@@ -38,7 +38,7 @@ const OrderWholesaleCount = mongoose.model('OrderWholesaleCount', orderWholesale
 const orderWholesaleLogSchema = new Schema(
     {
         order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderWholesale" },
-        status: { type: String, require: true },
+        status: { type: Number, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
     },
@@ -60,7 +60,7 @@ const orderRetailSchema = new Schema(
         totalNet: { type: Number, require: true },
         items: { type: Array, require: true },
         discount: { type: String, default: "" },
-        status: { type: String, require: true, default: "pending" },
+        status: { type: Number, require: true, default: 1 },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
     },
     {
@@ -82,7 +82,7 @@ const OrderRetailCount = mongoose.model('OrderRetailCount', orderRetailCountSche
 const orderRetailLogSchema = new Schema(
     {
         order: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "OrderRetail" },
-        status: { type: String, require: true },
+        status: { type: Number, require: true },
         user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
     },

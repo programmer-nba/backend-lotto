@@ -166,11 +166,11 @@ exports.getLottosWholesale = async (req, res) => {
             query.shop = shop; // Case-insensitive search
         }
 
-        //console.log(query)
+        console.log(query)
 
         // Set default pagination and sorting options
         const currentPage = parseInt(page) || 1;
-        const resultsPerPage = parseInt(limit) || 10;
+        const resultsPerPage = parseInt(limit) || 0;
         const sortField = sortBy || 'createdAt';
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
 

@@ -143,7 +143,7 @@ exports.getRowLottosWholesale = async (req, res) => {
     try {
         // Initialize query object
         let query = {
-            status: 1,
+            //status: 1,
             //year: thisYear
         };
 
@@ -168,7 +168,7 @@ exports.getRowLottosWholesale = async (req, res) => {
 
         // Set default pagination and sorting options
         const currentPage = parseInt(page) || 1;
-        const resultsPerPage = parseInt(limit) || 10;
+        const resultsPerPage = parseInt(limit) || 0;
         const sortField = sortBy || 'createdAt';
         const sortDirection = sortOrder === 'desc' ? -1 : 1;
 

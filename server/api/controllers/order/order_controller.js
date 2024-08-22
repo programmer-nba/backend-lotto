@@ -12,6 +12,7 @@ const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model'
 const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 const { DiscountShop } = require('../../models/Orders/discount_model')
 const UserAddress = require('../../models/user/userAddress_model')
+const File = require('../../models/user/file_model');
 
 const dayjs = require('dayjs')
 require("dayjs/locale/th")
@@ -30,7 +31,7 @@ exports.createOrderWholesale = async (req, res) => {
     const { user, userAddress, vatPercent, items, discount, shop, transferBy, transferPrice, deliveryMethod } = req.body
     try {
 
-        let status = 'pending'
+        let status = 1
         let totalPrice = parseFloat(transferPrice) || 0
         let totalDiscount = 0
         let totalVat = 0
@@ -424,7 +425,7 @@ exports.getOrdersWholesale = async (req, res) => {
             message: `have ${formattedOrders.length} orders`,
             status: true,
             amount: formattedOrders.length,
-            data: formattedOrders
+            data: formattedOrders.sort((a, b) => a.createdAt - b.createdAt)
         })
     } catch (err) {
         console.log(err)
@@ -495,3 +496,60 @@ exports.deleteOrderWholesale = async (req, res) => {
         })
     }
 }
+
+// reports
+exports.getOrderWholesaleReports = async (req, res) => {
+    const { shop_id } = req.query
+    try {
+        let query = {}
+
+        if (shop_id) { query.shop = shop_id }
+
+        const orders = await OrderWholesale.find(query)
+        const status_1 = orders.filter(order => order.status === 1).length
+        const status_2 = orders.filter(order => order.status === 2).length
+        const status_3 = orders.filter(order => order.status === 3).length
+        const status_4 = orders.filter(order => order.status === 4).length
+        const status_5 = orders.filter(order => order.status === 5).length
+        const status_0 = orders.filter(order => order.status === 0).length
+        const allDoneNet = orders.filter(order => order.status === 5).map(order => order.totalNet).reduce((a, b) => a + b, 0)
+
+        return res.status(200).json({
+            message: 'success',
+            status: true,
+            data: {
+                status_1,
+                status_2,
+                status_3,
+                status_4,
+                status_5,
+                status_0,
+                allDoneNet
+            }
+        })
+    }
+    catch(err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
+exports.getOrderSlips = async (req, res) => {
+    const { order_id } = req.params;
+    try {
+        if (!order_id) {
+            return res.status(400).json({ message: 'order_id not provided' });
+        }
+
+        const files = await File.find({ refer: order_id, type: 'payment' });
+        
+        return res.status(200).json({
+            message: 'success',
+            status: true,
+            data: files
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: err.message });
+    }
+};
