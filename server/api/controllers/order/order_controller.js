@@ -28,10 +28,15 @@ const generateCode = (prefix, count) => {
 }
 
 exports.createOrderWholesale = async (req, res) => {
-    const { user, userAddress, vatPercent, items, discount, shop, transferBy, transferPrice, deliveryMethod } = req.body
+    const { user, userAddress, vatPercent, items, discount_id, discount_manual, shop, transferBy, transferPrice, deliveryMethod, remark, payment_method, market } = req.body
     try {
 
-        let status = 1
+        let status =
+        market === 'pos' && parseInt(payment_method) !== 0 
+        ? 11 
+        : market === 'pos' && parseInt(payment_method) === 0 
+        ? 10
+        : 1
         let totalPrice = parseFloat(transferPrice) || 0
         let totalDiscount = 0
         let totalVat = 0
@@ -41,7 +46,7 @@ exports.createOrderWholesale = async (req, res) => {
         const [lottoSet, lottoRow, discounted, orderLength] = await Promise.all([
             LottoWholesale.find({ _id: {$in: items} }),
             RowLottoWholesale.find({ _id: {$in: items} }),
-            DiscountShop.findById(discount),
+            DiscountShop.findById(discount_id),
             OrderWholesaleCount.find()
         ])
 
@@ -55,37 +60,42 @@ exports.createOrderWholesale = async (req, res) => {
             const lottoSetTotalPrice = lottoSetTotalPriceList.reduce((a, b) => a + b, 0)
             totalPrice += lottoSetTotalPrice || 0
 
-            await Promise.all(lottoSet.map(lt => {
-                LottoWholesale.findByIdAndUpdate(lt._id, {
+            await Promise.all(lottoSet.map(async (lt) => {
+                let result = await LottoWholesale.findByIdAndUpdate(lt._id, {
                     $set: {
                         status: 2
                     }
-                })
-                updatedLottoWholesale ++
+                }, { new: true })
+                //console.log(result)
+                if (result) {
+                    updatedLottoWholesale ++
+                }
             }))
         }
 
         let updatedRowLottoWholesale = 0
         if (lottoRow.length) {
-            const lottoRowTotalPriceList = lottoSet.map(lotto => lotto.price)
+            const lottoRowTotalPriceList = lottoRow.map(lotto => lotto.price)
             const lottoRowTotalPrice = lottoRowTotalPriceList.reduce((a, b) => a + b, 0)
             totalPrice += lottoRowTotalPrice || 0
-
-            await Promise.all(lottoSet.map(rlt => {
-                RowLottoWholesale.findByIdAndUpdate(rlt._id, {
+             
+            await Promise.all(lottoRow.map(async (rlt) => {
+                let result = await RowLottoWholesale.findByIdAndUpdate(rlt._id, {
                     $set: {
                         status: 2
                     }
-                })
-                updatedRowLottoWholesale ++
+                }, { new: true })
+                if (result) {
+                    updatedRowLottoWholesale ++
+                }
             }))
         }
 
         if (discounted) {
-            totalDiscount = discounted.amount || 0
+            totalDiscount = (discounted.amount || 0) + (discount_manual || 0)
             totalVat = ((totalPrice - totalDiscount) * vatPercent) * 0.01
         } else {
-            totalDiscount = 0
+            totalDiscount = (discount_manual || 0)
             totalVat = (totalPrice * vat) * 0.01
         }
 
@@ -101,12 +111,15 @@ exports.createOrderWholesale = async (req, res) => {
             totalVat: totalVat,
             totalNet: totalNet,
             items: items,
-            discount: discount,
+            discount: discount_id,
             status: status,
+            remark: remark,
             shop: shop,
+            payment_method: payment_method,
             transferBy: transferBy,
             transferPrice: transferPrice,
-            deliveryMethod: deliveryMethod
+            deliveryMethod: deliveryMethod,
+            market: market
         })
         const savedOrder = await order.save()
         if (!savedOrder) {

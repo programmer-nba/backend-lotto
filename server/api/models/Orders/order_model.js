@@ -3,8 +3,8 @@ const { Schema } = mongoose
 
 const orderWholesaleSchema = new Schema(
     {
-        code: { type: String, require: true },
-        user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
+        code: { type: String, require: true, unique: true },
+        user: { type: String, require: true },
         userAddress: { type: String, require: true, default: "" },
         vatPercent: { type: Number, require: true },
         totalPrice: { type: Number, require: true },
@@ -17,7 +17,10 @@ const orderWholesaleSchema = new Schema(
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
         transferBy: { type: String, default: "" }, 
         transferPrice: { type: Number, default: 0 }, 
-        deliveryMethod: { type: String, default: "" }
+        deliveryMethod: { type: String, default: "" },
+        payment_method: { type: Number, default: 0 },
+        remark: { type: String, default: "" },
+        market: { type: String, require: true },
     },
     {
         timestamps: true
@@ -50,8 +53,8 @@ const OrderWholesaleLog = mongoose.model('OrderWholesaleLog', orderWholesaleLogS
 
 const orderRetailSchema = new Schema(
     {
-        code: { type: String, require: true },
-        user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Client" },
+        code: { type: String, require: true, unique: true },
+        user: { type: String, require: true },
         userAddress: { type: String, require: true },
         vatPercent: { type: Number, require: true },
         totalPrice: { type: Number, require: true },
@@ -62,6 +65,12 @@ const orderRetailSchema = new Schema(
         discount: { type: String, default: "" },
         status: { type: Number, require: true, default: 1 },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },
+        transferBy: { type: String, default: "" }, 
+        transferPrice: { type: Number, default: 0 }, 
+        deliveryMethod: { type: String, default: "" },
+        payment_method: { type: Number, default: 0 },
+        remark: { type: String, default: "" },
+        market: { type: String, require: true },
     },
     {
         timestamps: true

@@ -12,7 +12,7 @@ const rowLottoWholesaleSchema = new Schema(
         length: { type: Number, require: true }, // จำนวนชุดในแถว
         shop: { type: Object, require: true }, // ร้านค้า
         status: { type: Number, default: 1 }, // สถานะ 1 = กําลังขาย, 0 = หยุดขาย, 2 = อยู่ในออร์เดอร์, 3 = ซื้อขายสำเร็จ, 4 = ขายหน้าร้าน
-        price: { type: Number, require: true } // ราคาแถว
+        price: { type: Number, require: true }, // ราคาแถว
     },
     {
         timestamps: true,

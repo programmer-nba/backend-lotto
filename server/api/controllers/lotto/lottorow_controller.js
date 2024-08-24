@@ -143,8 +143,8 @@ exports.getRowLottosWholesale = async (req, res) => {
     try {
         // Initialize query object
         let query = {
-            //status: 1,
-            //year: thisYear
+            status: 1,
+            year: thisYear
         };
 
         // Apply filter
@@ -184,11 +184,17 @@ exports.getRowLottosWholesale = async (req, res) => {
 
         const formatRowLottos = rowlottos.map(async(lotto) => {
             const shopName = await getShopName(lotto.shop)
+            const _lottos = await LottoWholesale.find({ _id: { $in: lotto.lottos } }).select('-__v')
+            const codes = _lottos.map(lotto => lotto.code)
+            const numbers = _lottos.map(lotto => lotto.number.join(''))
             const result = {...lotto._doc}
             result.shop ={
                 name: shopName,
                 _id: lotto.shop
             }
+            result._lottos = _lottos
+            result.codes = codes
+            result.numbers = numbers
             return result
         })
 

@@ -136,7 +136,7 @@ exports.getLottosWholesale = async (req, res) => {
             type: 'หวยชุด',
             conflict: false,
             year: thisYear,
-            //status: 1
+            status: 1
         };
 
         // Apply filter
