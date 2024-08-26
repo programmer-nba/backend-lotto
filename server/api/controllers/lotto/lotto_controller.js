@@ -84,13 +84,14 @@ exports.createLottosWholesale = async (req, res) => {
             return newData
         })
         
-        await LottoWholesale.insertMany(createdCodes)
+        const lottos = await LottoWholesale.insertMany(createdCodes)
 
         return res.status(200).json({
             message: "success",
             status: true,
             amount: createdCodes.length,
-            conflict: conflictCount
+            conflict: conflictCount,
+            data: lottos
         })
     }
     catch (err) {
