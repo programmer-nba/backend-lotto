@@ -3,13 +3,14 @@ const Seller = require('../models/UsersModel/SellersModel')
 const User = require('../models/UsersModel/UsersModel')
 
 exports.newNotify = async (data) => {
-    const { to, from, detail, title, icon, notify_type } = data
+    const { to, from, detail, title, icon, notify_type, data_type } = data
     try {
         const newNotify = await Notify.create({
             notify_type: notify_type,
             to: to, // user _id
             title: title,
             detail: detail,
+            data_type: data_type,
             from: from, // sender name
             icon: icon, // sender image
         })
@@ -26,45 +27,16 @@ exports.newNotify = async (data) => {
 }
 
 exports.getNotifies = async (req, res) => {
-    const userId = req.user.id
+    const user_id = req.query.user_id
     try {
         const notifies = await Notify.find()
-        const userNotifies = notifies.filter(notify => notify.to === userId.toString())
-        const unreadNotifies = userNotifies.filter(notify => notify.status === 'unread')
+        const userNotifies = notifies.filter(notify => notify.to === JSON.parse(user_id))
+        const unreadNotifies = userNotifies.filter(notify => notify.status === 1)
         return res.status(200).json({
             message: `unread = ${unreadNotifies.length}`,
             status: true,
             data: unreadNotifies,
             datas: userNotifies
-        })
-    } 
-    catch(err) {
-        console.log(err)
-        return res.status(500).json({
-            message: err.message
-        })
-    }
-}
-
-exports.getNotify = async (req, res) => {
-    const { id } = req.query
-    try {
-        if (!id) {
-            return res.status(400).json({
-                message: 'need id of notify'
-            })
-        }
-        const notify = await Notify.findById(id)
-        if (!notify) {
-            return res.status(404).json({
-                message: 'not found'
-            })
-        }
-        
-        return res.status(200).json({
-            message: "success",
-            status: true,
-            data: notify
         })
     } 
     catch(err) {
@@ -82,11 +54,6 @@ exports.updateNotify = async (req, res) => {
         if (!id) {
             return res.status(400).json({
                 message: 'need id of notify'
-            })
-        }
-        if (status && status !== 'read' && status !== 'unread') {
-            return res.status(400).json({
-                message: 'status must be read or unread'
             })
         }
         const notify = await Notify.findByIdAndUpdate(id, {

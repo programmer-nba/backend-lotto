@@ -55,6 +55,7 @@ app.use('/lotto/api/v1', require('./api/routes/user/file_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/lotto/lotto_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/lotto/rowlotto_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/order/order_router.js'))
+app.use('/lotto/api/v1', require('./api/routes/order/chat_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/order/cart_router.js'))
 app.use('/lotto/api/v1', require('./api/routes/report'))
 
@@ -75,6 +76,7 @@ mongoose.connect(database_url)
                     'http://localhost:3001',
                     'http://localhost:15555',
                     'http://localhost:15556',
+                    'http://localhost:8080',
                     'http://183.88.209.149:15555',
                     'http://183.88.209.149:15556',
                     'http://lotto-maket.nbadigitalsuccessmore.com',

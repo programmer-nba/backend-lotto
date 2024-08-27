@@ -27,21 +27,22 @@ const socketController = (io) => {
         });
 
         // Handle 'sendMessage' event to a specific room
-        socket.on('sendMessage', async ({ room, message }) => {
-            console.log(`Received message from client in room ${room}:`, message);
+        socket.on('sendMessage', async ({ room, data }) => {
+            console.log(`Received message from client in room ${room}:`, data);
             // Broadcast the message to other clients in the same room
-            const data = {
-                to: room, // user _id
-                title: `มีข้อความใหม่จาก ${message.sender}`,
-                detail: message.message,
-                from: message.sender_id, // sender name
+            const noti = {
+                to: room, // chat_id
+                title: `มีข้อความใหม่จาก ${data.sender_name}`,
+                detail: data.value,
+                data_type: data.data_type,
+                from: data.sender_id, // sender name
                 icon: "#",
                 notify_type: "message"
             }
-            console.log(data)
-            const notifyData = await newNotify(data)
+            //console.log(data)
+            const notifyData = await newNotify(noti)
             if (notifyData) {
-                io.to(room).emit('newMessage', message);
+                io.to(room).emit('newMessage', data);
             }
         });
 

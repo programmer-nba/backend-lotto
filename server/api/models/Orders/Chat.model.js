@@ -3,31 +3,11 @@ const { Schema } = mongoose
 
 const chatSchema = new Schema(
     {
-        orderId: String,
-        name: String,
-        messages: [
-            {
-                sender: String,
-                message: String,
-                date: String,
-                time: String,
-                img: String
-            }
-        ],
-        members : [
-            {
-                id: String,
-                name: String,
-                role: String,
-                srole: String,
-                img: String,
-                phone: String,
-            }
-        ],
-        createAt: {
-            type: Date,
-            default: Date.now()
-        }
+        members : [{ type: String, require: true }],
+        status: { type: Number, require: true, default: 1, enum: [1, 0] },
+    },
+    {
+        timestamps: true
     }
 )
 
