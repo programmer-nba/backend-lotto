@@ -144,7 +144,7 @@ exports.getRowLottosWholesale = async (req, res) => {
         // Initialize query object
         let query = {
             status: 1,
-            year: thisYear
+            //year: thisYear
         };
 
         // Apply filter

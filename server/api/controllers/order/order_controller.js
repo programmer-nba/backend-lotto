@@ -466,10 +466,39 @@ exports.getOrderWholesale = async (req, res) => {
             return lotto
         })
         const promiseItems = await Promise.all(allItems)
+        let setLottoPrice = 0
+        if (promiseItems.every(x => x)) {
+            setLottoPrice = promiseItems.map(x => x.price).reduce((a, b) => a + b, 0)
+        } else {
+            setLottoPrice = 0
+        }
+
+        const allRowItems = order.items.map(async(item) => {
+            const lotto = await RowLottoWholesale.findById(item).select('-__v -createdAt -updatedAt').lean()
+            if (lotto) {
+                let items = lotto.lottos.map(async(lotto) => {
+                    const _lotto = await LottoWholesale.findById(lotto).select('-__v -createdAt -updatedAt').lean()
+                    return _lotto
+                })
+                lotto.lottos = await Promise.all(items)
+            }
+            return lotto
+        })
+        const promiseRowItems = await Promise.all(allRowItems)
+        let rowLottoPrice = 0
+        if (promiseRowItems.every(x => x)) {
+            rowLottoPrice = promiseRowItems.map(x => x.price).reduce((a, b) => a + b, 0)
+        } else {
+            rowLottoPrice = 0
+        }
+
        
         const formattedOrder = {
             ...order._doc,
             _items: promiseItems,
+            setLottoPrice: setLottoPrice,
+            rowLottoPrice: rowLottoPrice,
+            _rowItems: promiseRowItems,
             _userAddress: clientAddress,
             _shop: await Shop.findById(order.shop).select('name code phone email address bankHolder bankAccount bankProvider bankBranch -_id'),
             _user: await Client.findById(order.user).select('displayName code phone email address')
