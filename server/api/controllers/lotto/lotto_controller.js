@@ -129,6 +129,28 @@ exports.updateLottoWholesale = async (req, res) => {
     }
 }
 
+exports.deleteLottoWholesale = async (req, res) => {
+    const { shop } = req.params
+    const { id } = req.query
+    try {
+        let lotto = await LottoWholesale.findOne({ _id: id, shop: shop })
+        if (!lotto) {
+            return res.status(404).json({ message: 'not found lotto' })
+        }
+        
+        await LottoWholesale.findByIdAndDelete(id)
+
+        return res.status(200).json({
+            message: "delete success",
+            status: true
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
 exports.getLottosWholesale = async (req, res) => {
     const { filter, search, sortBy, sortOrder, page, limit, shop, user_id } = req.query;
     try {

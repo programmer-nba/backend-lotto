@@ -3,6 +3,7 @@ const LottoWholesale = require("../../controllers/lotto/lotto_controller")
 
 router.post("/lottos-wholesale", LottoWholesale.createLottosWholesale)
 router.put("/lottos-wholesale/:id", LottoWholesale.updateLottoWholesale)
+router.delete("/lottos-wholesale/:shop", LottoWholesale.deleteLottoWholesale)
 router.get("/lottos-wholesale", LottoWholesale.getLottosWholesale)
 router.get("/lottos-wholesale/:id", LottoWholesale.getLottoWholesale)
 
