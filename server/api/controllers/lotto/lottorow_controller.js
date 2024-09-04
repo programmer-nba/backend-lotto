@@ -120,7 +120,7 @@ exports.updateRowLottoWholesale = async (req, res) => {
             return res.status(404).json({ message: 'not found row lotto' })
         }
 
-        const updatedRowLotto = await rowLotto.findByIdAndUpdate(id, {
+        const updatedRowLotto = await RowLottoWholesale.findByIdAndUpdate(id, {
             $set: {
                 price: price
             }
@@ -237,6 +237,28 @@ exports.getRowLottoWholesale = async (req, res) => {
             status: true,
             data: lotto,
         });
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
+exports.deleteRowLottoWholesale = async (req, res) => {
+    const { shop } = req.params
+    const { id } = req.query
+    try {
+        let lotto = await RowLottoWholesale.findOne({ _id: id, shop: shop })
+        if (!lotto) {
+            return res.status(404).json({ message: 'not found lotto' })
+        }
+        
+        await RowLottoWholesale.findByIdAndDelete(id)
+
+        return res.status(200).json({
+            message: "delete success",
+            status: true
+        })
     }
     catch (err) {
         console.log(err)
