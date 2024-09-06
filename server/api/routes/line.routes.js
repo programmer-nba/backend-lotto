@@ -1,9 +1,8 @@
 const route = require('express').Router()
-const LineCallBack = require('../controllers/lineCallback.controller')
+const Line = require('../controllers/lineCallback.controller')
 
 // Me routes control
-route.get('/line-callback-login', LineCallBack.lineLoginCallBack)
-route.get('/line-callback-register', LineCallBack.lineRegisterCallBack)
-route.get('/line-callback-update', LineCallBack.lineUpdateProfileCallBack)
+route.get('/line-login', Line.lineLogin)
+route.get('/line-callback', Line.lineCallBack)
 
 module.exports = route
