@@ -228,7 +228,7 @@ exports.getLottosWholesale = async (req, res) => {
         //console.log(user_id)
         //console.log(activeItemsInCart)
         //console.log(itemsUserInCart)
-        const lottosActive = promisedLottos.filter(lotto => !itemIdsInCart.includes(lotto._id + ""))
+        const lottosActive = promisedLottos.filter(lotto => lotto.shop?.name && !itemIdsInCart.includes(lotto._id + ""))
         const lottosUserInCart = promisedLottos.filter(lotto => itemsUserInCart.includes(lotto._id + ""))
         //console.log(lottosUserInCart)
         const allLottos = [...lottosActive, ...lottosUserInCart]

@@ -1,4 +1,6 @@
 const Shop = require("../../models/user/shop_model")
+const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
+const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 
 exports.createShop = async (req, res) => {
     const {
@@ -78,7 +80,8 @@ exports.updateShop = async (req, res) => {
         bankProvider,
         bankBranch,
         active,
-        status
+        status,
+        deliveryMethods
     } = req.body
     const { id } = req.params
     try {
@@ -108,7 +111,8 @@ exports.updateShop = async (req, res) => {
                 bankHolder: bankHolder,
                 bankProvider: bankProvider,
                 bankBranch: bankBranch,
-                status: status
+                status: status,
+                deliveryMethods: deliveryMethods
             }
         }, { new: true })
 
@@ -240,6 +244,10 @@ exports.deleteShop = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: 'id not found' })
         }
+        await LottoWholesale.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })
+        await LottoRetail.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })
+        await RowLottoWholesale.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })
+        await RowLottoRetail.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })
         const shop = await Shop.findByIdAndDelete(id)
         if (!shop) {
             return res.status(404).json({ message: 'shop not found' })
