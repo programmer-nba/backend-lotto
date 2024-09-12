@@ -75,6 +75,7 @@ exports.createOrderWholesale = async (req, res) => {
 
         let updatedRowLottoWholesale = 0
         if (lottoRow.length) {
+            console.log('row', lottoRow.length)
             const lottoRowTotalPriceList = lottoRow.map(lotto => lotto.price)
             const lottoRowTotalPrice = lottoRowTotalPriceList.reduce((a, b) => a + b, 0)
             totalPrice += lottoRowTotalPrice || 0
