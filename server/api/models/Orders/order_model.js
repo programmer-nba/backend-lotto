@@ -12,6 +12,7 @@ const orderWholesaleSchema = new Schema(
         totalVat: { type: Number, require: true },
         totalNet: { type: Number, require: true },
         items: { type: Array, require: true },
+        rowItems: { type: Array, require: true },
         discount: { type: String, default: "" },
         status: { type: Number, require: true, default: 1 },
         shop: { type: mongoose.Schema.Types.ObjectId, require: true, ref: "Shop" },

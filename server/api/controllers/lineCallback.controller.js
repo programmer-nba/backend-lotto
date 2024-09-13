@@ -14,7 +14,7 @@ const sessions = [];
 exports.lineLogin = (req, res) => {
     const state = crypto.randomBytes(16).toString('hex'); // Generate a secure random state
     sessions.push(state); // Store the state in the session
-    console.log('Session state set:', req.session.state);
+    console.log('Session state set:', req.session?.state);
     const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?` + querystring.stringify({
         response_type: 'code',
         client_id: CLIENT_ID,

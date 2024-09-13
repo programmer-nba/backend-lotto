@@ -28,13 +28,13 @@ const generateCode = (prefix, count) => {
 }
 
 exports.createOrderWholesale = async (req, res) => {
-    const { user, userAddress, vatPercent, items, discount_id, discount_manual, shop, transferBy, transferPrice, deliveryMethod, remark, payment_method, market } = req.body
+    const { user, userAddress, vatPercent, items, rowItems, discount_id, discount_manual, shop, transferBy, transferPrice, deliveryMethod, remark, payment_method, market } = req.body
     try {
 
         let status =
-        market === 'pos' && parseInt(payment_method) !== 0 
-        ? 11 
-        : market === 'pos' && parseInt(payment_method) === 0 
+        market === 'pos' && parseInt(payment_method) !== 0
+        ? 11
+        : market === 'pos' && parseInt(payment_method) === 0
         ? 10
         : 1
         let totalPrice = parseFloat(transferPrice) || 0
@@ -45,7 +45,7 @@ exports.createOrderWholesale = async (req, res) => {
 
         const [lottoSet, lottoRow, discounted, orderLength] = await Promise.all([
             LottoWholesale.find({ _id: {$in: items} }),
-            RowLottoWholesale.find({ _id: {$in: items} }),
+            RowLottoWholesale.find({ _id: {$in: rowItems} }),
             DiscountShop.findById(discount_id),
             OrderWholesaleCount.find()
         ])
@@ -112,6 +112,7 @@ exports.createOrderWholesale = async (req, res) => {
             totalVat: totalVat,
             totalNet: totalNet,
             items: items,
+            rowItems: rowItems,
             discount: discount_id,
             status: status,
             remark: remark,
@@ -159,7 +160,7 @@ exports.createOrderWholesale = async (req, res) => {
 }
 
 exports.updateOrderWholesale = async (req, res) => {
-    const { id, userAddress, vatPercent, items, discount, transferBy, transferPrice, deliveryMethod } = req.body
+    const { id, userAddress, vatPercent, items, rowItems, discount, transferBy, transferPrice, deliveryMethod } = req.body
     try {
         if (!id) {
             return res.status(400).json({
@@ -184,10 +185,11 @@ exports.updateOrderWholesale = async (req, res) => {
         let totalNet = oldOrder.totalNet
         let vat = vatPercent || oldOrder.vatPercent
         let currentItems = items && items?.length ? items : oldOrder.items
+        let currentRowItems = rowItems && rowItems?.length ? rowItems : oldOrder.rowItems
 
         const [lottoSet, lottoRow, discounted] = await Promise.all([
             LottoWholesale.find({ _id: {$in: currentItems} }),
-            RowLottoWholesale.find({ _id: {$in: currentItems} }),
+            RowLottoWholesale.find({ _id: {$in: currentRowItems} }),
             DiscountShop.findById(discount),
         ])
 
@@ -221,6 +223,7 @@ exports.updateOrderWholesale = async (req, res) => {
             totalVat: totalVat,
             totalNet: totalNet,
             items: currentItems,
+            rowItems: currentRowItems,
             discount: discount || oldOrder.discount,
             transferBy: transferBy || oldOrder.transferBy, 
             transferPrice: transferPrice || oldOrder.transferPrice, 
@@ -422,12 +425,11 @@ exports.getOrdersWholesale = async (req, res) => {
         let formattedOrders = []
 
         const promiseOrders = orders.map(async order => {
-            const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findOne({ _id: order.userAddress}) : null
+            const clientAddress = order.userAddress
             const shopOrder = await Shop.findById(order.shop)
             const userOrder = await Client.findById(order.user)
             const formattedOrder = {
                 ...order._doc,
-                _userAddress: clientAddress || {},
                 shopName: shopOrder?.name || "",
                 userName: userOrder?.displayName || `${userOrder.firstName || ""} ${userOrder.lastName || ""}`
             }
@@ -460,8 +462,6 @@ exports.getOrderWholesale = async (req, res) => {
             })
         }
 
-        const clientAddress = order.userAddress?.length > 23 ? await UserAddress.findById(order.userAddress) : {}
-
         const allItems = order.items.map(async(item) => {
             const lotto = await LottoWholesale.findById(item).select('-__v -createdAt -updatedAt')
             return lotto
@@ -474,7 +474,7 @@ exports.getOrderWholesale = async (req, res) => {
             setLottoPrice = 0
         }
 
-        const allRowItems = order.items.map(async(item) => {
+        const allRowItems = order.rowItems.map(async(item) => {
             const lotto = await RowLottoWholesale.findById(item).select('-__v -createdAt -updatedAt').lean()
             if (lotto) {
                 let items = lotto.lottos.map(async(lotto) => {
@@ -500,7 +500,6 @@ exports.getOrderWholesale = async (req, res) => {
             setLottoPrice: setLottoPrice,
             rowLottoPrice: rowLottoPrice,
             _rowItems: promiseRowItems,
-            _userAddress: clientAddress,
             _shop: await Shop.findById(order.shop).select('name code phone email address bankHolder bankAccount bankProvider bankBranch -_id'),
             _user: await Client.findById(order.user).select('displayName code phone email address')
         }
