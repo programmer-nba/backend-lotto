@@ -28,7 +28,7 @@ const generateCode = (prefix, count) => {
 }
 
 exports.createOrderWholesale = async (req, res) => {
-    const { user, userAddress, vatPercent, items, rowItems, discount_id, discount_manual, shop, transferBy, transferPrice, deliveryMethod, remark, payment_method, market } = req.body
+    const { user, userAddress, vatPercent, items, rowItems, discount_items, discount_id, discount_manual, shop, transferBy, transferPrice, deliveryMethod, remark, payment_method, market } = req.body
     try {
 
         let status =
@@ -49,6 +49,31 @@ exports.createOrderWholesale = async (req, res) => {
             DiscountShop.findById(discount_id),
             OrderWholesaleCount.find()
         ])
+
+        if (discount_items.length) {
+            discount_items.forEach(async x => {
+                const matchedItem_index = lottoSet.findIndex(item => item._id == x.lotto_id)
+                if (matchedItem_index !== -1) {
+                    lottoSet[matchedItem_index].price = x.price
+                    await LottoWholesale.findByIdAndUpdate(lottoSet[matchedItem_index]._id, {
+                        $set: {
+                            price: x.price
+                        }
+                    })
+                }
+            })
+            discount_items.forEach(async x => {
+                const matchedItem_index = lottoRow.findIndex(item => item._id == x.lotto_id)
+                if (matchedItem_index !== -1) {
+                    lottoRow[matchedItem_index].price = x.price
+                    await RowLottoWholesale.findByIdAndUpdate(lottoRow[matchedItem_index]._id, {
+                        $set: {
+                            price: x.price
+                        }
+                    })
+                }
+            })
+        }
 
         const prefix = 'LW'
         const count = orderLength.length + 1
