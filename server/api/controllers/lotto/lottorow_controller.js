@@ -48,7 +48,8 @@ exports.createRowLottoWholesale = async (req, res) => {
         codes,
         qty,
         shop,
-        price
+        price,
+        cost
     } = req.body
     try {
 
@@ -80,7 +81,9 @@ exports.createRowLottoWholesale = async (req, res) => {
                 conflict: conflict,
                 price: 0,
                 year: year,
-                type: 'หวยแถว'
+                type: 'หวยแถว',
+                cost: 0,
+                profit: 0
             }
 
             return newData
@@ -90,6 +93,7 @@ exports.createRowLottoWholesale = async (req, res) => {
 
         const lottos = savedlottos.map(lotto => lotto._id)
 
+        const profit = price - (cost || 0)
         const rowLotto = new RowLottoWholesale({
             lottos: lottos,
             period: lottos[0].period,
@@ -100,7 +104,9 @@ exports.createRowLottoWholesale = async (req, res) => {
             length: lottos.length,
             shop: shop, // ร้านค้า
             status: 1,
-            price: price
+            price: price,
+            cost: cost,
+            profit: profit
         })
 
         const savedRowLotto = await rowLotto.save()
@@ -122,7 +128,8 @@ exports.createRowLottoWholesale = async (req, res) => {
 exports.updateRowLottoWholesale = async (req, res) => {
     const { 
         shop,
-        price
+        price,
+        cost
     } = req.body
     const { id } = req.params
     try {
@@ -134,7 +141,9 @@ exports.updateRowLottoWholesale = async (req, res) => {
 
         const updatedRowLotto = await RowLottoWholesale.findByIdAndUpdate(id, {
             $set: {
-                price: price
+                price: price || rowLotto.price,
+                cost: cost || rowLotto.cost || 0,
+                profit: (price || rowLotto.price) - (cost || rowLotto.cost || 0)
             }
         }, { new: true })
 

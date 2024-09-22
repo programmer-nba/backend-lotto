@@ -47,7 +47,8 @@ exports.createLottosWholesale = async (req, res) => {
         codes,
         qty,
         shop,
-        price
+        price,
+        cost
     } = req.body
     try {
 
@@ -69,6 +70,7 @@ exports.createLottosWholesale = async (req, res) => {
                 conflictCount++
             }
 
+            const profit = price - (cost || 0)
             const newData = {
                 code: code,
                 period: period, // งวดที่
@@ -79,6 +81,8 @@ exports.createLottosWholesale = async (req, res) => {
                 conflict: conflict,
                 price: price,
                 year: year,
+                cost: cost,
+                profit: profit
             }
 
             return newData
@@ -103,7 +107,8 @@ exports.createLottosWholesale = async (req, res) => {
 exports.updateLottoWholesale = async (req, res) => {
     const {
         shop,
-        price
+        price,
+        cost
     } = req.body
     const { id } = req.params
     try {
@@ -114,7 +119,9 @@ exports.updateLottoWholesale = async (req, res) => {
         
         await LottoWholesale.findByIdAndUpdate(id, {
             $set: {
-                price: price && price > 0 ? price : lotto.price
+                price: price && price > 0 ? price : lotto.price,
+                cost: cost || lotto.cost || 0,
+                profit: (price || lotto.price) - (cost || lotto.cost || 0)
             }
         }, { new: true })
 
