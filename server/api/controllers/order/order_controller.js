@@ -50,7 +50,7 @@ exports.createOrderWholesale = async (req, res) => {
             OrderWholesaleCount.find()
         ])
 
-        if (discount_items.length) {
+        if (discount_items && discount_items?.length) {
             discount_items.forEach(async x => {
                 const matchedItem_index = lottoSet.findIndex(item => item._id == x.lotto_id)
                 if (matchedItem_index !== -1) {
