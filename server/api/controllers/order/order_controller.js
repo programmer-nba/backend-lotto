@@ -37,7 +37,7 @@ exports.createOrderWholesale = async (req, res) => {
         : market === 'pos' && parseInt(payment_method) === 0
         ? 10
         : 1
-        let totalPrice = parseFloat(transferPrice) || 0
+        let totalPrice = 0
         let totalDiscount = 0
         let totalVat = 0
         let totalNet = 0
@@ -125,7 +125,7 @@ exports.createOrderWholesale = async (req, res) => {
             totalVat = (totalPrice * vat) * 0.01
         }
 
-        totalNet = totalPrice - totalDiscount + totalVat
+        totalNet = totalPrice - totalDiscount + totalVat + transferPrice
 
         const order = new OrderWholesale({
             code: code,
@@ -185,7 +185,7 @@ exports.createOrderWholesale = async (req, res) => {
 }
 
 exports.updateOrderWholesale = async (req, res) => {
-    const { id, userAddress, vatPercent, items, rowItems, discount, transferBy, transferPrice, deliveryMethod } = req.body
+    const { id, userAddress, vatPercent, items, rowItems, discount, transferBy, transferPrice, deliveryMethod, trackingNo } = req.body
     try {
         if (!id) {
             return res.status(400).json({
@@ -204,7 +204,7 @@ exports.updateOrderWholesale = async (req, res) => {
             })
         }
 
-        let totalPrice = parseFloat(transferPrice) || 0
+        let totalPrice = oldOrder.totalPrice
         let totalDiscount = oldOrder.totalDiscount
         let totalVat = oldOrder.totalVat
         let totalNet = oldOrder.totalNet
@@ -238,7 +238,7 @@ exports.updateOrderWholesale = async (req, res) => {
             totalVat = (totalPrice * vat) * 0.01
         }
 
-        totalNet = totalPrice - totalDiscount + totalVat
+        totalNet = totalPrice - totalDiscount + totalVat + transferPrice
 
         const order = await OrderWholesale.findByIdAndUpdate( id, {
             userAddress: userAddress,
@@ -252,7 +252,8 @@ exports.updateOrderWholesale = async (req, res) => {
             discount: discount || oldOrder.discount,
             transferBy: transferBy || oldOrder.transferBy, 
             transferPrice: transferPrice || oldOrder.transferPrice, 
-            deliveryMethod: deliveryMethod || oldOrder.deliveryMethod
+            deliveryMethod: deliveryMethod || oldOrder.deliveryMethod,
+            trackingNo: trackingNo || oldOrder.trackingNo
         }, { new: true } )
         
         if (!order) {
@@ -347,9 +348,21 @@ exports.checkoutOrderWholesale = async (req, res) => {
 }
 
 exports.updateStatusOrderWholesale = async (req, res) => {
-    const { id, status } = req.body
+    const { id, status, trackingNo } = req.body
     try {
-        const order = await OrderWholesale.findByIdAndUpdate(id, {status: status})
+        const existOrder = await OrderWholesale.findById(id)
+        if (!existOrder) {
+            return res.status(404).json({
+                message: 'no order found',
+            })
+        }
+        if (existOrder.transferBy === 'จัดส่ง' && existOrder.deliveryMethod && status === 4 && !trackingNo) {
+            return res.status(400).json({
+                message: 'need tracking number',
+                invalid: 'trackingNo'
+            })
+        }
+        const order = await OrderWholesale.findByIdAndUpdate(id, {status: status, trackingNo: trackingNo}, { new: true })
         if (!order) {
             return res.status(404).json({
                 message: 'no order found',

@@ -22,6 +22,7 @@ const orderWholesaleSchema = new Schema(
         payment_method: { type: Number, default: 0 },
         remark: { type: String, default: "" },
         market: { type: String, require: true },
+        trackingNo: { type: String, default: "" },
     },
     {
         timestamps: true
