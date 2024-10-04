@@ -1,14 +1,15 @@
 const router = require("express").Router()
 const Cart = require("../../controllers/order/cart_controller")
+const verifyToken = require("../../middleware/verifyToken")
 
-router.post("/carts", Cart.addToCart)
-router.get("/:user_id/carts", Cart.getUserItemsInCart)
-router.delete("/carts/:item_id", Cart.deleteItemInCart)
-router.delete("/:user_id/carts", Cart.deleteItemsInCart)
+router.post("/carts",  verifyToken, Cart.addToCart)
+router.get("/:user_id/carts", verifyToken, Cart.getUserItemsInCart)
+router.delete("/carts/:item_id", verifyToken, Cart.deleteItemInCart)
+router.delete("/:user_id/carts", verifyToken, Cart.deleteItemsInCart)
 
-router.post("/rowcarts", Cart.addToCartRow)
-router.get("/:user_id/rowcarts", Cart.getUserItemsInCartRow)
-router.delete("/rowcarts/:item_id", Cart.deleteItemInCartRow)
-router.delete("/:user_id/rowcarts", Cart.deleteItemsInCartRow)
+router.post("/rowcarts", verifyToken, Cart.addToCartRow)
+router.get("/:user_id/rowcarts", verifyToken, Cart.getUserItemsInCartRow)
+router.delete("/rowcarts/:item_id", verifyToken, Cart.deleteItemInCartRow)
+router.delete("/:user_id/rowcarts", verifyToken, Cart.deleteItemsInCartRow)
 
 module.exports = router

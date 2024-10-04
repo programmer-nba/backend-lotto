@@ -3,8 +3,9 @@ const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model'
 const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 
 exports.createShop = async (req, res) => {
+    const { _id } = req.user
     const {
-        owner,
+        //owner,
         name,
         address,
         phone,
@@ -19,12 +20,21 @@ exports.createShop = async (req, res) => {
         bankBranch,
     } = req.body
     try {
-        if (!owner || !name || !address || address?.trim() === '' || !['ขายส่ง', 'ขายปลีก 500', 'ขายปลีก 500+'].includes(type)) {
-            return res.status(400).json({ message: 'owner, name, address and type is required or invalid' })
+        if (!_id || !name || !address || address?.trim() === '' || !['ขายส่ง', 'ขายปลีก 500', 'ขายปลีก 500+'].includes(type)) {
+            return res.status(400).json({ message: '_id, name, address and type is required or invalid' })
         }
         const duplicatedShop = await Shop.findOne({ name: name })
         if (duplicatedShop) {
             return res.status(400).json({ message: 'Shop name already exists' })
+        }
+
+        const existOwner = await Client.findById(_id)
+        if (!existOwner) {
+            return res.status(400).json({ message: 'owner not found' })
+        } else if (!existOwner.active) {
+            return res.status(400).json({ message: 'owner not active' })
+        } else if (existOwner.role === 'user') {
+            return res.status(400).json({ message: 'owner not shop owner' })
         }
 
         const shopLength = await Shop.countDocuments()
@@ -38,7 +48,7 @@ exports.createShop = async (req, res) => {
         const code = `${shopCodePrefix}${padCode}`
         const newShop = new Shop({
             code: code,
-            owner: owner,
+            owner: _id,
             name: name,
             address: address,
             phone: phone,
@@ -67,6 +77,7 @@ exports.createShop = async (req, res) => {
 }
 
 exports.updateShop = async (req, res) => {
+    const { _id } = req.user
     const {
         name,
         address,
@@ -85,8 +96,8 @@ exports.updateShop = async (req, res) => {
     } = req.body
     const { id } = req.params
     try {
-        if (!id) {
-            return res.status(400).json({ message: 'id not found' })
+        if (!id || !_id) {
+            return res.status(400).json({ message: 'id or _id not found' })
         }
         if (!name || !address || address?.trim() === '') {
             return res.status(400).json({ message: 'name, and address is required or invalid' })
@@ -96,6 +107,14 @@ exports.updateShop = async (req, res) => {
             return res.status(400).json({ message: 'Shop name already exists' })
         }
 
+        const existShop = await Shop.findById(id)
+        if (!existShop) {
+            return res.status(400).json({ message: 'shop not found' })
+        } else if (!existShop.active) {
+            return res.status(400).json({ message: 'shop not active' })
+        } else if (existShop.owner?.toString() !== _id+"") {
+            return res.status(400).json({ message: 'shop not owner' })
+        }
         const updatedShop = await Shop.findByIdAndUpdate(id, {
             $set: {
                 name: name,
@@ -198,10 +217,13 @@ exports.getShops = async (req, res) => {
 }
 
 exports.getMyShops = async (req, res) => {
+    const { _id } = req.user
     const { id } = req.params
     try {
-        if (!id) {
-            return res.status(400).json({ message: 'id not found' })
+        if (!id || !_id) {
+            return res.status(400).json({ message: 'id or _id not found' })
+        } else if (id !== _id) {
+            return res.status(400).json({ message: 'id not match' })
         }
         const shops = await Shop.find({ owner: id }).select('-__v -password')
         return res.status(200).json({ 
@@ -217,14 +239,17 @@ exports.getMyShops = async (req, res) => {
 }
 
 exports.getShop = async (req, res) => {
+    const { _id } = req.user
     const { id } = req.params
     try {
-        if (!id) {
-            return res.status(400).json({ message: 'id not found' })
+        if (!id || _id) {
+            return res.status(400).json({ message: 'id or _id not found' })
         }
         const shop = await Shop.findById(id).select('-__v -password')
         if (!shop) {
             return res.status(404).json({ message: 'shop not found' })
+        } else if (shop.owner?.toString() !== _id+"") {
+            return res.status(400).json({ message: 'shop not owner' })
         }
         return res.status(200).json({ 
             message: 'success!',
@@ -239,10 +264,17 @@ exports.getShop = async (req, res) => {
 }
 
 exports.deleteShop = async (req, res) => {
+    const { _id } = req.user
     const { id } = req.params
     try {
-        if (!id) {
-            return res.status(400).json({ message: 'id not found' })
+        if (!id || !_id) {
+            return res.status(400).json({ message: 'id or _id not found' })
+        }
+        const existShop = await Shop.findById(id)
+        if (!existShop) {
+            return res.status(404).json({ message: 'shop not found' })
+        } else if (existShop.owner?.toString() !== _id+"") {
+            return res.status(400).json({ message: 'shop not owner' })
         }
         await LottoWholesale.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })
         await LottoRetail.deleteMany({ shop: id, status: { $in: [0, 1, 2]} })

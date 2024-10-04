@@ -15,6 +15,7 @@ exports.createClient = async (req, res) => {
         prefixName,
         firstName,
         lastName,
+        role
     } = req.body
     try {
         if (
@@ -68,6 +69,8 @@ exports.createClient = async (req, res) => {
             prefixName: prefixName,
             firstName: firstName,
             lastName: lastName,
+            role: role || 'user',
+            active: (!role || role === 'user') ? true : false
         })
 
         await newClient.save()
