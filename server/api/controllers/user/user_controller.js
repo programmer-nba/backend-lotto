@@ -15,7 +15,8 @@ exports.createClient = async (req, res) => {
         prefixName,
         firstName,
         lastName,
-        role
+        role,
+        introduce_code
     } = req.body
     try {
         if (
@@ -56,6 +57,18 @@ exports.createClient = async (req, res) => {
 
         const code = `${userCodePrefix}${padCode}`
 
+        const roles = ['user', 'admin', 'retail', 'retail_plus', 'wholesale', 'wholesale_plus']
+        if (!roles.includes(role)) {
+            return res.status(400).json({ message: "role ไม่ถูกต้อง" })
+        }
+
+        const maxShop = role === 'user' ? 0 
+        : role === 'retail' ? 1
+        : role === 'retail_plus' ? 1
+        : role === 'wholesale' ? 1
+        : role === 'wholesale_plus' ? 5
+        : 0
+
         const newClient = new Client({
             code: code,
             username: username,
@@ -69,8 +82,10 @@ exports.createClient = async (req, res) => {
             prefixName: prefixName,
             firstName: firstName,
             lastName: lastName,
-            role: role || 'user',
-            active: (!role || role === 'user') ? true : false
+            role: role,
+            maxShop: maxShop,
+            active: true,
+            introduce_code: introduce_code
         })
 
         await newClient.save()

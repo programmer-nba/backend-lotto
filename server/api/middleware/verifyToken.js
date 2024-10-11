@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken')
 // verify token
 module.exports = verifyToken = (req, res, next) => {
 
-    const token = req.header('token')
+    const token = req.header('auth-token')
 
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized : token missing?' })
     }
 
-    jwt.verify(token, 'your-secret-key', (err, decoded) => {
+    jwt.verify(token, "Lotto$5555", (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: 'Token is not valid' })
         }

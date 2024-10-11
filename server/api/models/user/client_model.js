@@ -17,8 +17,10 @@ const clientSchema = new Schema(
         lastName: { type: String, required: false },
         approveRefs: { type: Array, default: [] },
         active: { type: Boolean, default: true },
-        role: { type: String, default: 'user' },
+        role: { type: String, required: true }, // user, wholesale, wholesale_plus, retail, retail_plus, admin
         code: { type: String, required: true },
+        maxShop: { type: Number, required: true, enum: [0, 1, 5] }, // 0, 1, 5
+        introduce_code: { type: String, default: null }
     },
     {
         timestamps: true

@@ -11,7 +11,7 @@ const shopSchema = new Schema(
         email: { type: String, default: "" },
         //profilePicture: { type: String, default: ""},
         type: { type: String, require: true },
-        active: { type: Boolean, require: true, default: true },
+        active: { type: Boolean, require: true, default: false },
         status: { type: String, require: true, default: "pending" },
         description: { type: String, default: "" },
         socials: { type: Array, default: [] },
@@ -20,6 +20,7 @@ const shopSchema = new Schema(
         bankHolder: { type: String, default: "" },
         bankProvider: { type: String, default: "" },
         bankBranch: { type: String, default: "" },
+        idCardNumber: { type: String, default: "" },
 
         deliveryMethods: { type: Array, default: [
             {

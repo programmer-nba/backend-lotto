@@ -23,23 +23,31 @@ exports.loginClient = async (req, res) => {
             return res.status(401).json({ message: "รหัสผ่านไม่ถูกต้อง", invalid: 'password' })
         }
 
-        if (!client.active) {
-            return res.status(401).json({ message: "ผู้ใช้งานไม่ได้รับการอนุมัติให้เข้าระบบ กรุณาติดต่อแอดมิน", invalid: 'active' })
-        }
-
         const token = jwt.sign(
             {
                 _id: client._id, 
                 displayName: client.displayName,
-                role: client.role
+                role: client.role,
+                code: client.code
             }, 
             "Lotto$5555"
         )
 
+        /* if (!client.active) {
+            return res.status(401).json({ 
+                message: "ผู้ใช้งานไม่ได้รับการอนุมัติให้เข้าระบบ กรุณาติดต่อแอดมิน", 
+                invalid: 'active',
+                user_id: client._id,
+                user_role: client.role,
+                token: token
+            })
+        } */
+
         return res.status(200).json({
             message: "success!",
             status: true,
-            token: token
+            token: token,
+            data: client
         })
     }
     catch (err) {

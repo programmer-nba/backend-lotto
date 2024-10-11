@@ -1,4 +1,5 @@
 const Shop = require("../../models/user/shop_model")
+const Client = require("../../models/user/client_model")
 const { LottoWholesale, LottoRetail } = require('../../models/Lotto/lotto_model')
 const { RowLottoWholesale, RowLottoRetail } = require('../../models/Lotto/rowLotto_model')
 
@@ -18,9 +19,10 @@ exports.createShop = async (req, res) => {
         bankHolder,
         bankProvider,
         bankBranch,
+        idCardNumber
     } = req.body
     try {
-        if (!_id || !name || !address || address?.trim() === '' || !['ขายส่ง', 'ขายปลีก 500', 'ขายปลีก 500+'].includes(type)) {
+        if (!_id || !name || !address || address?.trim() === '' || !type) {
             return res.status(400).json({ message: '_id, name, address and type is required or invalid' })
         }
         const duplicatedShop = await Shop.findOne({ name: name })
@@ -31,8 +33,6 @@ exports.createShop = async (req, res) => {
         const existOwner = await Client.findById(_id)
         if (!existOwner) {
             return res.status(400).json({ message: 'owner not found' })
-        } else if (!existOwner.active) {
-            return res.status(400).json({ message: 'owner not active' })
         } else if (existOwner.role === 'user') {
             return res.status(400).json({ message: 'owner not shop owner' })
         }
@@ -61,6 +61,7 @@ exports.createShop = async (req, res) => {
             bankHolder: bankHolder,
             bankProvider: bankProvider,
             bankBranch: bankBranch,
+            idCardNumber: idCardNumber,
         })
 
         await newShop.save()
@@ -92,7 +93,8 @@ exports.updateShop = async (req, res) => {
         bankBranch,
         active,
         status,
-        deliveryMethods
+        deliveryMethods,
+        idCardNumber
     } = req.body
     const { id } = req.params
     try {
@@ -131,6 +133,7 @@ exports.updateShop = async (req, res) => {
                 bankProvider: bankProvider,
                 bankBranch: bankBranch,
                 status: status,
+                idCardNumber: idCardNumber,
                 deliveryMethods: deliveryMethods
             }
         }, { new: true })
@@ -242,14 +245,12 @@ exports.getShop = async (req, res) => {
     const { _id } = req.user
     const { id } = req.params
     try {
-        if (!id || _id) {
+        if (!id || !_id) {
             return res.status(400).json({ message: 'id or _id not found' })
         }
         const shop = await Shop.findById(id).select('-__v -password')
         if (!shop) {
             return res.status(404).json({ message: 'shop not found' })
-        } else if (shop.owner?.toString() !== _id+"") {
-            return res.status(400).json({ message: 'shop not owner' })
         }
         return res.status(200).json({ 
             message: 'success!',
