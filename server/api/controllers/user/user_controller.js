@@ -132,7 +132,7 @@ exports.updateClient = async (req, res) => {
         if (existClient) {
             if (existClient.email && existClient.email === email) {
                 return res.status(400).json({ message: "มี email นี้แล้ว กรุณาลองใหม่อีกครั้ง", duplicated: 'email' })
-            } else if (existClient.displayName && existClient.displayName.trim() === displayName.trim()) {
+            } else if (existClient.displayName && existClient.displayName?.trim() === displayName?.trim()) {
                 return res.status(400).json({ message: "มี displayName นี้แล้ว กรุณาลองใหม่อีกครั้ง", duplicated: 'displayName' })
             } else if (existClient.phone && existClient.phone === phone) {
                 return res.status(400).json({ message: "มี เบอร์โทรรศัพท์ นี้แล้ว กรุณาลองใหม่อีกครั้ง", duplicated: 'phone' })
@@ -150,8 +150,6 @@ exports.updateClient = async (req, res) => {
 
         await Client.findByIdAndUpdate( id, {
             $set:{
-                username: username,
-                password: hashedPassword,
                 displayName: displayName,
                 email: email,
                 address: address,

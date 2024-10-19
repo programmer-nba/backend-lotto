@@ -17,7 +17,7 @@ exports.loginClient = async (req, res) => {
             return res.status(404).json({ message: "ไม่พบผู้ใช้งานนี้ในระบบ", invalid: 'username' })
         }
 
-        const hashedPassword = bcrypt.compare(password, client.password)
+        const hashedPassword = await bcrypt.compare(password, client.password)
 
         if (!hashedPassword) {
             return res.status(401).json({ message: "รหัสผ่านไม่ถูกต้อง", invalid: 'password' })
@@ -47,6 +47,31 @@ exports.loginClient = async (req, res) => {
             message: "success!",
             status: true,
             token: token,
+            data: client
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: err.message })
+    }
+}
+
+exports.getMe = async (req, res) => {
+    const { _id } = req.user
+    try {
+        if (!_id) {
+            return res.status(400).json({ message: "Invalid _id" })
+        }
+
+        const client = await Client.findById(_id).select('-__v -password')
+
+        if (!client) {
+            return res.status(404).json({ message: "ไม่พบผู้ใช้งานนี้ในระบบ" })
+        }
+
+        return res.status(200).json({
+            message: "success!",
+            status: true,
             data: client
         })
     }

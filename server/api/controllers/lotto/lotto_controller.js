@@ -108,7 +108,8 @@ exports.updateLottoWholesale = async (req, res) => {
     const {
         shop,
         price,
-        cost
+        cost,
+        sold_to
     } = req.body
     const { id } = req.params
     try {
@@ -121,7 +122,8 @@ exports.updateLottoWholesale = async (req, res) => {
             $set: {
                 price: price && price > 0 ? price : lotto.price,
                 cost: cost || lotto.cost || 0,
-                profit: (price || lotto.price) - (cost || lotto.cost || 0)
+                profit: (price || lotto.price) - (cost || lotto.cost || 0),
+                sold_to: sold_to || lotto.sold_to || null
             }
         }, { new: true })
 
@@ -159,24 +161,33 @@ exports.deleteLottoWholesale = async (req, res) => {
 }
 
 exports.getLottosWholesale = async (req, res) => {
-    const { filter, search, sortBy, sortOrder, page, limit, shop, user_id } = req.query;
+    const { filter, search, sortBy, sortOrder, page, limit, year, shop, user_id } = req.query;
     try {
         // Initialize query object
         let query = {
             type: 'หวยชุด',
             conflict: false,
-            //year: thisYear,
+            year: thisYear,
             status: 1
         };
 
         // Apply filter
         if (filter) {
             switch (filter) {
-                case '2':
+                case 'onOrder':
                     query.status = 2;
                     break;
-                case '3':
+                case 'onlineSold':
                     query.status = 3;
+                    break;
+                case 'frontSold':
+                    query.status = 4;
+                    break;
+                case 'sold':
+                    query.status = {$in: [3, 4]};
+                    break;
+                case 'allStatus':
+                    query.status = {$in: [0, 1, 2, 3, 4]};
                     break;
                 case 'isConflict':
                     query.conflict = true;
@@ -194,6 +205,10 @@ exports.getLottosWholesale = async (req, res) => {
 
         if (shop) {
             query.shop = shop; // Case-insensitive search
+        }
+
+        if (year) {
+            query.year = year; // Case-insensitive search
         }
 
         console.log(query)

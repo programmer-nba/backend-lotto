@@ -101,9 +101,7 @@ exports.updateShop = async (req, res) => {
         if (!id || !_id) {
             return res.status(400).json({ message: 'id or _id not found' })
         }
-        if (!name || !address || address?.trim() === '') {
-            return res.status(400).json({ message: 'name, and address is required or invalid' })
-        }
+
         const duplicatedShop = await Shop.findOne({ name: name })
         if (duplicatedShop && duplicatedShop.name !== name) {
             return res.status(400).json({ message: 'Shop name already exists' })
@@ -112,10 +110,6 @@ exports.updateShop = async (req, res) => {
         const existShop = await Shop.findById(id)
         if (!existShop) {
             return res.status(400).json({ message: 'shop not found' })
-        } else if (!existShop.active) {
-            return res.status(400).json({ message: 'shop not active' })
-        } else if (existShop.owner?.toString() !== _id+"") {
-            return res.status(400).json({ message: 'shop not owner' })
         }
         const updatedShop = await Shop.findByIdAndUpdate(id, {
             $set: {

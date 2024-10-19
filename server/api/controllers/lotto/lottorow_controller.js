@@ -160,7 +160,7 @@ exports.updateRowLottoWholesale = async (req, res) => {
 }
 
 exports.getRowLottosWholesale = async (req, res) => {
-    const { filter, sortBy, sortOrder, page, limit, shop, user_id } = req.query;
+    const { filter, sortBy, sortOrder, page, year, limit, shop, user_id } = req.query;
     try {
         // Initialize query object
         let query = {
@@ -185,6 +185,10 @@ exports.getRowLottosWholesale = async (req, res) => {
 
         if (shop) {
             query.shop = shop; // Case-insensitive search
+        }
+
+        if (year) {
+            query.year = year; // Case-insensitive search
         }
 
         // Set default pagination and sorting options
