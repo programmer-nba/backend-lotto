@@ -167,7 +167,7 @@ exports.getLottosWholesale = async (req, res) => {
         let query = {
             type: 'หวยชุด',
             conflict: false,
-            year: thisYear,
+            //year: thisYear,
             status: 1
         };
 
