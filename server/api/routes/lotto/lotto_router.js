@@ -7,5 +7,6 @@ router.put("/lottos-wholesale/:id", verifyToken, LottoWholesale.updateLottoWhole
 router.delete("/lottos-wholesale/:shop", verifyToken, LottoWholesale.deleteLottoWholesale)
 router.get("/lottos-wholesale", LottoWholesale.getLottosWholesale)
 router.get("/lottos-wholesale/:id", verifyToken, LottoWholesale.getLottoWholesale)
+router.get("/lottos-wholesale/me/:user_id", verifyToken, LottoWholesale.getMyLottosWholesale)
 
 module.exports = router

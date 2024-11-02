@@ -109,7 +109,8 @@ exports.updateLottoWholesale = async (req, res) => {
         shop,
         price,
         cost,
-        sold_to
+        user,
+        status
     } = req.body
     const { id } = req.params
     try {
@@ -123,7 +124,8 @@ exports.updateLottoWholesale = async (req, res) => {
                 price: price && price > 0 ? price : lotto.price,
                 cost: cost || lotto.cost || 0,
                 profit: (price || lotto.price) - (cost || lotto.cost || 0),
-                sold_to: sold_to || lotto.sold_to || null
+                user: user || lotto.user || null,
+                status: status || lotto.status
             }
         }, { new: true })
 
@@ -211,7 +213,7 @@ exports.getLottosWholesale = async (req, res) => {
             query.year = year; // Case-insensitive search
         }
 
-        console.log(query)
+        //console.log(query)
 
         // Set default pagination and sorting options
         const currentPage = parseInt(page) || 1;
@@ -268,6 +270,22 @@ exports.getLottosWholesale = async (req, res) => {
                 totalResults,
                 totalPages: Math.ceil(totalResults / resultsPerPage)
             }
+        });
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
+exports.getMyLottosWholesale = async (req, res) => {
+    const { user_id } = req.params
+    try {
+        const lottos = await LottoWholesale.find({ user: user_id, status: { $ne: 5 } }).select('-__v')
+        return res.status(200).json({
+            message: 'success!',
+            status: true,
+            data: lottos,
         });
     }
     catch (err) {

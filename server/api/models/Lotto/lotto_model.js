@@ -12,12 +12,12 @@ const lottoWholesaleSchema = new Schema(
         qty: { type: Number, require: true, default: 1 }, // จำนวนชุด
         number: { type: Array, require: true }, // เลข 6 หลัก
         shop: { type: String, require: true }, //id ร้านค้า
-        status: { type: Number, default: 1 }, // สถานะ 1 = กําลังขาย, 0 = หยุดขาย, 2 = อยู่ในออร์เดอร์, 3 = ซื้อขายสำเร็จ, 4 = ขายหน้าร้าน
+        status: { type: Number, default: 1 }, // สถานะ 1 = กําลังขาย, 0 = หยุดขาย, 2 = อยู่ในออร์เดอร์, 3 = ซื้อขายสำเร็จ, 4 = ขายหน้าร้าน, 5 = ย้ายร้านค้า
         price: { type: Number, require: true, default: 80 },
         cost: { type: Number, require: true, default: 0 },
         profit: { type: Number, require: true, default: 0 },
         conflict: { type: Boolean, default: false },
-        sold_to: { type: String, default: null },
+        user: { type: String, default: null },
     },
     {
         timestamps: true,
@@ -35,13 +35,13 @@ const lottoRetailSchema = new Schema(
         market: { type: String, require: true, default: "retail" }, // ตลาด
         qty: { type: Number, require: true, default: 1 }, // จำนวนชุด
         number: { type: Array, require: true }, // เลข 6 หลัก
-        shop: { type: Object, require: true }, // ร้านค้า
+        shop: { type: String, require: true }, // ร้านค้า
         status: { type: Number, default: 1 }, // สถานะ 1 = กําลังขาย, 0 = หยุดขาย, 2 = อยู่ในออร์เดอร์, 3 = ซื้อขายสำเร็จ, 4 = ขายหน้าร้าน
         price: { type: Number, require: true, default: 80 },
         cost: { type: Number, require: true, default: 0 },
         profit: { type: Number, require: true, default: 0 },
         conflict: { type: Boolean, default: false },
-        sold_to: { type: String, default: null },
+        user: { type: String, default: null },
     },
     {
         timestamps: true,

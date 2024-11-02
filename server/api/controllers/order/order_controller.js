@@ -362,11 +362,45 @@ exports.updateStatusOrderWholesale = async (req, res) => {
                 invalid: 'trackingNo'
             })
         }
+        
         const order = await OrderWholesale.findByIdAndUpdate(id, {status: status, trackingNo: trackingNo}, { new: true })
         if (!order) {
             return res.status(404).json({
                 message: 'no order found',
             })
+        }
+
+        let updatedLottoOwner = 0
+        let updatedRowLottoOwner = 0
+        if (status !== 1 && status !== 0 && status !== 10) {
+            await Promise.all(order.items.map(async(item) => {
+                const lotto = await LottoWholesale.findByIdAndUpdate(item, {
+                    user: order.user
+                })
+                if (lotto) {
+                    updatedLottoOwner += 1
+                }
+            }))
+
+            const allRowItems = await Promise.all(order.rowItems.map(async(rowItem) => {
+                const rowLotto = await RowLottoWholesale.findByIdAndUpdate(rowItem, {
+                    user: order.user
+                }, { new: true })
+                if (rowLotto) {
+                    updatedRowLottoOwner += 1
+                }
+                return rowLotto.lottos
+            }))
+            if (allRowItems.length) {
+                await Promise.all(allRowItems.lottos.map(async(item) => {
+                    const lotto = await LottoWholesale.findByIdAndUpdate(item, {
+                        user: order.user
+                    })
+                    if (lotto) {
+                        updatedLottoOwner += 1
+                    }
+                }))
+            }
         }
 
         const savedLog = await createOrderWholesaleLog({
@@ -380,6 +414,8 @@ exports.updateStatusOrderWholesale = async (req, res) => {
             message: 'update status success',
             status: true,
             log: savedLog ? 'saved' : 'error',
+            updatedLottoOwner,
+            updatedRowLottoOwner
         })
     } catch (err) {
         console.log(err)

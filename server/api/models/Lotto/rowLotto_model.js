@@ -15,6 +15,7 @@ const rowLottoWholesaleSchema = new Schema(
         price: { type: Number, require: true }, // ราคาแถว
         cost: { type: Number, require: true, default: 0 },
         profit: { type: Number, require: true, default: 0 },
+        user: { type: String, default: null },
     },
     {
         timestamps: true,
@@ -36,6 +37,7 @@ const rowLottoRetailSchema = new Schema(
         price: { type: Number, require: true }, // ราคาแถว
         cost: { type: Number, require: true, default: 0 },
         profit: { type: Number, require: true, default: 0 },
+        user: { type: String, default: null },
     },
     {
         timestamps: true,
