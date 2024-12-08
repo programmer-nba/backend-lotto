@@ -25,7 +25,15 @@ const shopSchema = new Schema(
         deliveryMethods: { type: Array, default: [
             {
                 name: "รถตู้",
-                price: 50
+                price: 300
+            },
+            {
+                name: "EMS ซอง",
+                price: 60
+            },
+            {
+                name: "EMS กล่อง",
+                price: 80
             }
         ] },
     },

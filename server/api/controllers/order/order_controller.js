@@ -125,7 +125,7 @@ exports.createOrderWholesale = async (req, res) => {
             totalVat = (totalPrice * vat) * 0.01
         }
 
-        totalNet = totalPrice - totalDiscount + totalVat + transferPrice
+        totalNet = totalPrice - totalDiscount + totalVat + (transferPrice || 0)
 
         const order = new OrderWholesale({
             code: code,
